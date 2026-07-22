@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau de bord — L'ARMOIRE</title>
+<script>
+/* ===================================================================
+   CONFIGURATION — à remplir une seule fois (mêmes valeurs que dans
+   boutique.html). Voir les instructions tout en bas de cette page.
+=================================================================== */
+const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+</script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif; background:#f0f0f0; color:#111;}
+button{font:inherit; cursor:pointer;}
+input,select{font:inherit;}
+.hidden{display:none !important;}
+
+.setup-wrap{max-width:640px; margin:60px auto; background:#fff; border-radius:14px; padding:36px; border:1px solid #e2e2e2;}
+.setup-wrap h1{font-size:20px; margin-bottom:16px;}
+.setup-wrap ol{padding-left:20px; font-size:13.5px; line-height:2;}
+.setup-wrap code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:12.5px;}
+.setup-wrap a{color:#111;}
+
+#adminRoot{max-width:960px; margin:0 auto; padding:34px 24px 80px;}
+.status-pill{position:fixed; top:16px; right:16px; background:#111; color:#fff; font-size:11px; padding:8px 14px; border-radius:20px; opacity:0; transition:opacity .3s ease; z-index:50;}
+.status-pill.show{opacity:1;}
+.admin-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px; flex-wrap:wrap; gap:10px;}
+.admin-head h1{font-size:24px;}
+.admin-head a{font-size:12px; letter-spacing:.06em; text-transform:uppercase; text-decoration:none; border-bottom:1px solid #111; color:#111;}
+.admin-card{background:#fafafa; border-radius:12px; padding:24px; margin-bottom:20px; border:1px solid #e5e5e5;}
+.admin-card h2{font-size:14px; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px;}
+.form-row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.form-row input, .form-row select{border:1px solid #d5d5d5; border-radius:6px; padding:10px 12px; font-size:13px; flex:1; min-width:120px; background:#fff;}
+.form-row button{background:#111; color:#fff; border:none; border-radius:6px; padding:10px 18px; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;}
+.brand-block{border:1px solid #e2e2e2; border-radius:10px; margin-bottom:14px; overflow:hidden; background:#fff;}
+.brand-block-head{display:flex; justify-content:space-between; align-items:center; padding:14px 16px; background:#fafafa; cursor:pointer;}
+.brand-block-head .bh-left{display:flex; align-items:center; gap:10px;}
+.brand-block-head .bname{font-size:14.5px; font-weight:600;}
+.brand-block-head .buv{font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:#a3a3a3; border:1px solid #ddd; border-radius:20px; padding:3px 9px;}
+.brand-del{color:#c62828; font-size:11.5px; text-decoration:underline; background:none; border:none;}
+.brand-body{padding:14px 16px; display:none;}
+.brand-body.open{display:block;}
+.item-row{display:flex; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0;}
+.item-row:last-child{border-bottom:none;}
+.paste-zone{width:56px; height:56px; flex-shrink:0; border:1.5px dashed #cfcfcf; border-radius:8px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:8.5px; color:#a3a3a3; line-height:1.2; overflow:hidden; position:relative; outline:none; cursor:pointer;}
+.paste-zone:focus{border-color:#111;}
+.paste-zone img{width:100%; height:100%; object-fit:cover;}
+.item-fields{flex:1; display:flex; gap:8px; flex-wrap:wrap;}
+.item-fields input, .item-fields select{border:1px solid #e0e0e0; border-radius:6px; padding:7px 9px; font-size:12.5px;}
+.item-fields .fname{flex:2; min-width:110px;}
+.item-fields .fprice{width:80px;}
+.item-del{color:#c62828; font-size:16px; background:none; border:none;}
+.add-item-row{display:flex; gap:10px; align-items:center; margin-top:12px; padding-top:12px; border-top:1px dashed #e5e5e5; flex-wrap:wrap;}
+.hint{font-size:11.5px; color:#8a8a8a; margin-top:10px; line-height:1.6;}
+.import-progress{display:flex; align-items:center; gap:10px; margin-top:14px; font-size:12.5px; color:#555;}
+.import-spinner{width:16px; height:16px; border:2px solid #ddd; border-top-color:#111; border-radius:50%; animation:import-spin .7s linear infinite; flex-shrink:0;}
+@keyframes import-spin{to{transform:rotate(360deg);}}
+.form-row button:disabled{opacity:.5; cursor:not-allowed;}
+</style>
+</head>
+<body>
+
+<div id="setupScreen" class="hidden">
+  <div class="setup-wrap">
+    <h1>⚙️ Configuration requise (une seule fois)</h1>
+    <p style="font-size:13.5px;color:#555;margin-bottom:14px;">Ce dashboard doit être relié à une base de données gratuite pour que vos ajouts soient visibles par tout le monde sur le site. Ça prend environ 5 minutes :</p>
+    <ol>
+      <li>Créez un compte gratuit sur <a href="https://supabase.com" target="_blank">supabase.com</a></li>
+      <li>Cliquez <b>New project</b>, donnez-lui un nom et un mot de passe, attendez ~2 min</li>
+      <li>Dans le menu de gauche : <b>Table Editor</b> → <b>New table</b></li>
+      <li>Nom de la table : <code>catalog_store</code></li>
+      <li>Décochez <b>Enable Row Level Security (RLS)</b> pour cette table (pas besoin de connexion, comme demandé)</li>
+      <li>Ajoutez 2 colonnes : <code>id</code> (type <code>text</code>, cochez "is primary key") et <code>data</code> (type <code>jsonb</code>)</li>
+      <li>Sauvegardez la table</li>
+      <li>Menu de gauche : <b>Project Settings → API</b></li>
+      <li>Copiez <b>Project URL</b> et <b>anon public key</b></li>
+      <li>Ouvrez ce fichier <code>dashboard.html</code> (et <code>boutique.html</code>) avec un éditeur de texte, collez les deux valeurs tout en haut à la place des valeurs actuelles</li>
+      <li>Enregistrez, rouvrez la page — c'est fait, tout devient automatique ensuite.</li>
+    </ol>
+    <p style="font-size:12px;color:#999;margin-top:16px;">⚠️ Sans mot de passe, n'importe qui connaissant l'adresse de ce dashboard peut modifier le catalogue. Pratique pour toi, à garder en tête si tu partages le lien.</p>
+  </div>
+</div>
+
+<div class="status-pill" id="statusPill">✓ Enregistré</div>
+
+<div id="adminRoot" class="hidden">
+  <div class="admin-head">
+    <h1>Tableau de bord — L'ARMOIRE</h1>
+    <a href="boutique.html" target="_blank">Voir la boutique ↗</a>
+  </div>
+  <div class="admin-card">
+  <h2>Importer produits automatiquement</h2>
+
+  <div class="form-row">
+
+    <select id="brand">
+      <option>Lacoste</option>
+      <option>Gucci</option>
+      <option>Chanel</option>
+      <option>Versace</option>
+      <option>Balenciaga</option>
+      <option>Givenchy</option>
+      <option>Burberry</option>
+      <option>Rolex</option>
+      <option>Tiffany</option>
+      <option>Jules</option>
+      <option>LaHalle</option>
+      <option>Uniqlo</option>
+      <option>Maje</option>
+      <option>Veja</option>
+      <option>ArmaniExchange</option>
+      <option>BottegaVeneta</option>
+    </select>
+
+
+    <select id="category"></select>
+
+
+    <button id="importBtn" onclick="importProducts()">
+      IMPORTER
+    </button>
+
+  </div>
+
+  <div class="form-row" style="margin-top:10px;">
+    <button id="importAllBtn" onclick="importAllProducts()" style="background:#fff; color:#111; border:1px solid #111;">
+      TOUT IMPORTER (toutes les marques/catégories)
+    </button>
+  </div>
+
+  <div class="import-progress hidden" id="importProgress">
+    <div class="import-spinner"></div>
+    <span id="importProgressText">Import en cours…</span>
+  </div>
+</div>
+
+  <div class="admin-card">
+    <h2>Ajouter une marque</h2>
+    <div class="form-row">
+      <input type="text" id="newBrandName" placeholder="Nom de la marque">
+      <select id="newBrandUv">
+        <option value="luxe">Luxe</option>
+        <option value="pasluxe">Pas luxe</option>
+      </select>
+      <button id="addBrandBtn">Ajouter</button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h2>Marques & articles</h2>
+    <div id="adminBrandList"></div>
+    <p class="hint">Cliquez une marque pour voir ses articles. Pour une image : cliquez la case en pointillés puis Ctrl+V (ou Cmd+V) juste après avoir copié une image — ou cliquez pour choisir un fichier.</p>
+    <p class="hint"><b>Comment ça se sauvegarde :</b> chaque modification part directement dans la base de données partagée. Elle apparaît sur <code>boutique.html</code> pour tous les visiteurs en quelques secondes, sans rien recharger de leur côté (vérification automatique toutes les 15s). Aucun bouton "enregistrer" à chercher — tout part tout seul.</p>
+  </div>
+</div>
+
+<script>
+/* ================= ICONS / DEPTS ================= */
+const DEPTS_LUXE = {sacs:'Sacs', chaussures:'Chaussures', vetements:'Prêt-à-porter', access:'Accessoires', bijoux:'Joaillerie'};
+const DEPTS_PL = {sacs:'Sacs', chaussures:'Chaussures', vetements:'Vêtements', access:'Accessoires'};
+
+const SEED_TPL = {
+  sacs:['Sac cabas','Sac bandoulière','Pochette soirée','Sac seau','Cartable'],
+  chaussures:['Escarpins','Baskets basses','Bottines','Mocassins','Sandales'],
+  vetements:['Trench oversize','Robe portefeuille','Blazer structuré','Pull col roulé','Jupe plissée'],
+  access:['Ceinture logo','Foulard imprimé','Casquette brodée','Portefeuille','Lunettes de soleil'],
+  bijoux:['Bracelet maillon','Bague sertie','Montre automatique','Collier pendentif']
+};
+const SEED_PRICE_LUXE = {sacs:[900,9000],chaussures:[490,1400],vetements:[350,3200],access:[90,750],bijoux:[800,16000]};
+const SEED_PRICE_PL = {sacs:[9.99,39.99],chaussures:[12.99,49.99],vetements:[4.99,59.99],access:[3.99,24.99]};
+const SEED_BRANDS = [
+  {name:'Gucci',universe:'luxe',depts:['sacs','chaussures','vetements','access'],tier:1.0},
+  {name:'Louis Vuitton',universe:'luxe',depts:['sacs','vetements','access'],tier:1.15},
+  {name:'Chanel',universe:'luxe',depts:['sacs','chaussures','vetements','bijoux'],tier:1.3},
+  {name:'Hermès',universe:'luxe',depts:['sacs','access','bijoux'],tier:1.6},
+  {name:'Dior',universe:'luxe',depts:['sacs','chaussures','vetements'],tier:1.2},
+  {name:'Prada',universe:'luxe',depts:['sacs','chaussures','access'],tier:1.05},
+  {name:'Cartier',universe:'luxe',depts:['bijoux','access'],tier:1.4},
+  {name:'Rolex',universe:'luxe',depts:['bijoux'],tier:1.8},
+  {name:'Zara',universe:'pasluxe',depts:['sacs','chaussures','vetements','access'],tier:1.0},
+  {name:'H&M',universe:'pasluxe',depts:['sacs','chaussures','vetements','access'],tier:0.9},
+  {name:'Shein',universe:'pasluxe',depts:['sacs','vetements','access'],tier:0.45},
+  {name:'Primark',universe:'pasluxe',depts:['sacs','chaussures','vetements','access'],tier:0.35},
+  {name:'Uniqlo',universe:'pasluxe',depts:['vetements','access'],tier:1.1},
+  {name:'Kiabi',universe:'pasluxe',depts:['chaussures','vetements','access'],tier:0.6},
+  {name:'Boohoo',universe:'pasluxe',depts:['vetements','chaussures'],tier:0.5},
+  {name:'C&A',universe:'pasluxe',depts:['vetements','access'],tier:0.75}
+];
+let uid = 1;
+function genId(){ return 'id'+(uid++)+'_'+Math.random().toString(36).slice(2,7); }
+function buildSeed(){
+  return SEED_BRANDS.map(b=>{
+    const isLuxe = b.universe==='luxe';
+    const PR = isLuxe ? SEED_PRICE_LUXE : SEED_PRICE_PL;
+    const items = []; let idx=0;
+    b.depts.forEach(dept=>{
+      const names = SEED_TPL[dept];
+      for(let i=0;i<3;i++){
+        const name = names[(idx+i)%names.length];
+        const [lo,hi] = PR[dept];
+        const frac = ((idx*37+i*19)%100)/100;
+        const price = Math.round((lo+(hi-lo)*frac)*b.tier * (isLuxe?1:100))/(isLuxe?1:100);
+        items.push({id:genId(), name, dept, price, image:null, isNew:(idx+i)%5===0});
+        idx++;
+      }
+    });
+    return {id:genId(), name:b.name, universe:b.universe, items};
+  });
+}
+
+/* ================= SHARED DATABASE (Supabase) ================= */
+function supaConfigured(){
+  return SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('COLLEZ') && !SUPABASE_KEY.includes('COLLEZ');
+}
+async function fetchCatalog(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error('read failed');
+  const rows = await res.json();
+  return rows[0] ? rows[0].data : null;
+}
+let saveTimer = null;
+async function saveCatalog(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method:'POST',
+    headers:{
+      apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`,
+      'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({id:'main', data: DATA})
+  });
+  if(!res.ok){
+    console.error('Échec de sauvegarde Supabase:', res.status, await res.text());
+  }
+  if(res.ok){
+    const pill = document.getElementById('statusPill');
+    pill.classList.add('show');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(()=> pill.classList.remove('show'), 1400);
+  }
+}
+
+/* ================= DATA ================= */
+let DATA = { brands: [] };
+function findBrand(id){ return DATA.brands.find(b=>b.id===id); }
+
+/* ================= ADMIN LOGIC ================= */
+function setupPasteZone(zone, brandId, itemId){
+  zone.addEventListener('paste', (e)=>{
+    e.preventDefault();
+    const items = (e.clipboardData || window.clipboardData).items;
+    for(const it of items){
+      if(it.type && it.type.indexOf('image') !== -1){
+        const blob = it.getAsFile();
+        const reader = new FileReader();
+        reader.onload = ()=>{
+          const brand = findBrand(brandId);
+          const item = brand.items.find(i=>i.id===itemId);
+          item.image = reader.result;
+          saveCatalog();
+          zone.innerHTML = `<img src="${reader.result}">`;
+        };
+        reader.readAsDataURL(blob);
+      }
+    }
+  });
+  zone.addEventListener('click', ()=>{
+    const input = document.createElement('input');
+    input.type='file'; input.accept='image/*';
+    input.onchange = ()=>{
+      if(!input.files[0]) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{
+        const brand = findBrand(brandId);
+        const item = brand.items.find(i=>i.id===itemId);
+        item.image = reader.result;
+        saveCatalog();
+        zone.innerHTML = `<img src="${reader.result}">`;
+      };
+      reader.readAsDataURL(input.files[0]);
+    };
+    input.click();
+  });
+
+}
+let expandedBrand = null;
+function renderAdmin(){
+  document.getElementById('adminBrandList').innerHTML = DATA.brands.map(b=>{
+    const DEPTS = b.universe==='luxe' ? DEPTS_LUXE : DEPTS_PL;
+    const isOpen = expandedBrand === b.id;
+    return `<div class="brand-block">
+      <div class="brand-block-head" data-toggle="${b.id}">
+        <div class="bh-left"><span class="bname">${b.name}</span><span class="buv">${b.universe==='luxe'?'Luxe':'Pas luxe'}</span><span style="font-size:11px;color:#a3a3a3;">${b.items.length} articles</span></div>
+        <button class="brand-del" data-delbrand="${b.id}">Supprimer</button>
+      </div>
+      <div class="brand-body ${isOpen?'open':''}" id="body-${b.id}">
+        ${b.items.map(it=>`
+          <div class="item-row">
+            <div class="paste-zone" tabindex="0" data-pastezone="${b.id}|${it.id}">${it.image?`<img src="${it.image}">`:'Coller image<br>(Ctrl+V)'}</div>
+            <div class="item-fields">
+              <input class="fname" type="text" value="${it.name.replace(/"/g,'&quot;')}" data-editname="${b.id}|${it.id}">
+              <select data-editdept="${b.id}|${it.id}">
+                ${Object.keys(DEPTS).map(d=>`<option value="${d}" ${d===it.dept?'selected':''}>${DEPTS[d]}</option>`).join('')}
+              </select>
+              <input class="fprice" type="number" step="0.01" value="${it.price}" data-editprice="${b.id}|${it.id}">
+            </div>
+            <button class="item-del" data-delitem="${b.id}|${it.id}">✕</button>
+          </div>`).join('')}
+        <div class="add-item-row">
+          <div class="paste-zone" tabindex="0" id="newzone-${b.id}">Coller image<br>(Ctrl+V)</div>
+          <input type="text" placeholder="Nom de l'article" id="newname-${b.id}" style="flex:2;min-width:120px;border:1px solid #e0e0e0;border-radius:6px;padding:8px 10px;font-size:12.5px;">
+          <select id="newdept-${b.id}" style="border:1px solid #e0e0e0;border-radius:6px;padding:8px;font-size:12.5px;">
+            ${Object.keys(DEPTS).map(d=>`<option value="${d}">${DEPTS[d]}</option>`).join('')}
+          </select>
+          <input type="number" step="0.01" placeholder="Prix" id="newprice-${b.id}" style="width:80px;border:1px solid #e0e0e0;border-radius:6px;padding:8px;font-size:12.5px;">
+          <button data-additem="${b.id}" style="background:#111;color:#fff;border:none;border-radius:6px;padding:8px 14px;font-size:12px;">Ajouter</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || `<p class="hint">Aucune marque. Ajoutez-en une ci-dessus.</p>`;
+
+  document.querySelectorAll('[data-toggle]').forEach(el=> el.addEventListener('click', (e)=>{
+    if(e.target.closest('[data-delbrand]')) return;
+    const id = el.dataset.toggle;
+    expandedBrand = expandedBrand===id ? null : id;
+    renderAdmin();
+  }));
+  document.querySelectorAll('[data-delbrand]').forEach(el=> el.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    if(!confirm('Supprimer cette marque et tous ses articles ?')) return;
+    DATA.brands = DATA.brands.filter(b=>b.id!==el.dataset.delbrand);
+    saveCatalog(); renderAdmin();
+  }));
+  document.querySelectorAll('[data-delitem]').forEach(el=> el.addEventListener('click', ()=>{
+    const [bId,iId] = el.dataset.delitem.split('|');
+    const brand = findBrand(bId); brand.items = brand.items.filter(i=>i.id!==iId);
+    saveCatalog(); renderAdmin();
+  }));
+  document.querySelectorAll('[data-editname]').forEach(el=> el.addEventListener('input', ()=>{
+    const [bId,iId] = el.dataset.editname.split('|');
+    findBrand(bId).items.find(i=>i.id===iId).name = el.value; saveCatalog();
+  }));
+  document.querySelectorAll('[data-editprice]').forEach(el=> el.addEventListener('input', ()=>{
+    const [bId,iId] = el.dataset.editprice.split('|');
+    const v = parseFloat(el.value); if(!isNaN(v)) { findBrand(bId).items.find(i=>i.id===iId).price = v; saveCatalog(); }
+  }));
+  document.querySelectorAll('[data-editdept]').forEach(el=> el.addEventListener('change', ()=>{
+    const [bId,iId] = el.dataset.editdept.split('|');
+    findBrand(bId).items.find(i=>i.id===iId).dept = el.value; saveCatalog();
+  }));
+  document.querySelectorAll('[data-pastezone]').forEach(el=>{
+    const [bId,iId] = el.dataset.pastezone.split('|');
+    setupPasteZone(el, bId, iId);
+  });
+  document.querySelectorAll('[data-additem]').forEach(el=> el.addEventListener('click', ()=>{
+    const bId = el.dataset.additem;
+    const name = document.getElementById('newname-'+bId).value.trim();
+    const price = parseFloat(document.getElementById('newprice-'+bId).value) || 0;
+    const dept = document.getElementById('newdept-'+bId).value;
+    if(!name){ alert("Merci de donner un nom à l'article."); return; }
+    const brand = findBrand(bId);
+    const newItem = {id:genId(), name, price, dept, image:null, isNew:true};
+    const zone = document.getElementById('newzone-'+bId);
+    const img = zone.querySelector('img');
+    if(img) newItem.image = img.src;
+    brand.items.push(newItem);
+    expandedBrand = bId;
+    saveCatalog(); renderAdmin();
+  }));
+  document.querySelectorAll('[id^="newzone-"]').forEach(zone=>{
+    zone.addEventListener('paste', (e)=>{
+      e.preventDefault();
+      const items = (e.clipboardData || window.clipboardData).items;
+      for(const it of items){
+        if(it.type && it.type.indexOf('image')!==-1){
+          const blob = it.getAsFile();
+          const reader = new FileReader();
+          reader.onload = ()=>{ zone.innerHTML = `<img src="${reader.result}">`; };
+          reader.readAsDataURL(blob);
+        }
+      }
+    });
+    zone.addEventListener('click', ()=>{
+      const input = document.createElement('input');
+      input.type='file'; input.accept='image/*';
+      input.onchange = ()=>{
+        if(!input.files[0]) return;
+        const reader = new FileReader();
+        reader.onload = ()=>{ zone.innerHTML = `<img src="${reader.result}">`; };
+        reader.readAsDataURL(input.files[0]);
+      };
+      input.click();
+    });
+  });
+}
+document.getElementById('addBrandBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('newBrandName').value.trim();
+  const universe = document.getElementById('newBrandUv').value;
+  if(!name){ alert("Merci de donner un nom à la marque."); return; }
+  DATA.brands.push({id:genId(), name, universe, items:[]});
+  document.getElementById('newBrandName').value='';
+  saveCatalog(); renderAdmin();
+});
+
+
+
+const IMPORT_UNIVERSE = {Lacoste:'pasluxe', Gucci:'luxe', Chanel:'luxe', Versace:'luxe', Balenciaga:'luxe', Givenchy:'luxe', Burberry:'luxe', Rolex:'luxe', Tiffany:'luxe', Jules:'pasluxe', LaHalle:'pasluxe', Uniqlo:'pasluxe', Maje:'pasluxe', Veja:'pasluxe', ArmaniExchange:'pasluxe', BottegaVeneta:'luxe'};
+
+// catégories réellement configurées côté scraper pour chaque marque (voir scraper-server/scrapers/brands.js)
+const BRAND_CATEGORIES = {
+  Lacoste: ['vetements','chaussures'],
+  Gucci: ['vetements','chaussures'],
+  Chanel: ['vetements'],
+  Versace: ['vetements'],
+  Balenciaga: ['vetements'],
+  Givenchy: ['vetements'],
+  Burberry: ['vetements'],
+  Rolex: ['bijoux'],
+  Tiffany: ['bijoux'],
+  Jules: ['vetements'],
+  LaHalle: ['vetements'],
+  Uniqlo: ['vetements'],
+  Maje: ['vetements'],
+  Veja: ['chaussures'],
+  ArmaniExchange: ['vetements'],
+  BottegaVeneta: ['vetements']
+};
+const CATEGORY_LABELS = {vetements:'Vêtements', chaussures:'Chaussures', bijoux:'Bijoux'};
+
+function updateCategoryOptions(){
+  const brand = document.getElementById('brand').value;
+  const cats = BRAND_CATEGORIES[brand] || ['vetements'];
+  const catSel = document.getElementById('category');
+  const prev = catSel.value;
+  catSel.innerHTML = cats.map(c=> `<option value="${c}">${CATEGORY_LABELS[c]}</option>`).join('');
+  if(cats.includes(prev)) catSel.value = prev;
+}
+document.getElementById('brand').addEventListener('change', updateCategoryOptions);
+updateCategoryOptions();
+
+function parsePrice(raw){
+  if(typeof raw !== 'string') return null;
+
+  // format "11€49" (La Halle) = 11,49 €
+  const euroMid = raw.match(/(\d+)\s*€\s*(\d+)/);
+  if(euroMid && !/[.,]/.test(raw)){
+    const v = parseFloat(euroMid[1] + '.' + euroMid[2]);
+    return isNaN(v) ? null : v;
+  }
+
+  let s = raw.replace(/[€\s ]/g,'');
+  const match = s.match(/[\d.,]+/);
+  if(!match) return null;
+  let num = match[0];
+
+  if(num.includes(',')){
+    // virgule = séparateur décimal ; points = séparateurs de milliers
+    num = num.replace(/\./g,'').replace(',', '.');
+  } else if(num.includes('.')){
+    // point isolé : séparateur de milliers si suivi de 3 chiffres (ex: "1.600"), sinon décimal
+    const parts = num.split('.');
+    if(parts[parts.length-1].length === 3){
+      num = parts.join('');
+    }
+  }
+
+  const v = parseFloat(num);
+  return isNaN(v) ? null : v;
+}
+
+function mergeImportedProducts(brandName, category, scraped){
+  let brand = DATA.brands.find(b=> b.name.toLowerCase() === brandName.toLowerCase());
+  if(!brand){
+    brand = {id:genId(), name:brandName, universe: IMPORT_UNIVERSE[brandName] || 'luxe', items:[]};
+    DATA.brands.push(brand);
+  }
+
+  const existingByUrl = new Map(brand.items.filter(it=>it.sourceUrl).map(it=>[it.sourceUrl, it]));
+  let added = 0;
+  let updated = 0;
+
+  scraped.forEach(p=>{
+    if(p.url && existingByUrl.has(p.url)){
+      const existing = existingByUrl.get(p.url);
+      existing.name = p.name || existing.name;
+      existing.price = parsePrice(p.price);
+      existing.image = p.image || existing.image;
+      updated++;
+      return;
+    }
+    const newItem = {
+      id:genId(),
+      name:p.name || 'Produit',
+      dept:category,
+      price:parsePrice(p.price),
+      image:p.image || null,
+      isNew:true,
+      sourceUrl:p.url || null
+    };
+    brand.items.push(newItem);
+    if(p.url) existingByUrl.set(p.url, newItem);
+    added++;
+  });
+
+  return { added, updated };
+}
+
+// fait l'import d'une marque/catégorie et fusionne le résultat dans DATA
+// (sans toucher à l'UI) — réutilisé par importProducts() et importAllProducts()
+async function importOne(brand, category){
+
+  let res = await fetch(
+    "http://localhost:3000/import",
+    {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        brand,
+        category
+      })
+    }
+  );
+
+  let data = await res.json();
+
+  if(!res.ok){
+    return { error: data.error || res.status };
+  }
+
+  const scraped = data.products || [];
+
+  DATA = await fetchCatalog();
+
+  const { added, updated } = mergeImportedProducts(brand, category, scraped);
+
+  await saveCatalog();
+
+  return { added, updated };
+
+}
+
+function setImportControlsDisabled(disabled){
+  document.getElementById("importBtn").disabled = disabled;
+  document.getElementById("importAllBtn").disabled = disabled;
+  document.getElementById("brand").disabled = disabled;
+  document.getElementById("category").disabled = disabled;
+}
+
+async function importProducts(){
+
+  let brand = document.getElementById("brand").value;
+
+  let category = document.getElementById("category").value;
+
+  const progress = document.getElementById("importProgress");
+  const progressText = document.getElementById("importProgressText");
+
+  setImportControlsDisabled(true);
+  progress.classList.remove("hidden");
+
+  let seconds = 0;
+  progressText.textContent = `Import de ${brand} en cours… (0s)`;
+  const timer = setInterval(()=>{
+    seconds++;
+    progressText.textContent = `Import de ${brand} en cours… (${seconds}s)`;
+  }, 1000);
+
+  try{
+
+    const result = await importOne(brand, category);
+
+    if(result.error){
+      alert("Erreur import : " + result.error);
+      return;
+    }
+
+    renderAdmin();
+
+    alert(
+      "Import terminé : " + result.added + " nouveaux produits ajoutés, " + result.updated + " mis à jour pour " + brand
+    );
+
+  }catch(e){
+
+    alert("Erreur import : " + e.message);
+
+  }finally{
+
+    clearInterval(timer);
+    progress.classList.add("hidden");
+    setImportControlsDisabled(false);
+
+  }
+
+}
+
+async function importAllProducts(){
+
+  const jobs = [];
+  Object.keys(BRAND_CATEGORIES).forEach(brand=>{
+    BRAND_CATEGORIES[brand].forEach(category=> jobs.push({brand, category}));
+  });
+
+  if(!confirm(`Importer ${jobs.length} combinaisons marque/catégorie d'affilée ? Ça peut prendre plusieurs dizaines de minutes (une fenêtre de navigateur va s'ouvrir pour chaque import).`)) return;
+
+  const progress = document.getElementById("importProgress");
+  const progressText = document.getElementById("importProgressText");
+
+  setImportControlsDisabled(true);
+  progress.classList.remove("hidden");
+
+  let totalAdded = 0, totalUpdated = 0;
+  const errors = [];
+
+  for(let i=0;i<jobs.length;i++){
+
+    const { brand, category } = jobs[i];
+
+    let seconds = 0;
+    progressText.textContent = `(${i+1}/${jobs.length}) Import de ${brand} — ${CATEGORY_LABELS[category]||category}… (0s)`;
+    const timer = setInterval(()=>{
+      seconds++;
+      progressText.textContent = `(${i+1}/${jobs.length}) Import de ${brand} — ${CATEGORY_LABELS[category]||category}… (${seconds}s)`;
+    }, 1000);
+
+    try{
+      const result = await importOne(brand, category);
+      clearInterval(timer);
+      if(result.error){
+        errors.push(`${brand} (${category}) : ${result.error}`);
+      }else{
+        totalAdded += result.added;
+        totalUpdated += result.updated;
+      }
+    }catch(e){
+      clearInterval(timer);
+      errors.push(`${brand} (${category}) : ${e.message}`);
+    }
+
+    renderAdmin();
+
+  }
+
+  progress.classList.add("hidden");
+  setImportControlsDisabled(false);
+
+  let msg = `Import complet terminé : ${totalAdded} nouveaux produits, ${totalUpdated} mis à jour.`;
+  if(errors.length) msg += `\n\n${errors.length} erreur(s) :\n` + errors.join("\n");
+  alert(msg);
+
+}
+
+
+
+
+
+
+
+
+
+/* ================= INIT ================= */
+async function init(){
+  if(!supaConfigured()){
+    document.getElementById('setupScreen').classList.remove('hidden');
+    return;
+  }
+  try{
+    let data = await fetchCatalog();
+    if(!data){
+      DATA = { brands: buildSeed() };
+      await saveCatalog();
+    }else{
+      DATA = data;
+    }
+  }catch(e){
+    document.getElementById('setupScreen').classList.remove('hidden');
+    document.getElementById('setupScreen').querySelector('h1').textContent = "⚠️ Connexion à la base de données impossible";
+    return;
+  }
+  document.getElementById('adminRoot').classList.remove('hidden');
+  renderAdmin();
+}
+init();
+</script>
+</body>
+</html>
