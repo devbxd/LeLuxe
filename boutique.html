@@ -76,26 +76,35 @@ a{color:inherit;}
 .brand-nav-item .cnt{font-size:10.5px; color:var(--faint); font-variant-numeric:tabular-nums;}
 .brand-nav-item button.active .cnt{color:var(--gold-soft);}
 .main{flex:1; padding:40px 40px 0; min-width:0;}
+.main.main-full{max-width:1200px; margin:0 auto; width:100%; float:none;}
 
 /* ---------- PROMO CAROUSEL ---------- */
-.promo-carousel{position:relative; direction:ltr; height:380px; border-radius:var(--radius-l); overflow:hidden; margin-bottom:38px; background:#eee;}
+.promo-carousel{position:relative; direction:ltr; height:360px; border-radius:var(--radius-l); overflow:hidden; margin-bottom:38px; border:1px solid var(--line);}
 .promo-track{display:flex; height:100%; transition:transform .6s cubic-bezier(.65,0,.35,1);}
-.promo-slide{flex:0 0 100%; height:100%; position:relative; background-size:cover; background-position:center; display:flex; align-items:flex-end; cursor:pointer;}
-.promo-slide::before{content:''; position:absolute; inset:0; background:linear-gradient(0deg, rgba(10,9,7,.72) 0%, rgba(10,9,7,.28) 45%, rgba(10,9,7,.05) 75%);}
-.promo-content{position:relative; z-index:1; padding:38px 46px; color:#fff; max-width:460px;}
-.promo-tag{display:inline-block; background:var(--gold); color:#fff; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; padding:5px 13px; border-radius:20px; margin-bottom:14px;}
-.promo-brand{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85; margin-bottom:6px;}
-.promo-name{font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3vw,34px); font-weight:600; line-height:1.15; margin-bottom:10px; text-wrap:balance;}
+.promo-slide{flex:0 0 100%; height:100%; display:flex; cursor:pointer;}
+.promo-media{flex:1; min-width:0; background:#f6f6f6; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.promo-media img{max-width:80%; max-height:80%; object-fit:contain;}
+.promo-text{flex:0 0 40%; background:var(--ink); color:#fff; display:flex; flex-direction:column; justify-content:center; padding:38px 44px; position:relative; min-width:0;}
+.promo-tag{display:inline-block; align-self:flex-start; background:var(--gold); color:#fff; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; padding:5px 13px; border-radius:20px; margin-bottom:14px;}
+.promo-brand{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.75; margin-bottom:6px;}
+.promo-name{font-family:'Cormorant Garamond',serif; font-size:clamp(21px,2.4vw,28px); font-weight:600; line-height:1.2; margin-bottom:10px; text-wrap:balance; display:-webkit-box; -webkit-line-clamp:3; line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
 .promo-price{font-size:16px; font-weight:600; margin-bottom:18px;}
-.promo-cta{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.55); padding-bottom:3px; transition:opacity .15s ease;}
+.promo-cta{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.55); padding-bottom:3px; transition:opacity .15s ease; align-self:flex-start;}
 .promo-slide:hover .promo-cta{opacity:.7;}
-.promo-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.85); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; font-size:19px; line-height:1; color:#111; transition:background .2s ease, transform .2s ease;}
+.promo-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; font-size:19px; line-height:1; color:#111; transition:background .2s ease, transform .2s ease; box-shadow:0 2px 10px rgba(0,0,0,.1);}
 .promo-arrow:hover{background:#fff; transform:translateY(-50%) scale(1.06);}
 .promo-arrow.prev{left:16px;} .promo-arrow.next{right:16px;}
-.promo-dots{position:absolute; bottom:18px; right:24px; z-index:2; display:flex; gap:6px;}
-.promo-dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.5); cursor:pointer; transition:background .2s ease, transform .2s ease;}
-.promo-dot.active{background:#fff; transform:scale(1.35);}
+.promo-dots{position:absolute; bottom:14px; left:50%; transform:translateX(-50%); z-index:2; display:flex; gap:6px;}
+.promo-dot{width:7px; height:7px; border-radius:50%; background:rgba(0,0,0,.18); cursor:pointer; transition:background .2s ease, transform .2s ease;}
+.promo-dot.active{background:var(--gold); transform:scale(1.35);}
 @media (prefers-reduced-motion: reduce){ .promo-track{transition:none;} }
+@media (max-width:900px){
+  .promo-carousel{height:auto;}
+  .promo-slide{flex-direction:column;}
+  .promo-media{flex:0 0 200px; width:100%;}
+  .promo-text{flex:0 0 auto; padding:24px 22px 40px;}
+  .promo-dots{bottom:8px;}
+}
 
 /* ---------- HOME ---------- */
 .hero-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px; flex-wrap:wrap; gap:14px; padding-bottom:26px; border-bottom:1px solid var(--line);}
@@ -362,9 +371,6 @@ a{color:inherit;}
   .receipt-footer{flex-wrap:wrap; gap:16px;}
   .receipt-footer .col{flex:1 1 45%;}
 
-  .promo-carousel{height:300px; margin-bottom:26px; border-radius:var(--radius-m);}
-  .promo-content{padding:24px 24px;}
-  .promo-arrow{width:32px; height:32px; font-size:16px;}
   .about-us{padding:50px 20px; margin-top:50px;}
   .about-body{font-size:13.5px;}
   .site-footer{margin-top:50px;}
@@ -1032,23 +1038,31 @@ let promoSlides = [];
 let promoIndex = 0;
 let promoTimer = null;
 function computePromoSlides(){
-  const seenBrands = new Set();
-  const candidates = [];
+  // on prend le nouvel article le moins cher de chaque marque, puis on
+  // échantillonne uniformément du moins cher au plus cher pour avoir un
+  // vrai mélange (petits prix inclus) plutôt que juste les pièces les
+  // plus chères d'une poignée de maisons de luxe.
+  const cheapestPerBrand = new Map();
   DATA.brands.forEach(b=>{
-    if(b.external || b.universe!=='luxe') return;
+    if(b.external) return;
     b.items.forEach(i=>{
-      if(i.isNew && i.image && typeof i.price==='number'){
-        candidates.push({ brandId:b.id, brandName:b.name, item:i });
+      if(!i.isNew || !i.image || typeof i.price!=='number') return;
+      const cur = cheapestPerBrand.get(b.id);
+      if(!cur || i.price < cur.item.price){
+        cheapestPerBrand.set(b.id, { brandId:b.id, brandName:b.name, item:i });
       }
     });
   });
-  candidates.sort((a,b)=> (b.item.price||0)-(a.item.price||0));
+  const pool = Array.from(cheapestPerBrand.values()).sort((a,b)=> (a.item.price||0)-(b.item.price||0));
+  const N = Math.min(10, pool.length);
   promoSlides = [];
-  for(const c of candidates){
-    if(seenBrands.has(c.brandId)) continue;
-    seenBrands.add(c.brandId);
-    promoSlides.push(c);
-    if(promoSlides.length>=6) break;
+  if(pool.length<=N){
+    promoSlides = pool;
+  }else{
+    for(let k=0;k<N;k++){
+      const idx = Math.round(k*(pool.length-1)/(N-1));
+      promoSlides.push(pool[idx]);
+    }
   }
   promoIndex = 0;
 }
@@ -1057,8 +1071,9 @@ function renderPromo(){
   if(!promoSlides.length){ wrap.classList.add('hidden'); return; }
   wrap.classList.remove('hidden');
   document.getElementById('promoTrack').innerHTML = promoSlides.map(c => `
-    <div class="promo-slide" style="background-image:url('${c.item.image}')" data-brand="${c.brandId}" data-item="${c.item.id}">
-      <div class="promo-content">
+    <div class="promo-slide" data-brand="${c.brandId}" data-item="${c.item.id}">
+      <div class="promo-media"><img src="${c.item.image}" alt="" loading="lazy"></div>
+      <div class="promo-text">
         <span class="promo-tag">${t('nouveauBadge')}</span>
         <div class="promo-brand">${c.brandName}</div>
         <div class="promo-name">${c.item.name}</div>
@@ -1105,6 +1120,8 @@ function renderStorefront(){
   document.getElementById('viewHome').classList.toggle('hidden', state.view!=='home');
   document.getElementById('viewPLP').classList.toggle('hidden', state.view!=='plp');
   document.getElementById('viewMarket').classList.toggle('hidden', state.view!=='market');
+  document.querySelector('.sidebar').classList.toggle('hidden', state.view==='market');
+  document.querySelector('.main').classList.toggle('main-full', state.view==='market');
   renderBrandNav();
   if(state.view==='home') renderHome();
   else if(state.view==='plp') renderPLP();

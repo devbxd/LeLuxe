@@ -28,9 +28,19 @@ function parseTile(text){
 
     let priceRegex = /(\d[\d.,]*\s*€|€\s*[\d.,]+)/;
 
-    let priceIndex = lines.findIndex(l=>priceRegex.test(l));
-
-    let price = priceIndex>=0 ? lines[priceIndex] : "Prix inconnu";
+    // certaines fiches affichent un prix d'échange/promo ("1 €") avant le
+    // vrai prix ("19,90 €") : on garde la ligne-prix la plus élevée plutôt
+    // que la première trouvée, sinon on récupère le prix promo à tort
+    let priceLines = lines.filter(l=>priceRegex.test(l));
+    let price = "Prix inconnu";
+    if(priceLines.length){
+        price = priceLines.reduce((best, l)=>{
+            const v = parseFloat((l.match(priceRegex)[0]||"").replace(/[€\s]/g,'').replace(',','.'));
+            const bestV = parseFloat((best.match(priceRegex)[0]||"").replace(/[€\s]/g,'').replace(',','.'));
+            return (isNaN(bestV) || (!isNaN(v) && v>bestV)) ? l : best;
+        }, priceLines[0]);
+    }
+    let priceIndex = lines.indexOf(price);
 
     let banned = /^(bestseller|nouveau|new|nouveautés?|homme|femme|enfant|xs-?\d*xl|-?\d+%|disponible.*|prix en baisse|meilleure vente|exclusivit[ée].*|(homme|femme|enfant|b[ée]b[ée])[,\s].*)$/i;
 
