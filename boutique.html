@@ -65,7 +65,7 @@ a{color:inherit;}
 .sidebar{width:250px; flex-shrink:0; padding:34px 26px; position:sticky; top:73px; height:calc(100vh - 73px); overflow-y:auto; border-right:1px solid var(--line);}
 .side-title{font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--faint); margin-bottom:14px;}
 .uv-tabs{display:flex; gap:4px; margin-bottom:32px; background:var(--line-soft); border-radius:10px; padding:4px;}
-.uv-tab{flex:1; padding:10px 0; font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:#777; border-radius:7px; transition:all .2s var(--ease); font-weight:500;}
+.uv-tab{flex:1; padding:10px 2px; font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; color:#777; border-radius:7px; transition:all .2s var(--ease); font-weight:500; white-space:nowrap;}
 .uv-tab.active{background:#fff; color:var(--ink); font-weight:600; box-shadow:0 1px 4px rgba(0,0,0,.08);}
 .uv-tab:not(.active):hover{color:var(--ink);}
 .brand-nav-list{list-style:none;}
@@ -86,9 +86,8 @@ a{color:inherit;}
 .promo-media img{max-width:80%; max-height:80%; object-fit:contain;}
 .promo-text{flex:0 0 40%; background:var(--ink); color:#fff; display:flex; flex-direction:column; justify-content:center; padding:38px 44px; position:relative; min-width:0;}
 .promo-tag{display:inline-block; align-self:flex-start; background:var(--gold); color:#fff; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; padding:5px 13px; border-radius:20px; margin-bottom:14px;}
-.promo-brand{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.75; margin-bottom:6px;}
-.promo-name{font-family:'Cormorant Garamond',serif; font-size:clamp(21px,2.4vw,28px); font-weight:600; line-height:1.2; margin-bottom:10px; text-wrap:balance; display:-webkit-box; -webkit-line-clamp:3; line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;}
-.promo-price{font-size:16px; font-weight:600; margin-bottom:18px;}
+.promo-name{font-family:'Cormorant Garamond',serif; font-size:clamp(22px,2.6vw,30px); font-weight:600; line-height:1.2; margin-bottom:12px; text-wrap:balance; display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+.promo-desc{font-size:13px; line-height:1.6; opacity:.8; margin-bottom:20px; max-width:34ch;}
 .promo-cta{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.55); padding-bottom:3px; transition:opacity .15s ease; align-self:flex-start;}
 .promo-slide:hover .promo-cta{opacity:.7;}
 .promo-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.9); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; font-size:19px; line-height:1; color:#111; transition:background .2s ease, transform .2s ease; box-shadow:0 2px 10px rgba(0,0,0,.1);}
@@ -98,6 +97,11 @@ a{color:inherit;}
 .promo-dot{width:7px; height:7px; border-radius:50%; background:rgba(0,0,0,.18); cursor:pointer; transition:background .2s ease, transform .2s ease;}
 .promo-dot.active{background:var(--gold); transform:scale(1.35);}
 @media (prefers-reduced-motion: reduce){ .promo-track{transition:none;} }
+.sell-banner{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 30px; border:1px solid var(--gold-soft); border-radius:var(--radius-m); background:var(--gold-mist); margin-bottom:38px; flex-wrap:wrap;}
+.sell-banner-title{font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:600; margin-bottom:4px;}
+.sell-banner-text{font-size:12.5px; color:var(--muted); max-width:52ch;}
+.sell-banner-btn{flex-shrink:0; background:var(--ink); color:#fff; padding:12px 24px; border-radius:24px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
+.sell-banner-btn:hover{background:#000; transform:translateY(-1px);}
 @media (max-width:900px){
   .promo-carousel{height:auto;}
   .promo-slide{flex-direction:column;}
@@ -203,6 +207,9 @@ a{color:inherit;}
 .form-row label{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint);}
 .form-row input, .form-row select{border:1px solid #ddd; border-radius:var(--radius-s); padding:10px 12px; font-size:13.5px; background:#fff;}
 .form-row input:focus, .form-row select:focus{outline:none; border-color:var(--gold-soft);}
+.photo-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; height:130px; border:1.5px dashed #ddd; border-radius:var(--radius-s); cursor:pointer; color:var(--faint); font-size:12px; text-align:center; padding:10px; transition:border-color .15s ease, background .15s ease; overflow:hidden; position:relative;}
+.photo-drop:hover{border-color:var(--gold-soft); background:var(--line-soft);}
+.photo-drop img{max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;}
 
 /* ---------- VIDE-DRESSING ---------- */
 .post-item-btn{background:var(--ink); color:#fff; padding:12px 22px; border-radius:24px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
@@ -210,6 +217,9 @@ a{color:inherit;}
 .market-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; margin-top:26px;}
 .market-card{border:1px solid var(--line); border-radius:var(--radius-m); padding:22px; display:flex; flex-direction:column; gap:9px; transition:box-shadow .2s ease, transform .2s ease;}
 .market-card:hover{box-shadow:0 12px 26px rgba(0,0,0,.06); transform:translateY(-2px);}
+.market-card .mc-photo{aspect-ratio:4/3; background:#f6f6f6; border-radius:var(--radius-s); overflow:hidden; margin:-22px -22px 4px; display:flex; align-items:center; justify-content:center;}
+.market-card .mc-photo:empty{display:none;}
+.market-card .mc-photo img{width:100%; height:100%; object-fit:cover;}
 .market-card .mc-cat{align-self:flex-start; font-size:10px; letter-spacing:.08em; text-transform:uppercase; background:var(--line-soft); color:var(--muted); padding:4px 11px; border-radius:12px; font-weight:600;}
 .market-card .mc-name{font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:600; line-height:1.3;}
 .market-card .mc-price{font-size:15px; font-weight:600;}
@@ -358,7 +368,8 @@ a{color:inherit;}
   .brand-wall{grid-template-columns:repeat(2,1fr);}
 
   .modal{flex-direction:column; width:94vw; max-height:90vh;}
-  .modal-visual{width:100%; height:34vh; max-height:34vh; overflow:hidden;}
+  .modal-visual{width:100%; height:42vh; max-height:42vh; overflow:hidden;}
+  .modal-visual img{width:auto; height:auto; max-width:100%; max-height:100%; object-fit:contain;}
   .modal-body{padding:22px 20px;}
 
   .client-name-row input{font-size:16px;}
@@ -417,9 +428,6 @@ a{color:inherit;}
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="ar">AR</button>
     </div>
-    <button class="icon-btn" id="marketBtn" title="Vide-dressing" data-i18n-title="marketNavTitle">
-      <svg viewBox="0 0 24 24"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.8 0l-6.4-6.4a2 2 0 0 1 0-2.8L11.4 3.4A2 2 0 0 1 12.8 3H19a2 2 0 0 1 2 2v6.2a2 2 0 0 1-.4 1.4z"/><circle cx="15.5" cy="7.5" r="1.4"/></svg>
-    </button>
     <button class="icon-btn" id="wishBtn" title="Liste d'envies" data-i18n-title="wishTitle">
       <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg>
       <span class="badge hidden" id="wishCount">0</span>
@@ -437,6 +445,7 @@ a{color:inherit;}
     <div class="uv-tabs">
       <button class="uv-tab active" data-uv="luxe" data-i18n="prestige">Prestige</button>
       <button class="uv-tab" data-uv="pasluxe" data-i18n="tendance">Tendance</button>
+      <button class="uv-tab" data-uv="magasins" data-i18n="magasinsTab">Magasins</button>
     </div>
     <div class="side-title" data-i18n="genre">Genre</div>
     <div class="gender-tabs">
@@ -455,6 +464,13 @@ a{color:inherit;}
         <button class="promo-arrow prev" id="promoPrev" aria-label="Précédent">‹</button>
         <button class="promo-arrow next" id="promoNext" aria-label="Suivant">›</button>
         <div class="promo-dots" id="promoDots"></div>
+      </div>
+      <div class="sell-banner">
+        <div>
+          <div class="sell-banner-title" data-i18n="sellBannerTitle">Une pièce de luxe à vendre ?</div>
+          <div class="sell-banner-text" data-i18n="sellBannerText">Déposez votre annonce en une minute et vendez directement à d'autres membres, sans commission.</div>
+        </div>
+        <button class="sell-banner-btn" id="sellBannerBtn" data-i18n="sellBannerCta">Vendre un article</button>
       </div>
       <div class="hero-row">
         <div><h1 id="heroTitle">Les maisons</h1><p id="heroText"></p></div>
@@ -555,6 +571,14 @@ a{color:inherit;}
   <div class="modal-body">
     <div class="modal-name" data-i18n="postItemBtn">Déposer un article</div>
     <form id="postForm">
+      <div class="form-row">
+        <label data-i18n="formPhoto">Photo</label>
+        <label class="photo-drop" id="photoDrop">
+          <img id="photoPreview" class="hidden">
+          <span id="photoDropText" data-i18n="formPhotoHint">Ajouter une photo</span>
+          <input type="file" id="pfImage" accept="image/*" class="hidden">
+        </label>
+      </div>
       <div class="form-row">
         <label data-i18n="formItemName">Nom de l'article</label>
         <input type="text" id="pfName" required data-i18n-placeholder="formNamePlaceholder" placeholder="Ex : Sac Chanel Classic Flap">
@@ -713,10 +737,11 @@ const LANG = {
     wishTitle:"Liste d'envies", cartTitle:"Panier",
     univers:"Univers", prestige:"Prestige", tendance:"Tendance",
     genre:"Genre", tout:"Tout", femme:"Femme", homme:"Homme",
-    maisons:"Maisons", enseignes:"Enseignes",
-    heroTitleLuxe:"Les maisons", heroTitlePasluxe:"Les enseignes",
+    maisons:"Maisons", enseignes:"Enseignes", magasinsTab:"Magasins",
+    heroTitleLuxe:"Les maisons", heroTitlePasluxe:"Les enseignes", heroTitleMagasins:"Les grands magasins",
     heroTextLuxe:"Parcourez chaque maison par ordre alphabétique, ou cliquez un nom dans la liste pour y aller directement.",
     heroTextPasluxe:"Le style des podiums, le budget en moins. Parcourez chaque enseigne par ordre alphabétique.",
+    heroTextMagasins:"Les grands magasins parisiens, chacun avec son style. Cliquez pour visiter leur site officiel.",
     statMarques:"marques", siteOfficiel:"Site officiel", articles:"articles",
     emptyBrands:"Aucune marque pour l'instant.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
@@ -757,12 +782,25 @@ const LANG = {
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
     formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
+    formPhoto:"Photo", formPhotoHint:"Ajouter une photo",
     formNamePlaceholder:"Ex : Sac Chanel Classic Flap", formLocationPlaceholder:"Ville, pays",
     contactSeller:"Contacter le vendeur", marketListingCount:"annonces",
+    whatsappInterestMsg:"Bonjour, je suis intéressé(e) par votre annonce",
     mktCatVetements:"Vêtements", mktCatChaussures:"Chaussures", mktCatSacs:"Sacs",
     mktCatBijoux:"Bijoux & Montres", mktCatAccessoires:"Accessoires", mktCatBeaute:"Beauté", mktCatAutre:"Autre",
     postSuccessMsg:"Votre annonce a été publiée !",
-    discoverCta:"Découvrir"
+    discoverCta:"Découvrir",
+    sellBannerTitle:"Une pièce de luxe à vendre ?",
+    sellBannerText:"Déposez votre annonce en une minute et vendez directement à d'autres membres, sans commission.",
+    sellBannerCta:"Vendre un article",
+    promoSlides:[
+      { tag:"Exclusif", title:"Plus de 40 maisons de luxe", text:"Des podiums parisiens jusqu'à votre porte, sans intermédiaire.", cta:"Découvrir les maisons", action:"home" },
+      { tag:"Vide-dressing", title:"Vendez vos pièces de luxe", text:"Rejoignez notre vide-dressing entre particuliers, sans commission.", cta:"Déposer une annonce", action:"market" },
+      { tag:"Authenticité", title:"Sourcé directement à Paris", text:"Chaque pièce vérifiée avec le même soin que dans les boutiques les plus prestigieuses.", cta:"Notre histoire", action:"about" },
+      { tag:"Nouveautés", title:"De nouvelles pièces chaque semaine", text:"Le catalogue s'enrichit en continu, directement depuis nos maisons partenaires.", cta:"Voir les nouveautés", action:"home" },
+      { tag:"International", title:"Français · English · العربية", text:"Une expérience pensée pour chaque cliente et client, où qu'il soit.", cta:"Explorer", action:"home" },
+      { tag:"Livraison", title:"Paris to your door", text:"Livraison partout dans le monde, avec le même soin à chaque étape.", cta:"En savoir plus", action:"about" }
+    ]
   },
   en:{
     loading:"Loading the boutique…",
@@ -770,10 +808,11 @@ const LANG = {
     wishTitle:"Wishlist", cartTitle:"Bag",
     univers:"World", prestige:"Prestige", tendance:"Trend",
     genre:"Gender", tout:"All", femme:"Women", homme:"Men",
-    maisons:"Houses", enseignes:"Brands",
-    heroTitleLuxe:"The houses", heroTitlePasluxe:"The brands",
+    maisons:"Houses", enseignes:"Brands", magasinsTab:"Department stores",
+    heroTitleLuxe:"The houses", heroTitlePasluxe:"The brands", heroTitleMagasins:"The department stores",
     heroTextLuxe:"Browse each house alphabetically, or click a name in the list to jump straight to it.",
     heroTextPasluxe:"Runway style, without the runway price. Browse each brand alphabetically.",
+    heroTextMagasins:"Paris's great department stores, each with its own style. Click to visit their official site.",
     statMarques:"brands", siteOfficiel:"Official site", articles:"items",
     emptyBrands:"No brand yet.",
     allBrandsBack:"← All brands", resultats:"results",
@@ -814,12 +853,25 @@ const LANG = {
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
     formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
+    formPhoto:"Photo", formPhotoHint:"Add a photo",
     formNamePlaceholder:"E.g. Chanel Classic Flap bag", formLocationPlaceholder:"City, country",
     contactSeller:"Contact seller", marketListingCount:"listings",
+    whatsappInterestMsg:"Hello, I'm interested in your listing",
     mktCatVetements:"Clothing", mktCatChaussures:"Shoes", mktCatSacs:"Bags",
     mktCatBijoux:"Jewellery & Watches", mktCatAccessoires:"Accessories", mktCatBeaute:"Beauty", mktCatAutre:"Other",
     postSuccessMsg:"Your listing has been published!",
-    discoverCta:"Discover"
+    discoverCta:"Discover",
+    sellBannerTitle:"Have a luxury piece to sell?",
+    sellBannerText:"List your item in a minute and sell directly to other members, no commission.",
+    sellBannerCta:"Sell an item",
+    promoSlides:[
+      { tag:"Exclusive", title:"40+ luxury houses", text:"From the Paris runways straight to your door, no middleman.", cta:"Discover the houses", action:"home" },
+      { tag:"Preloved", title:"Sell your luxury pieces", text:"Join our peer-to-peer marketplace, no commission.", cta:"Post a listing", action:"market" },
+      { tag:"Authenticity", title:"Sourced directly from Paris", text:"Every piece verified with the same care as inside the most prestigious boutiques.", cta:"Our story", action:"about" },
+      { tag:"New in", title:"New pieces every week", text:"The catalogue keeps growing, straight from our partner houses.", cta:"See what's new", action:"home" },
+      { tag:"International", title:"Français · English · العربية", text:"An experience designed for every client, wherever they are.", cta:"Explore", action:"home" },
+      { tag:"Shipping", title:"Paris to your door", text:"Worldwide delivery, with the same care at every step.", cta:"Learn more", action:"about" }
+    ]
   },
   ar:{
     loading:"جارٍ تحميل المتجر…",
@@ -827,10 +879,11 @@ const LANG = {
     wishTitle:"قائمة الرغبات", cartTitle:"الحقيبة",
     univers:"الفئة", prestige:"الفخامة", tendance:"الرائج",
     genre:"الجنس", tout:"الكل", femme:"نساء", homme:"رجال",
-    maisons:"الماركات", enseignes:"العلامات",
-    heroTitleLuxe:"الماركات", heroTitlePasluxe:"العلامات",
+    maisons:"الماركات", enseignes:"العلامات", magasinsTab:"المتاجر الكبرى",
+    heroTitleLuxe:"الماركات", heroTitlePasluxe:"العلامات", heroTitleMagasins:"المتاجر الكبرى",
     heroTextLuxe:"تصفح كل ماركة حسب الترتيب الأبجدي، أو اضغط على اسم في القائمة للانتقال إليه مباشرة.",
     heroTextPasluxe:"أناقة عروض الأزياء بميزانية أقل. تصفح كل علامة حسب الترتيب الأبجدي.",
+    heroTextMagasins:"كبرى المتاجر الباريسية، لكل منها أسلوبها الخاص. اضغط لزيارة موقعها الرسمي.",
     statMarques:"ماركة", siteOfficiel:"الموقع الرسمي", articles:"منتج",
     emptyBrands:"لا توجد ماركات حالياً.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
@@ -871,12 +924,25 @@ const LANG = {
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
     formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
+    formPhoto:"صورة", formPhotoHint:"أضف صورة",
     formNamePlaceholder:"مثال: حقيبة Chanel Classic Flap", formLocationPlaceholder:"المدينة، البلد",
     contactSeller:"تواصل مع البائع", marketListingCount:"إعلان",
+    whatsappInterestMsg:"مرحباً، أنا مهتم بإعلانك",
     mktCatVetements:"ملابس", mktCatChaussures:"أحذية", mktCatSacs:"حقائب",
     mktCatBijoux:"مجوهرات وساعات", mktCatAccessoires:"إكسسوارات", mktCatBeaute:"تجميل", mktCatAutre:"أخرى",
     postSuccessMsg:"تم نشر إعلانك بنجاح!",
-    discoverCta:"اكتشف"
+    discoverCta:"اكتشف",
+    sellBannerTitle:"لديك قطعة فاخرة للبيع؟",
+    sellBannerText:"انشر إعلانك في دقيقة واحدة وبِع مباشرة لأعضاء آخرين، بدون عمولة.",
+    sellBannerCta:"بيع منتج",
+    promoSlides:[
+      { tag:"حصري", title:"أكثر من 40 ماركة فاخرة", text:"من عروض أزياء باريس مباشرة إلى بابك، دون وسيط.", cta:"اكتشف الماركات", action:"home" },
+      { tag:"السوق الحر", title:"بيع قطعك الفاخرة", text:"انضم إلى سوقنا بين الأفراد، بدون عمولة.", cta:"أضف إعلاناً", action:"market" },
+      { tag:"أصالة", title:"مصدره مباشرة من باريس", text:"كل قطعة يتم التحقق منها بنفس العناية الموجودة داخل أرقى المتاجر.", cta:"قصتنا", action:"about" },
+      { tag:"وصل حديثاً", title:"قطع جديدة كل أسبوع", text:"يتوسع الكتالوج باستمرار، مباشرة من ماركاتنا الشريكة.", cta:"شاهد الجديد", action:"home" },
+      { tag:"عالمي", title:"Français · English · العربية", text:"تجربة مصممة لكل عميل وعميلة، أينما كانوا.", cta:"استكشف", action:"home" },
+      { tag:"التوصيل", title:"من باريس إلى بابك", text:"توصيل حول العالم، بنفس العناية في كل خطوة.", cta:"اعرف أكثر", action:"about" }
+    ]
   }
 };
 const DESCRIPTIONS_I18N = {
@@ -1037,58 +1103,42 @@ setInterval(pollCatalog, 15000);
 let promoSlides = [];
 let promoIndex = 0;
 let promoTimer = null;
+// vitrine publicitaire de la maison elle-même (pas des produits/prix
+// precis) : messages courts, style annonce mode, une image de fond
+// decorative tiree du catalogue reel tourne derriere chaque slide.
+const PROMO_IMAGE_BRANDS = ['SelfPortrait','RickOwens','AmiParis','Zara','Uniqlo','Lacoste'];
 function computePromoSlides(){
-  // on prend le nouvel article le moins cher de chaque marque, puis on
-  // échantillonne uniformément du moins cher au plus cher pour avoir un
-  // vrai mélange (petits prix inclus) plutôt que juste les pièces les
-  // plus chères d'une poignée de maisons de luxe.
-  const cheapestPerBrand = new Map();
-  DATA.brands.forEach(b=>{
-    if(b.external) return;
-    b.items.forEach(i=>{
-      if(!i.isNew || !i.image || typeof i.price!=='number') return;
-      const cur = cheapestPerBrand.get(b.id);
-      if(!cur || i.price < cur.item.price){
-        cheapestPerBrand.set(b.id, { brandId:b.id, brandName:b.name, item:i });
-      }
-    });
-  });
-  const pool = Array.from(cheapestPerBrand.values()).sort((a,b)=> (a.item.price||0)-(b.item.price||0));
-  const N = Math.min(10, pool.length);
-  promoSlides = [];
-  if(pool.length<=N){
-    promoSlides = pool;
-  }else{
-    for(let k=0;k<N;k++){
-      const idx = Math.round(k*(pool.length-1)/(N-1));
-      promoSlides.push(pool[idx]);
-    }
-  }
+  const slidesDef = LANG[state.lang].promoSlides || LANG.fr.promoSlides;
+  promoSlides = slidesDef.map((s, i)=>{
+    const brandName = PROMO_IMAGE_BRANDS[i % PROMO_IMAGE_BRANDS.length];
+    const brand = DATA.brands.find(b=> b.name===brandName);
+    const withImage = brand && brand.items.find(it=> it.image);
+    return { ...s, image: withImage ? withImage.image : '' };
+  }).filter(s=> s.image);
   promoIndex = 0;
+}
+function promoAction(action){
+  if(action==='market'){ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); }
+  else if(action==='about'){ document.querySelector('.about-us').scrollIntoView({behavior:'smooth'}); }
+  else { state.view='home'; renderStorefront(); }
 }
 function renderPromo(){
   const wrap = document.getElementById('promoCarousel');
   if(!promoSlides.length){ wrap.classList.add('hidden'); return; }
   wrap.classList.remove('hidden');
-  document.getElementById('promoTrack').innerHTML = promoSlides.map(c => `
-    <div class="promo-slide" data-brand="${c.brandId}" data-item="${c.item.id}">
-      <div class="promo-media"><img src="${c.item.image}" alt="" loading="lazy"></div>
+  document.getElementById('promoTrack').innerHTML = promoSlides.map((s,i) => `
+    <div class="promo-slide" data-action="${s.action}">
+      <div class="promo-media"><img src="${s.image}" alt=""></div>
       <div class="promo-text">
-        <span class="promo-tag">${t('nouveauBadge')}</span>
-        <div class="promo-brand">${c.brandName}</div>
-        <div class="promo-name">${c.item.name}</div>
-        <div class="promo-price">${fmt(c.item.price, true)}</div>
-        <div class="promo-cta">${t('discoverCta')} →</div>
+        <span class="promo-tag">${s.tag}</span>
+        <div class="promo-name">${s.title}</div>
+        <div class="promo-desc">${s.text}</div>
+        <div class="promo-cta">${s.cta} →</div>
       </div>
     </div>`).join('');
   document.getElementById('promoDots').innerHTML = promoSlides.map((_,i)=> `<span class="promo-dot" data-i="${i}"></span>`).join('');
-  document.querySelectorAll('.promo-slide').forEach(el=> el.addEventListener('click', ()=>{
-    const brand = findBrand(el.dataset.brand);
-    if(brand) state.universe = brand.universe;
-    openBrand(el.dataset.brand);
-    openDetail(el.dataset.item);
-  }));
-  document.querySelectorAll('.promo-dot').forEach(el=> el.addEventListener('click', ()=> goToPromo(parseInt(el.dataset.i))));
+  document.querySelectorAll('.promo-slide').forEach(el=> el.addEventListener('click', ()=> promoAction(el.dataset.action)));
+  document.querySelectorAll('.promo-dot').forEach(el=> el.addEventListener('click', (e)=>{ e.stopPropagation(); goToPromo(parseInt(el.dataset.i)); }));
   updatePromoUI();
   restartPromoTimer();
 }
@@ -1142,7 +1192,7 @@ function visibleBrands(){
 }
 function renderBrandNav(){
   const brands = visibleBrands();
-  document.getElementById('brandNavTitle').textContent = state.universe==='luxe' ? t('maisons') : t('enseignes');
+  document.getElementById('brandNavTitle').textContent = state.universe==='luxe' ? t('maisons') : state.universe==='magasins' ? t('magasinsTab') : t('enseignes');
   document.getElementById('brandNavList').innerHTML = brands.map(b=>
     `<li class="brand-nav-item"><button class="${state.brandId===b.id?'active':''}" data-brand="${b.id}"><span>${b.name}</span><span class="cnt">${b.external?'↗':itemCountForGender(b)}</span></button></li>`
   ).join('');
@@ -1150,8 +1200,8 @@ function renderBrandNav(){
 }
 function renderHome(){
   const brands = visibleBrands();
-  document.getElementById('heroTitle').textContent = state.universe==='luxe' ? t('heroTitleLuxe') : t('heroTitlePasluxe');
-  document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : t('heroTextPasluxe');
+  document.getElementById('heroTitle').textContent = state.universe==='luxe' ? t('heroTitleLuxe') : state.universe==='magasins' ? t('heroTitleMagasins') : t('heroTitlePasluxe');
+  document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
   document.getElementById('statCount').textContent = brands.length;
   const logoTag = b => b.logo ? `<span class="bt-logo"><img src="${b.logo}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></span>` : '';
   document.getElementById('homeGrid').innerHTML = `<div class="brand-wall">` + (brands.map(b=>{
@@ -1241,6 +1291,7 @@ document.querySelectorAll('.lang-switch button').forEach(btn=> btn.addEventListe
   state.lang = btn.dataset.lang;
   localStorage.setItem('armoire_lang_v1', state.lang);
   applyStaticI18n();
+  computePromoSlides();
   renderPromo();
   renderStorefront();
 }));
@@ -1249,6 +1300,43 @@ document.querySelectorAll('.lang-switch button').forEach(btn=> btn.addEventListe
 const MARKET_CATS = ['vetements','chaussures','sacs','bijoux','accessoires','beaute','autre'];
 const MARKET_CAT_KEY = { vetements:'mktCatVetements', chaussures:'mktCatChaussures', sacs:'mktCatSacs', bijoux:'mktCatBijoux', accessoires:'mktCatAccessoires', beaute:'mktCatBeaute', autre:'mktCatAutre' };
 let lastPostedId = null;
+let pendingListingImage = null;
+function waLink(l){
+  const digits = (l.phone||'').replace(/[^\d]/g,'');
+  const msg = `${t('whatsappInterestMsg')} : ${l.name}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
+}
+function readAndResizeImage(file, maxSize){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = ()=>{
+        let { width, height } = img;
+        if(width > height && width > maxSize){ height = Math.round(height * maxSize / width); width = maxSize; }
+        else if(height > maxSize){ width = Math.round(width * maxSize / height); height = maxSize; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.8));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+document.getElementById('photoDrop').addEventListener('click', ()=> document.getElementById('pfImage').click());
+document.getElementById('pfImage').addEventListener('change', async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  pendingListingImage = await readAndResizeImage(file, 900);
+  const preview = document.getElementById('photoPreview');
+  preview.src = pendingListingImage;
+  preview.classList.remove('hidden');
+  document.getElementById('photoDropText').classList.add('hidden');
+});
 function renderMarket(){
   document.getElementById('marketCats').innerHTML = ['all', ...MARKET_CATS].map(c=>
     `<button class="dept-chip ${state.marketCat===c?'active':''}" data-mcat="${c}">${c==='all'?t('tout'):t(MARKET_CAT_KEY[c])}</button>`
@@ -1260,11 +1348,12 @@ function renderMarket(){
 
   document.getElementById('marketGrid').innerHTML = listings.map(l=> `
     <div class="market-card" id="market-card-${l.id}">
+      <div class="mc-photo">${l.image ? `<img src="${l.image}" alt="">` : ''}</div>
       <span class="mc-cat">${t(MARKET_CAT_KEY[l.category]||'mktCatAutre')}</span>
       <div class="mc-name">${escapeHtml(l.name)}</div>
       <div class="mc-price">${fmt(l.price, true)}</div>
       <div class="mc-loc">${escapeHtml(l.location)}</div>
-      <a class="mc-contact" href="tel:${escapeHtml(l.phone.replace(/[^\d+]/g,''))}">${t('contactSeller')}</a>
+      <a class="mc-contact" href="${waLink(l)}" target="_blank" rel="noopener">${t('contactSeller')}</a>
     </div>`).join('') || `<div class="empty">${t('marketEmpty')}</div>`;
 
   if(lastPostedId){
@@ -1285,7 +1374,7 @@ function closePostModal(){
   document.getElementById('postModal').classList.remove('open');
   document.getElementById('postScrim').classList.remove('open');
 }
-document.getElementById('marketBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
+document.getElementById('sellBannerBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);
 document.getElementById('postScrim').addEventListener('click', closePostModal);
@@ -1297,11 +1386,15 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   const phone = document.getElementById('pfPhone').value.trim();
   const location = document.getElementById('pfLocation').value.trim();
   if(!name || !phone || !location || isNaN(price)) return;
-  const listing = { id: genId(), name, category, price, phone, location, createdAt: Date.now() };
+  const listing = { id: genId(), name, category, price, phone, location, image: pendingListingImage, createdAt: Date.now() };
   state.market.unshift(listing);
   lastPostedId = listing.id;
   closePostModal();
   document.getElementById('postForm').reset();
+  pendingListingImage = null;
+  document.getElementById('photoPreview').classList.add('hidden');
+  document.getElementById('photoPreview').removeAttribute('src');
+  document.getElementById('photoDropText').classList.remove('hidden');
   renderMarket();
   saveMarketplace();
 });
