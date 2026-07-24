@@ -77,6 +77,26 @@ a{color:inherit;}
 .brand-nav-item button.active .cnt{color:var(--gold-soft);}
 .main{flex:1; padding:40px 40px 0; min-width:0;}
 
+/* ---------- PROMO CAROUSEL ---------- */
+.promo-carousel{position:relative; direction:ltr; height:380px; border-radius:var(--radius-l); overflow:hidden; margin-bottom:38px; background:#eee;}
+.promo-track{display:flex; height:100%; transition:transform .6s cubic-bezier(.65,0,.35,1);}
+.promo-slide{flex:0 0 100%; height:100%; position:relative; background-size:cover; background-position:center; display:flex; align-items:flex-end; cursor:pointer;}
+.promo-slide::before{content:''; position:absolute; inset:0; background:linear-gradient(0deg, rgba(10,9,7,.72) 0%, rgba(10,9,7,.28) 45%, rgba(10,9,7,.05) 75%);}
+.promo-content{position:relative; z-index:1; padding:38px 46px; color:#fff; max-width:460px;}
+.promo-tag{display:inline-block; background:var(--gold); color:#fff; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; padding:5px 13px; border-radius:20px; margin-bottom:14px;}
+.promo-brand{font-size:11px; letter-spacing:.16em; text-transform:uppercase; opacity:.85; margin-bottom:6px;}
+.promo-name{font-family:'Cormorant Garamond',serif; font-size:clamp(24px,3vw,34px); font-weight:600; line-height:1.15; margin-bottom:10px; text-wrap:balance;}
+.promo-price{font-size:16px; font-weight:600; margin-bottom:18px;}
+.promo-cta{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; color:#fff; border-bottom:1px solid rgba(255,255,255,.55); padding-bottom:3px; transition:opacity .15s ease;}
+.promo-slide:hover .promo-cta{opacity:.7;}
+.promo-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.85); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; font-size:19px; line-height:1; color:#111; transition:background .2s ease, transform .2s ease;}
+.promo-arrow:hover{background:#fff; transform:translateY(-50%) scale(1.06);}
+.promo-arrow.prev{left:16px;} .promo-arrow.next{right:16px;}
+.promo-dots{position:absolute; bottom:18px; right:24px; z-index:2; display:flex; gap:6px;}
+.promo-dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.5); cursor:pointer; transition:background .2s ease, transform .2s ease;}
+.promo-dot.active{background:#fff; transform:scale(1.35);}
+@media (prefers-reduced-motion: reduce){ .promo-track{transition:none;} }
+
 /* ---------- HOME ---------- */
 .hero-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px; flex-wrap:wrap; gap:14px; padding-bottom:26px; border-bottom:1px solid var(--line);}
 .hero-row h1{font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:600; letter-spacing:.01em;}
@@ -168,6 +188,26 @@ a{color:inherit;}
 .wish-link:hover{background:var(--line-soft);}
 .wish-link svg{width:15px; height:15px; stroke:#111; fill:none;}
 .wish-link.active svg{fill:var(--gold);}
+.post-modal{flex-direction:column; width:min(440px,92vw);}
+.post-modal .modal-body{width:100%; padding:38px 34px;}
+.form-row{margin-bottom:16px; display:flex; flex-direction:column; gap:7px;}
+.form-row label{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint);}
+.form-row input, .form-row select{border:1px solid #ddd; border-radius:var(--radius-s); padding:10px 12px; font-size:13.5px; background:#fff;}
+.form-row input:focus, .form-row select:focus{outline:none; border-color:var(--gold-soft);}
+
+/* ---------- VIDE-DRESSING ---------- */
+.post-item-btn{background:var(--ink); color:#fff; padding:12px 22px; border-radius:24px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
+.post-item-btn:hover{background:#000; transform:translateY(-1px);}
+.market-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; margin-top:26px;}
+.market-card{border:1px solid var(--line); border-radius:var(--radius-m); padding:22px; display:flex; flex-direction:column; gap:9px; transition:box-shadow .2s ease, transform .2s ease;}
+.market-card:hover{box-shadow:0 12px 26px rgba(0,0,0,.06); transform:translateY(-2px);}
+.market-card .mc-cat{align-self:flex-start; font-size:10px; letter-spacing:.08em; text-transform:uppercase; background:var(--line-soft); color:var(--muted); padding:4px 11px; border-radius:12px; font-weight:600;}
+.market-card .mc-name{font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:600; line-height:1.3;}
+.market-card .mc-price{font-size:15px; font-weight:600;}
+.market-card .mc-loc{font-size:12px; color:var(--muted);}
+.market-card .mc-contact{margin-top:4px; align-self:flex-start; font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; border:1px solid var(--ink); border-radius:20px; padding:8px 17px; transition:background .15s ease, color .15s ease;}
+.market-card .mc-contact:hover{background:var(--ink); color:#fff;}
+.market-card.pulse-highlight{animation:brandPulse 2s ease-out;}
 
 /* ============ DRAWERS ============ */
 .drawer-scrim{position:fixed; inset:0; background:rgba(20,18,14,.45); z-index:58; opacity:0; pointer-events:none; transition:opacity .3s ease;}
@@ -245,6 +285,17 @@ a{color:inherit;}
 .receipt-close-row{text-align:center; margin-top:14px; font-family:Inter,sans-serif;}
 .receipt-close-row button{font-size:11.5px; color:#999; text-decoration:underline;}
 
+/* ============ ABOUT US ============ */
+.about-us{border-top:1px solid var(--line); margin-top:80px; padding:76px 40px;}
+.about-inner{max-width:680px; margin:0 auto; text-align:center;}
+.about-eyebrow{font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:14px;}
+.about-us h2{font-family:'Cormorant Garamond',serif; font-size:clamp(28px,4vw,40px); font-weight:600; line-height:1.2; letter-spacing:.01em;}
+.about-rule{width:44px; height:1px; background:var(--gold-soft); margin:22px auto 34px;}
+.about-body{text-align:left; color:#3a3a3a; font-size:14.5px; line-height:1.85;}
+.about-body p{margin-bottom:18px;}
+.about-signature{margin-top:34px; padding-top:28px; border-top:1px solid var(--line); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:18px; color:var(--ink); line-height:1.5;}
+[dir="rtl"] .about-body{text-align:right;}
+
 /* ============ FOOTER ============ */
 .site-footer{margin-top:80px; border-top:1px solid var(--line); background:var(--gold-mist);}
 .site-footer-inner{max-width:1440px; margin:0 auto; padding:48px 40px 34px; display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap;}
@@ -311,6 +362,11 @@ a{color:inherit;}
   .receipt-footer{flex-wrap:wrap; gap:16px;}
   .receipt-footer .col{flex:1 1 45%;}
 
+  .promo-carousel{height:300px; margin-bottom:26px; border-radius:var(--radius-m);}
+  .promo-content{padding:24px 24px;}
+  .promo-arrow{width:32px; height:32px; font-size:16px;}
+  .about-us{padding:50px 20px; margin-top:50px;}
+  .about-body{font-size:13.5px;}
   .site-footer{margin-top:50px;}
   .site-footer-inner{padding:34px 20px 22px; gap:26px;}
   .footer-cols{gap:30px;}
@@ -355,6 +411,9 @@ a{color:inherit;}
       <button type="button" data-lang="en">EN</button>
       <button type="button" data-lang="ar">AR</button>
     </div>
+    <button class="icon-btn" id="marketBtn" title="Vide-dressing" data-i18n-title="marketNavTitle">
+      <svg viewBox="0 0 24 24"><path d="M20.6 12.6 12.6 20.6a2 2 0 0 1-2.8 0l-6.4-6.4a2 2 0 0 1 0-2.8L11.4 3.4A2 2 0 0 1 12.8 3H19a2 2 0 0 1 2 2v6.2a2 2 0 0 1-.4 1.4z"/><circle cx="15.5" cy="7.5" r="1.4"/></svg>
+    </button>
     <button class="icon-btn" id="wishBtn" title="Liste d'envies" data-i18n-title="wishTitle">
       <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg>
       <span class="badge hidden" id="wishCount">0</span>
@@ -385,6 +444,12 @@ a{color:inherit;}
 
   <main class="main">
     <div id="viewHome">
+      <div class="promo-carousel hidden" id="promoCarousel">
+        <div class="promo-track" id="promoTrack"></div>
+        <button class="promo-arrow prev" id="promoPrev" aria-label="Précédent">‹</button>
+        <button class="promo-arrow next" id="promoNext" aria-label="Suivant">›</button>
+        <div class="promo-dots" id="promoDots"></div>
+      </div>
       <div class="hero-row">
         <div><h1 id="heroTitle">Les maisons</h1><p id="heroText"></p></div>
         <div class="stat"><b id="statCount">0</b><span data-i18n="statMarques">marques</span></div>
@@ -409,8 +474,27 @@ a{color:inherit;}
       </div>
       <div class="plp-grid" id="plpGrid"></div>
     </div>
+
+    <div id="viewMarket" class="hidden">
+      <div class="hero-row">
+        <div><h1 data-i18n="marketHeroTitle">Vide-dressing entre particuliers</h1><p data-i18n="marketHeroText"></p></div>
+        <button class="post-item-btn" id="postItemBtn" data-i18n="postItemBtn">Déposer un article</button>
+      </div>
+      <div class="dept-chips" id="marketCats"></div>
+      <div class="market-grid" id="marketGrid"></div>
+    </div>
   </main>
 </div>
+
+<section class="about-us">
+  <div class="about-inner">
+    <div class="about-eyebrow" data-i18n="aboutEyebrow">Notre histoire</div>
+    <h2 data-i18n="aboutTitle">From the Football Pitch to Paris Luxury</h2>
+    <div class="about-rule"></div>
+    <div class="about-body" id="aboutBody"></div>
+    <p class="about-signature" id="aboutSignature"></p>
+  </div>
+</section>
 
 <footer class="site-footer">
   <div class="site-footer-inner">
@@ -456,6 +540,45 @@ a{color:inherit;}
     </div>
     <button class="add-bag-btn" id="modalAdd" data-i18n="ajouterSac">Ajouter au sac</button>
     <button class="wish-link" id="modalWish"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg><span data-i18n="ajouterWishlist">Ajouter à la liste d'envies</span></button>
+  </div>
+</div>
+
+<div class="modal-scrim" id="postScrim"></div>
+<div class="modal post-modal" id="postModal">
+  <button class="modal-close" id="postClose">✕</button>
+  <div class="modal-body">
+    <div class="modal-name" data-i18n="postItemBtn">Déposer un article</div>
+    <form id="postForm">
+      <div class="form-row">
+        <label data-i18n="formItemName">Nom de l'article</label>
+        <input type="text" id="pfName" required data-i18n-placeholder="formNamePlaceholder" placeholder="Ex : Sac Chanel Classic Flap">
+      </div>
+      <div class="form-row">
+        <label data-i18n="formCategory">Catégorie</label>
+        <select id="pfCategory">
+          <option value="vetements" data-i18n="mktCatVetements">Vêtements</option>
+          <option value="chaussures" data-i18n="mktCatChaussures">Chaussures</option>
+          <option value="sacs" data-i18n="mktCatSacs">Sacs</option>
+          <option value="bijoux" data-i18n="mktCatBijoux">Bijoux &amp; Montres</option>
+          <option value="accessoires" data-i18n="mktCatAccessoires">Accessoires</option>
+          <option value="beaute" data-i18n="mktCatBeaute">Beauté</option>
+          <option value="autre" data-i18n="mktCatAutre">Autre</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label data-i18n="formPrice">Prix (€)</label>
+        <input type="number" id="pfPrice" min="0" step="1" required>
+      </div>
+      <div class="form-row">
+        <label data-i18n="formPhone">Téléphone</label>
+        <input type="tel" id="pfPhone" required placeholder="+33 6 12 34 56 78">
+      </div>
+      <div class="form-row">
+        <label data-i18n="formLocation">Localisation</label>
+        <input type="text" id="pfLocation" required data-i18n-placeholder="formLocationPlaceholder" placeholder="Ville, pays">
+      </div>
+      <button type="submit" class="add-bag-btn" data-i18n="formSubmit">Publier l'annonce</button>
+    </form>
   </div>
 </div>
 
@@ -606,7 +729,34 @@ const LANG = {
     footerRights:"Tous droits réservés.",
     rcptThanksNote:"Merci d'avoir choisi Le Luxe.",
     rcptThanksBig:"Merci de laisser Le Luxe faire partie de votre élégance.",
-    rcptDownload:"Télécharger", rcptWhatsapp:"Envoyer via WhatsApp", rcptClose:"Fermer"
+    rcptDownload:"Télécharger", rcptWhatsapp:"Envoyer via WhatsApp", rcptClose:"Fermer",
+    aboutEyebrow:"Notre histoire",
+    aboutTitle:"Du terrain de football au luxe parisien",
+    aboutParagraphs:[
+      "Tout voyage commence quelque part.",
+      "Le mien n'a pas commencé dans une boutique de luxe.",
+      "Il a commencé sur un terrain de football.",
+      "Le football m'a appris la discipline, la résilience, l'esprit d'équipe et la détermination à toujours progresser. Ces valeurs sont devenues le socle de tout ce que j'allais construire dans ma carrière.",
+      "Ma passion pour les gens et l'expérience client grandissant, j'ai rejoint Sports For Ever, où j'ai développé mes compétences en leadership et appris à inspirer et à créer du lien avec les autres.",
+      "J'ai ensuite élargi mon expérience en travaillant avec une entreprise servant une clientèle à Dubaï, ce qui a renforcé mes compétences en communication, en vente et en développement commercial international.",
+      "Ma carrière a ensuite pris un tournant décisif chez ABC Department Store, où j'ai découvert ma véritable passion pour le commerce de luxe. Travailler avec des marques de mode haut de gamme m'a permis de comprendre que le luxe va bien au-delà de la vente de produits — il s'agit de créer de la confiance, de construire des relations et d'offrir une expérience inoubliable.",
+      "Parmi toutes les marques avec lesquelles j'ai travaillé, Sandro est vite devenue ma préférée. J'admirais son style parisien sans effort, son savoir-faire exceptionnel et son élégance intemporelle. Vendre du Sandro, ce n'était pas seulement une question de mode — c'était aider les clientes et clients à exprimer leur personnalité à travers des pièces magnifiquement conçues. Cette expérience a renforcé mon amour du luxe à la française et continue d'influencer mon regard sur le style aujourd'hui.",
+      "Ces années dans le commerce de luxe ont façonné mon expertise en personal shopping, en conseil en style et en service client.",
+      "Aujourd'hui, Le Luxe Paris est le fruit de ce parcours.",
+      "Chaque article est sourcé personnellement depuis Paris, avec authenticité, transparence et une attention méticuleuse portée aux détails. Notre mission est de donner à nos clients accès aux plus grandes marques de luxe au monde, avec le même niveau de service et d'expertise que l'on trouve dans les boutiques les plus prestigieuses de Paris."
+    ],
+    aboutSignature:"Du terrain de football aux boutiques de Paris — chaque étape de ce parcours a façonné la vision derrière Le Luxe.",
+    marketNavTitle:"Vide-dressing", marketHeroTitle:"Vide-dressing entre particuliers",
+    marketHeroText:"Vendez vos pièces de luxe directement entre particuliers. Déposez une annonce en une minute, sans commission.",
+    postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
+    formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
+    formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
+    formNamePlaceholder:"Ex : Sac Chanel Classic Flap", formLocationPlaceholder:"Ville, pays",
+    contactSeller:"Contacter le vendeur", marketListingCount:"annonces",
+    mktCatVetements:"Vêtements", mktCatChaussures:"Chaussures", mktCatSacs:"Sacs",
+    mktCatBijoux:"Bijoux & Montres", mktCatAccessoires:"Accessoires", mktCatBeaute:"Beauté", mktCatAutre:"Autre",
+    postSuccessMsg:"Votre annonce a été publiée !",
+    discoverCta:"Découvrir"
   },
   en:{
     loading:"Loading the boutique…",
@@ -636,7 +786,34 @@ const LANG = {
     footerRights:"All rights reserved.",
     rcptThanksNote:"Thank you for choosing Le Luxe.",
     rcptThanksBig:"Thank you for letting Le Luxe be part of your elegance.",
-    rcptDownload:"Download", rcptWhatsapp:"Send via WhatsApp", rcptClose:"Close"
+    rcptDownload:"Download", rcptWhatsapp:"Send via WhatsApp", rcptClose:"Close",
+    aboutEyebrow:"Our story",
+    aboutTitle:"From the Football Pitch to Paris Luxury",
+    aboutParagraphs:[
+      "Every journey starts somewhere.",
+      "Mine didn't begin in a luxury boutique.",
+      "It began on the football field.",
+      "Football taught me discipline, resilience, teamwork, and the determination to constantly improve. Those values became the foundation of everything I would build in my career.",
+      "As my passion for people and customer experience grew, I joined Sports For Ever, where I developed leadership skills and learned how to inspire and connect with others.",
+      "I later expanded my experience by working with a company serving clients in Dubai, strengthening my communication, sales, and international business skills.",
+      "My career then took a major step forward at ABC Department Store, where I discovered my true passion for luxury retail. Working with premium fashion brands allowed me to understand that luxury is about much more than selling products—it's about creating trust, building relationships, and delivering an unforgettable experience.",
+      "Among all the brands I worked with, Sandro quickly became my favorite. I admired its effortless Parisian style, exceptional craftsmanship, and timeless elegance. Selling Sandro wasn't just about fashion—it was about helping clients express their personality through beautifully designed pieces. That experience deepened my appreciation for French luxury and continues to influence my eye for style today.",
+      "Those years in luxury retail shaped my expertise in personal shopping, styling, and client service.",
+      "Today, Le Luxe Paris is the result of that journey.",
+      "Every item is personally sourced from Paris with authenticity, transparency, and meticulous attention to detail. Our mission is to give clients access to the world's finest luxury brands while delivering the same level of service and expertise found inside the most prestigious boutiques in Paris."
+    ],
+    aboutSignature:"From the football pitch to the boutiques of Paris—every step of the journey shaped the vision behind Le Luxe.",
+    marketNavTitle:"Preloved", marketHeroTitle:"Peer-to-peer preloved marketplace",
+    marketHeroText:"Sell your luxury pieces directly to other members. List an item in a minute, no commission.",
+    postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
+    formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
+    formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
+    formNamePlaceholder:"E.g. Chanel Classic Flap bag", formLocationPlaceholder:"City, country",
+    contactSeller:"Contact seller", marketListingCount:"listings",
+    mktCatVetements:"Clothing", mktCatChaussures:"Shoes", mktCatSacs:"Bags",
+    mktCatBijoux:"Jewellery & Watches", mktCatAccessoires:"Accessories", mktCatBeaute:"Beauty", mktCatAutre:"Other",
+    postSuccessMsg:"Your listing has been published!",
+    discoverCta:"Discover"
   },
   ar:{
     loading:"جارٍ تحميل المتجر…",
@@ -666,7 +843,34 @@ const LANG = {
     footerRights:"جميع الحقوق محفوظة.",
     rcptThanksNote:"شكراً لاختياركم Le Luxe.",
     rcptThanksBig:"شكراً لجعل Le Luxe جزءاً من أناقتكم.",
-    rcptDownload:"تحميل", rcptWhatsapp:"إرسال عبر واتساب", rcptClose:"إغلاق"
+    rcptDownload:"تحميل", rcptWhatsapp:"إرسال عبر واتساب", rcptClose:"إغلاق",
+    aboutEyebrow:"قصتنا",
+    aboutTitle:"من ملعب كرة القدم إلى فخامة باريس",
+    aboutParagraphs:[
+      "كل رحلة تبدأ من مكان ما.",
+      "رحلتي لم تبدأ في متجر فخم.",
+      "بل بدأت على ملعب كرة القدم.",
+      "علّمتني كرة القدم الانضباط والصمود وروح الفريق والإصرار على التطور المستمر. أصبحت هذه القيم أساس كل ما بنيته لاحقاً في مسيرتي المهنية.",
+      "مع تنامي شغفي بالتواصل مع الناس وتجربة العملاء، انضممت إلى Sports For Ever، حيث طورت مهاراتي القيادية وتعلمت كيف ألهم الآخرين وأتواصل معهم.",
+      "وسّعت لاحقاً خبرتي من خلال العمل مع شركة تخدم عملاء في دبي، مما عزز مهاراتي في التواصل والمبيعات والأعمال الدولية.",
+      "ثم شهدت مسيرتي المهنية نقلة نوعية في ABC Department Store، حيث اكتشفت شغفي الحقيقي بتجارة التجزئة الفاخرة. العمل مع ماركات أزياء راقية جعلني أدرك أن الفخامة أكبر بكثير من مجرد بيع المنتجات — إنها بناء الثقة، وإقامة العلاقات، وتقديم تجربة لا تُنسى.",
+      "من بين كل الماركات التي عملت معها، أصبحت Sandro المفضلة لدي بسرعة. أُعجبت بأناقتها الباريسية العفوية، وحرفيتها الاستثنائية، وأناقتها الخالدة. لم يكن بيع Sandro مجرد موضة — بل كان مساعدة العملاء على التعبير عن شخصيتهم من خلال قطع مصممة بشكل رائع. عمّقت هذه التجربة تقديري للفخامة الفرنسية وما زالت تؤثر في ذوقي حتى اليوم.",
+      "شكّلت تلك السنوات في تجارة التجزئة الفاخرة خبرتي في التسوق الشخصي، والتنسيق، وخدمة العملاء.",
+      "اليوم، Le Luxe Paris هو نتيجة تلك الرحلة.",
+      "كل قطعة يتم اختيارها شخصياً من باريس بأصالة وشفافية واهتمام دقيق بالتفاصيل. مهمتنا هي منح عملائنا إمكانية الوصول إلى أرقى الماركات الفاخرة في العالم، مع نفس مستوى الخدمة والخبرة الموجود داخل أرقى المتاجر في باريس."
+    ],
+    aboutSignature:"من ملعب كرة القدم إلى متاجر باريس — كل خطوة في هذه الرحلة شكّلت الرؤية وراء Le Luxe.",
+    marketNavTitle:"السوق الحر", marketHeroTitle:"سوق إعادة البيع بين الأفراد",
+    marketHeroText:"بيع قطعك الفاخرة مباشرة لأفراد آخرين. انشر إعلانك في دقيقة واحدة، بدون عمولة.",
+    postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
+    formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
+    formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
+    formNamePlaceholder:"مثال: حقيبة Chanel Classic Flap", formLocationPlaceholder:"المدينة، البلد",
+    contactSeller:"تواصل مع البائع", marketListingCount:"إعلان",
+    mktCatVetements:"ملابس", mktCatChaussures:"أحذية", mktCatSacs:"حقائب",
+    mktCatBijoux:"مجوهرات وساعات", mktCatAccessoires:"إكسسوارات", mktCatBeaute:"تجميل", mktCatAutre:"أخرى",
+    postSuccessMsg:"تم نشر إعلانك بنجاح!",
+    discoverCta:"اكتشف"
   }
 };
 const DESCRIPTIONS_I18N = {
@@ -703,6 +907,8 @@ function applyStaticI18n(){
   document.querySelectorAll('[data-i18n-title]').forEach(el=>{ el.title = t(el.dataset.i18nTitle); });
   document.getElementById('footerBoutiqueLinks').innerHTML = `${t('maisons')}<br>${t('enseignes')}<br>${t('listeEnviesTitle')}`;
   document.getElementById('footerLivraisonText').innerHTML = `${t('footerParis')}<br>${t('footerWorldwide')}`;
+  document.getElementById('aboutBody').innerHTML = (LANG[state.lang].aboutParagraphs||LANG.fr.aboutParagraphs).map(p=>`<p>${p}</p>`).join('');
+  document.getElementById('aboutSignature').textContent = t('aboutSignature');
   const idx = {fr:0, en:1, ar:2}[state.lang];
   document.querySelector('.lang-thumb').style.transform = `translateX(${idx*100}%)`;
   document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===state.lang));
@@ -733,6 +939,24 @@ async function fetchCatalog(){
   const rows = await res.json();
   return rows[0] ? rows[0].data : null;
 }
+async function fetchMarketplace(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.marketplace&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) return [];
+  const rows = await res.json();
+  return (rows[0] && rows[0].data && rows[0].data.listings) || [];
+}
+async function saveMarketplace(){
+  await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method:'POST',
+    headers:{
+      apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`,
+      'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({ id:'marketplace', data:{ listings: state.market } })
+  });
+}
 
 /* ================= APP STATE ================= */
 let DATA = { brands: [] };
@@ -740,8 +964,13 @@ let state = {
   view:'home', universe:'luxe', brandId:null, deptFilter:'all', sort:'price-asc', search:'', gender:'all',
   lang: localStorage.getItem('armoire_lang_v1') || 'fr',
   cart: JSON.parse(localStorage.getItem('armoire_cart_v5')||'[]'),
-  wish: JSON.parse(localStorage.getItem('armoire_wish_v5')||'[]')
+  wish: JSON.parse(localStorage.getItem('armoire_wish_v5')||'[]'),
+  market: [], marketCat: 'all'
 };
+function genId(){ return 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2,9); }
+function escapeHtml(s){
+  return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
 function saveCartWish(){
   localStorage.setItem('armoire_cart_v5', JSON.stringify(state.cart));
   localStorage.setItem('armoire_wish_v5', JSON.stringify(state.wish));
@@ -768,7 +997,10 @@ async function initCatalog(){
     document.getElementById('setupBanner').classList.remove('hidden');
     document.getElementById('setupBanner').textContent = "⚠️ Impossible de joindre la base de données. Vérifiez les identifiants collés en haut de boutique.html.";
   }
+  try{ state.market = await fetchMarketplace(); }catch(e){ state.market = []; }
   document.getElementById('loadingScreen').classList.add('hidden');
+  computePromoSlides();
+  renderPromo();
   renderStorefront();
 }
 // Rafraîchit le catalogue toutes les 15s pour refléter les changements faits depuis le dashboard, sans recharger la page.
@@ -780,11 +1012,90 @@ async function pollCatalog(){
     if(snap !== lastSnapshot){
       DATA = data || { brands: [] };
       lastSnapshot = snap;
+      computePromoSlides();
+      renderPromo();
       renderStorefront();
     }
   }catch(e){ /* silencieux : on retentera au prochain cycle */ }
+  try{
+    const listings = await fetchMarketplace();
+    if(JSON.stringify(listings) !== JSON.stringify(state.market)){
+      state.market = listings;
+      if(state.view==='market') renderMarket();
+    }
+  }catch(e){ /* silencieux */ }
 }
 setInterval(pollCatalog, 15000);
+
+/* ================= PROMO CAROUSEL ================= */
+let promoSlides = [];
+let promoIndex = 0;
+let promoTimer = null;
+function computePromoSlides(){
+  const seenBrands = new Set();
+  const candidates = [];
+  DATA.brands.forEach(b=>{
+    if(b.external || b.universe!=='luxe') return;
+    b.items.forEach(i=>{
+      if(i.isNew && i.image && typeof i.price==='number'){
+        candidates.push({ brandId:b.id, brandName:b.name, item:i });
+      }
+    });
+  });
+  candidates.sort((a,b)=> (b.item.price||0)-(a.item.price||0));
+  promoSlides = [];
+  for(const c of candidates){
+    if(seenBrands.has(c.brandId)) continue;
+    seenBrands.add(c.brandId);
+    promoSlides.push(c);
+    if(promoSlides.length>=6) break;
+  }
+  promoIndex = 0;
+}
+function renderPromo(){
+  const wrap = document.getElementById('promoCarousel');
+  if(!promoSlides.length){ wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  document.getElementById('promoTrack').innerHTML = promoSlides.map(c => `
+    <div class="promo-slide" style="background-image:url('${c.item.image}')" data-brand="${c.brandId}" data-item="${c.item.id}">
+      <div class="promo-content">
+        <span class="promo-tag">${t('nouveauBadge')}</span>
+        <div class="promo-brand">${c.brandName}</div>
+        <div class="promo-name">${c.item.name}</div>
+        <div class="promo-price">${fmt(c.item.price, true)}</div>
+        <div class="promo-cta">${t('discoverCta')} →</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('promoDots').innerHTML = promoSlides.map((_,i)=> `<span class="promo-dot" data-i="${i}"></span>`).join('');
+  document.querySelectorAll('.promo-slide').forEach(el=> el.addEventListener('click', ()=>{
+    const brand = findBrand(el.dataset.brand);
+    if(brand) state.universe = brand.universe;
+    openBrand(el.dataset.brand);
+    openDetail(el.dataset.item);
+  }));
+  document.querySelectorAll('.promo-dot').forEach(el=> el.addEventListener('click', ()=> goToPromo(parseInt(el.dataset.i))));
+  updatePromoUI();
+  restartPromoTimer();
+}
+function updatePromoUI(){
+  document.getElementById('promoTrack').style.transform = `translateX(-${promoIndex*100}%)`;
+  document.querySelectorAll('.promo-dot').forEach((d,i)=> d.classList.toggle('active', i===promoIndex));
+}
+function goToPromo(i){
+  if(!promoSlides.length) return;
+  promoIndex = (i + promoSlides.length) % promoSlides.length;
+  updatePromoUI();
+  restartPromoTimer();
+}
+function restartPromoTimer(){
+  clearInterval(promoTimer);
+  if(promoSlides.length<2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  promoTimer = setInterval(()=> goToPromo(promoIndex+1), 5000);
+}
+document.getElementById('promoPrev').addEventListener('click', ()=> goToPromo(promoIndex-1));
+document.getElementById('promoNext').addEventListener('click', ()=> goToPromo(promoIndex+1));
+document.getElementById('promoCarousel').addEventListener('mouseenter', ()=> clearInterval(promoTimer));
+document.getElementById('promoCarousel').addEventListener('mouseleave', ()=> restartPromoTimer());
 
 /* ================= RENDER ================= */
 function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv); }
@@ -793,8 +1104,11 @@ function renderStorefront(){
   document.querySelectorAll('.gender-tab').forEach(t=> t.classList.toggle('active', t.dataset.g===state.gender));
   document.getElementById('viewHome').classList.toggle('hidden', state.view!=='home');
   document.getElementById('viewPLP').classList.toggle('hidden', state.view!=='plp');
+  document.getElementById('viewMarket').classList.toggle('hidden', state.view!=='market');
   renderBrandNav();
-  if(state.view==='home') renderHome(); else renderPLP();
+  if(state.view==='home') renderHome();
+  else if(state.view==='plp') renderPLP();
+  else if(state.view==='market') renderMarket();
   renderCounts();
 }
 function itemCountForGender(b){
@@ -910,8 +1224,70 @@ document.querySelectorAll('.lang-switch button').forEach(btn=> btn.addEventListe
   state.lang = btn.dataset.lang;
   localStorage.setItem('armoire_lang_v1', state.lang);
   applyStaticI18n();
+  renderPromo();
   renderStorefront();
 }));
+
+/* ---------- VIDE-DRESSING (C2C) ---------- */
+const MARKET_CATS = ['vetements','chaussures','sacs','bijoux','accessoires','beaute','autre'];
+const MARKET_CAT_KEY = { vetements:'mktCatVetements', chaussures:'mktCatChaussures', sacs:'mktCatSacs', bijoux:'mktCatBijoux', accessoires:'mktCatAccessoires', beaute:'mktCatBeaute', autre:'mktCatAutre' };
+let lastPostedId = null;
+function renderMarket(){
+  document.getElementById('marketCats').innerHTML = ['all', ...MARKET_CATS].map(c=>
+    `<button class="dept-chip ${state.marketCat===c?'active':''}" data-mcat="${c}">${c==='all'?t('tout'):t(MARKET_CAT_KEY[c])}</button>`
+  ).join('');
+  document.querySelectorAll('#marketCats .dept-chip').forEach(el=> el.addEventListener('click', ()=>{ state.marketCat=el.dataset.mcat; renderMarket(); }));
+
+  let listings = state.market.slice().sort((a,b)=> (b.createdAt||0)-(a.createdAt||0));
+  if(state.marketCat!=='all') listings = listings.filter(l=> l.category===state.marketCat);
+
+  document.getElementById('marketGrid').innerHTML = listings.map(l=> `
+    <div class="market-card" id="market-card-${l.id}">
+      <span class="mc-cat">${t(MARKET_CAT_KEY[l.category]||'mktCatAutre')}</span>
+      <div class="mc-name">${escapeHtml(l.name)}</div>
+      <div class="mc-price">${fmt(l.price, true)}</div>
+      <div class="mc-loc">${escapeHtml(l.location)}</div>
+      <a class="mc-contact" href="tel:${escapeHtml(l.phone.replace(/[^\d+]/g,''))}">${t('contactSeller')}</a>
+    </div>`).join('') || `<div class="empty">${t('marketEmpty')}</div>`;
+
+  if(lastPostedId){
+    const el = document.getElementById('market-card-'+lastPostedId);
+    if(el){
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+      el.classList.add('pulse-highlight');
+      el.addEventListener('animationend', ()=> el.classList.remove('pulse-highlight'), { once:true });
+    }
+    lastPostedId = null;
+  }
+}
+function openPostModal(){
+  document.getElementById('postModal').classList.add('open');
+  document.getElementById('postScrim').classList.add('open');
+}
+function closePostModal(){
+  document.getElementById('postModal').classList.remove('open');
+  document.getElementById('postScrim').classList.remove('open');
+}
+document.getElementById('marketBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
+document.getElementById('postItemBtn').addEventListener('click', openPostModal);
+document.getElementById('postClose').addEventListener('click', closePostModal);
+document.getElementById('postScrim').addEventListener('click', closePostModal);
+document.getElementById('postForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const name = document.getElementById('pfName').value.trim();
+  const category = document.getElementById('pfCategory').value;
+  const price = parseFloat(document.getElementById('pfPrice').value);
+  const phone = document.getElementById('pfPhone').value.trim();
+  const location = document.getElementById('pfLocation').value.trim();
+  if(!name || !phone || !location || isNaN(price)) return;
+  const listing = { id: genId(), name, category, price, phone, location, createdAt: Date.now() };
+  state.market.unshift(listing);
+  lastPostedId = listing.id;
+  closePostModal();
+  document.getElementById('postForm').reset();
+  renderMarket();
+  saveMarketplace();
+});
 
 /* ---------- MODAL ---------- */
 let modalState = {itemId:null, qty:1, size:null};
