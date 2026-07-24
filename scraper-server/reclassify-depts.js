@@ -5,30 +5,10 @@
 
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
-
-const RULES = [
-  [/casquette|bonnet|chapeau|\bbob\b/i, "casquette"],
-  [/lunette/i, "lunettes"],
-  [/ceinture/i, "ceinture"],
-  [/portefeuille|pochette|porte-?cartes|petite maroquinerie|porte-?monnaie/i, "maroquinerie"],
-  [/\bsac\b|sacoche|cabas|besace|\bsacs\b/i, "sacs"],
-  [/basket|sneaker|derby|derbie|mocassin|sandale|bottine|\bbotte\b|escarpin|\btong\b|slipper|espadrille|chaussure|richelieu/i, "chaussures"],
-  [/\brobe\b/i, "robe"],
-  [/short|bermuda/i, "short"],
-  [/\bjean\b|denim/i, "jean"],
-  [/pantalon|jogging|jogger/i, "pantalon"],
-  [/veste|manteau|blouson|parka|trench|doudoune|blazer/i, "veste"],
-  [/pull|sweat|cardigan|\bgilet\b|maille/i, "pull"],
-  [/chemise/i, "chemise"],
-  [/t-?shirt|tee-?shirt|\bpolo\b/i, "tshirt"]
-];
+const { classifyDept } = require('./scrapers/_shared');
 
 function classify(name, fallback){
-  if(!name) return fallback;
-  for(const [re, dept] of RULES){
-    if(re.test(name)) return dept;
-  }
-  return fallback;
+  return classifyDept(name, fallback);
 }
 
 async function main(){

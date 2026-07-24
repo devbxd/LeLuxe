@@ -1,4 +1,5 @@
 const { chromium } = require("playwright");
+const { classifyDept, genderFromUrl } = require("./_shared");
 
 
 const EXTRA_CATEGORIES = [
@@ -89,12 +90,22 @@ async function scrapeOneCategory(page, url, collected){
     while(true){
 
         const batch = await page.evaluate(extractBatch);
-        batch.forEach(p=>{ if(p.url) collected.set(p.url, p); });
+        batch.forEach(p=>{
+            if(!p.url) return;
+            collected.set(p.url, {
+                name: p.name,
+                price: p.price,
+                image: p.image,
+                url: p.url,
+                dept: classifyDept(p.name),
+                gender: genderFromUrl(url)
+            });
+        });
 
         const gained = collected.size - before;
-        if(total && gained >= Math.min(total,80)) break;
-        if(gained >= 80) break;
-        if(pageNum > 8) break;
+        if(total && gained >= total) break;
+        if(gained >= 300) break;
+        if(pageNum > 20) break;
 
         pageNum++;
 
@@ -133,8 +144,6 @@ async function scrapeGucci(url, brand, category){
 
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(collected.size >= 300) break;
-
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
             try{
@@ -148,7 +157,7 @@ async function scrapeGucci(url, brand, category){
         }
 
 
-        const products = Array.from(collected.values()).slice(0,300);
+        const products = Array.from(collected.values());
 
 
         console.log("PRODUITS TROUVES:", products.length);

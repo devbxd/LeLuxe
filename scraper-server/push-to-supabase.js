@@ -5,6 +5,7 @@
 
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+const { classifyDept, genderFromUrl } = require('./scrapers/_shared');
 
 function parsePrice(raw){
   if(typeof raw !== 'string') return null;
@@ -62,19 +63,22 @@ async function main(){
   let added = 0, updated = 0;
 
   scraped.forEach(p=>{
+    const gender = p.gender || genderFromUrl(p.url) || null;
     if(p.url && existingByUrl.has(p.url)){
       const existing = existingByUrl.get(p.url);
       existing.name = p.name || existing.name;
       existing.price = parsePrice(p.price);
       existing.image = p.image || existing.image;
-      existing.dept = p.dept || existing.dept;
+      existing.dept = p.dept || classifyDept(p.name, existing.dept);
+      existing.gender = gender || existing.gender || null;
       updated++;
       return;
     }
     const newItem = {
       id: genId(),
       name: p.name || 'Produit',
-      dept: p.dept || category,
+      dept: p.dept || classifyDept(p.name, category),
+      gender,
       price: parsePrice(p.price),
       image: p.image || null,
       isNew: true,
