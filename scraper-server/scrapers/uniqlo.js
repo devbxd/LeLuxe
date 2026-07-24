@@ -4,17 +4,18 @@ const { chromium } = require("playwright");
 // Uniqlo charge les fiches produit un peu paresseusement : sur certaines
 // tuiles, seul un badge ("Disponible fin juil.", "Bestseller"...) est
 // rendu avant que le vrai nom n'apparaisse. On filtre ces badges et on
-// combine plusieurs catégories pour avoir assez de produits.
+// combine plusieurs catégories pour avoir assez de produits. Chaque URL
+// est étiquetée homme/femme pour que les articles héritent du bon genre.
 const EXTRA_CATEGORIES = [
-    "https://www.uniqlo.com/fr/fr/men/bottoms",
-    "https://www.uniqlo.com/fr/fr/men/outerwear",
-    "https://www.uniqlo.com/fr/fr/men/accessories",
-    "https://www.uniqlo.com/fr/fr/women/tops",
-    "https://www.uniqlo.com/fr/fr/women/bottoms",
-    "https://www.uniqlo.com/fr/fr/women/outerwear",
-    "https://www.uniqlo.com/fr/fr/women/accessories",
-    "https://www.uniqlo.com/fr/fr/kids/tops",
-    "https://www.uniqlo.com/fr/fr/kids/bottoms"
+    ["https://www.uniqlo.com/fr/fr/men/tops", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/bottoms", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/outerwear", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/accessories", "homme"],
+    ["https://www.uniqlo.com/fr/fr/women/tops", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/bottoms", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/outerwear", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/dresses-and-skirts", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/accessories", "femme"]
 ];
 
 
@@ -81,7 +82,7 @@ function extractVisibleTiles(){
 }
 
 
-async function scrapeOneCategory(page, url, collected){
+async function scrapeOneCategory(page, url, gender, collected){
 
     await page.goto(url,{
         waitUntil:"domcontentloaded",
@@ -93,7 +94,7 @@ async function scrapeOneCategory(page, url, collected){
     // grille partiellement virtualisée : on accumule les tuiles au fur et à
     // mesure du scroll (au lieu d'extraire une seule fois à la fin, ce qui
     // ratait les tuiles du haut redevenues des coquilles vides)
-    (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, p); });
+    (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, {...p, gender}); });
 
     let stable=0, last=0;
 
@@ -103,7 +104,7 @@ async function scrapeOneCategory(page, url, collected){
 
         await page.waitForTimeout(700);
 
-        (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, p); });
+        (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, {...p, gender}); });
 
         const c = await page.evaluate(()=>document.querySelectorAll(".product-tile").length);
 
@@ -118,46 +119,29 @@ async function scrapeOneCategory(page, url, collected){
 
 async function scrapeUniqlo(url, brand, category){
 
-
-    const browser = await chromium.launch({
-        headless:false
-    });
-
-
-    const page = await browser.newPage({
-        viewport:{
-            width:1440,
-            height:900
-        }
-    });
-
+    const browser = await chromium.launch({ headless:false });
 
     try{
 
-
         console.log("Ouverture Uniqlo...");
-
 
         const collected = new Map();
 
-        for(const catUrl of [url, ...EXTRA_CATEGORIES]){
+        for(const [catUrl, gender] of EXTRA_CATEGORIES){
 
-            const before = collected.size;
+            const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
             try{
-
-                await scrapeOneCategory(page, catUrl, collected);
-
+                const before = collected.size;
+                await scrapeOneCategory(page, catUrl, gender, collected);
                 console.log(catUrl, "->", collected.size-before, "tuiles brutes (total", collected.size, ")");
-
             }catch(e){
-
                 console.log("Erreur sur", catUrl, ":", e.message);
-
+            }finally{
+                await page.close();
             }
 
         }
-
 
         const withNames = [];
 
@@ -167,27 +151,18 @@ async function scrapeUniqlo(url, brand, category){
 
             if(!name) return; // pas de vrai nom trouvé (juste un badge) -> on saute
 
-            withNames.push({ name, price, image:p.image, url:p.url });
+            withNames.push({ name, price, image:p.image, url:p.url, gender:p.gender });
 
         });
 
+        console.log("PRODUITS TROUVES:", withNames.length);
 
-        const capped = withNames.slice(0,300);
-
-
-        console.log("PRODUITS TROUVES:", capped.length);
-
-
-        return capped;
-
+        return withNames;
 
     }catch(error){
 
-
         console.log("Erreur scraping:", error.message);
-
         return [];
-
 
     }
     finally{
@@ -195,7 +170,6 @@ async function scrapeUniqlo(url, brand, category){
         await browser.close();
 
     }
-
 
 }
 

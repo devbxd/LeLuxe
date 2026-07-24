@@ -1,38 +1,41 @@
 const { chromium } = require("playwright");
 
 
+// Chaque URL de catégorie est étiquetée homme/femme pour que les articles
+// héritent du bon genre (le site ne l'expose pas au niveau de la tuile).
+// Listes équilibrées et intercalées pour ne pas laisser un genre en dernier
+// si un plafond venait à interrompre le scraping.
 const EXTRA_CATEGORIES = [
-    "https://www.veja-store.com/fr_fr/homme-campo",
-    "https://www.veja-store.com/fr_fr/homme-v-90",
-    "https://www.veja-store.com/fr_fr/homme-gt",
-    "https://www.veja-store.com/fr_fr/homme-cateyes",
-    "https://www.veja-store.com/fr_fr/homme-rio-branco",
-    "https://www.veja-store.com/fr_fr/homme-belem",
-    "https://www.veja-store.com/fr_fr/homme-volley",
-    "https://www.veja-store.com/fr_fr/homme-v-10",
-    "https://www.veja-store.com/fr_fr/homme-esplar",
-    "https://www.veja-store.com/fr_fr/homme-panenka",
-    "https://www.veja-store.com/fr_fr/homme-jitsu",
-    "https://www.veja-store.com/fr_fr/homme-arpoador",
-    "https://www.veja-store.com/fr_fr/homme-etna",
-    "https://www.veja-store.com/fr_fr/homme-v-12",
-    "https://www.veja-store.com/fr_fr/homme-urca",
-    "https://www.veja-store.com/fr_fr/homme-condor-3-advanced",
-    "https://www.veja-store.com/fr_fr/homme-recife",
-    "https://www.veja-store.com/fr_fr/homme-v-82",
-    "https://www.veja-store.com/fr_fr/homme-salar",
-    "https://www.veja-store.com/fr_fr/homme-venturi",
-    "https://www.veja-store.com/fr_fr/homme-retro-running",
-    "https://www.veja-store.com/fr_fr/femme",
-    "https://www.veja-store.com/fr_fr/femme-gt",
-    "https://www.veja-store.com/fr_fr/femme-campo",
-    "https://www.veja-store.com/fr_fr/femme-best-sellers",
-    "https://www.veja-store.com/fr_fr/enfant",
-    "https://www.veja-store.com/fr_fr/sandales"
+    ["https://www.veja-store.com/fr_fr/homme-campo", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-campo", "femme"],
+    ["https://www.veja-store.com/fr_fr/homme-v-90", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme", "femme"],
+    ["https://www.veja-store.com/fr_fr/homme-gt", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-gt", "femme"],
+    ["https://www.veja-store.com/fr_fr/homme-cateyes", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-best-sellers", "femme"],
+    ["https://www.veja-store.com/fr_fr/homme-rio-branco", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-belem", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-volley", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-v-10", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-esplar", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-panenka", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-jitsu", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-arpoador", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-etna", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-v-12", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-urca", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-condor-3-advanced", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-recife", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-v-82", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-salar", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-venturi", "homme"],
+    ["https://www.veja-store.com/fr_fr/homme-retro-running", "homme"],
+    ["https://www.veja-store.com/fr_fr/sandales", null]
 ];
 
 
-async function scrapeOneCategory(page, url, collected){
+async function scrapeOneCategory(page, url, gender, collected){
 
     await page.goto(url,{
         waitUntil:"domcontentloaded",
@@ -89,7 +92,7 @@ async function scrapeOneCategory(page, url, collected){
 
     });
 
-    products.forEach(p=>{ let key = p.url || p.image; if(key) collected.set(key, p); });
+    products.forEach(p=>{ let key = p.url || p.image; if(key) collected.set(key, {...p, gender}); });
 
 }
 
@@ -109,16 +112,14 @@ async function scrapeVeja(url, brand, category){
 
         const collected = new Map();
 
-        for(const catUrl of [url, ...EXTRA_CATEGORIES]){
-
-            if(collected.size >= 300) break;
+        for(const [catUrl, gender] of EXTRA_CATEGORIES){
 
             const before = collected.size;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
             try{
-                await scrapeOneCategory(page, catUrl, collected);
+                await scrapeOneCategory(page, catUrl, gender, collected);
                 console.log(catUrl, "->", collected.size-before, "tuiles (total", collected.size, ")");
             }catch(e){
                 console.log("Erreur sur", catUrl, ":", e.message);
@@ -128,7 +129,7 @@ async function scrapeVeja(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,300);
+        const capped = Array.from(collected.values());
 
 
         console.log("PRODUITS TROUVES:", capped.length);

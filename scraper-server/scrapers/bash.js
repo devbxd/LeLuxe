@@ -9,7 +9,14 @@ const CATEGORIES = [
     "https://www.ba-sh.com/fr-fr/femme/accessoires/",
     "https://www.ba-sh.com/fr-fr/femme/robes/",
     "https://www.ba-sh.com/fr-fr/femme/pulls/",
-    "https://www.ba-sh.com/fr-fr/femme/manteaux-et-vestes/"
+    "https://www.ba-sh.com/fr-fr/femme/manteaux-et-vestes/",
+    "https://www.ba-sh.com/fr-fr/femme/tops-et-chemises/",
+    "https://www.ba-sh.com/fr-fr/femme/t-shirts/",
+    "https://www.ba-sh.com/fr-fr/femme/pantalons/",
+    "https://www.ba-sh.com/fr-fr/femme/jupes-et-shorts/",
+    "https://www.ba-sh.com/fr-fr/femme/jeans/",
+    "https://www.ba-sh.com/fr-fr/femme/bijoux/",
+    "https://www.ba-sh.com/fr-fr/nouveautes/"
 ];
 
 async function scrapeOneCategory(page, url, collected){
@@ -60,8 +67,6 @@ async function scrapeBash(url, brand, category){
 
     for(const catUrl of [url, ...CATEGORIES]){
 
-        if(collected.size >= 300) break;
-
         // un navigateur neuf par catégorie (pas juste un contexte) : le site
         // semble bloquer après la première navigation d'un même processus
         const browser = await chromium.launch({ headless:false });
@@ -79,7 +84,7 @@ async function scrapeBash(url, brand, category){
 
     }
 
-    const capped = Array.from(collected.values()).slice(0,300);
+    const capped = Array.from(collected.values());
 
     console.log("PRODUITS TROUVES:", capped.length);
 

@@ -1,13 +1,22 @@
 const { chromium } = require("playwright");
+const { classifyDept } = require("./_shared");
 
 // Zara ne rend pas le nom/prix dans le DOM final (widget React côté client),
 // mais la page appelle sa propre API interne pour peupler la grille :
 // GET /fr/fr/category/{id}/products?ajax=true — on intercepte cette réponse
 // JSON (déjà publique, déjà appelée par le navigateur) plutôt que de parser
-// le HTML.
+// le HTML. Chaque URL de catégorie est étiquetée homme/femme pour que les
+// articles récupérés héritent du bon genre (l'API ne le renvoie pas elle-même).
 
 const CATEGORY_PAGES = [
-    "https://www.zara.com/fr/fr/s-femme-collection-l8862.html"
+    ["https://www.zara.com/fr/fr/homme-toute-la-collection-l7465.html", "homme"],
+    ["https://www.zara.com/fr/fr/s-femme-collection-l8862.html", "femme"],
+    ["https://www.zara.com/fr/fr/homme-chaussures-l769.html", "homme"],
+    ["https://www.zara.com/fr/fr/femme-chaussures-l1216.html", "femme"],
+    ["https://www.zara.com/fr/fr/homme-sacs-l715.html", "homme"],
+    ["https://www.zara.com/fr/fr/femme-sacs-l1024.html", "femme"],
+    ["https://www.zara.com/fr/fr/homme-accessoires-l537.html", "homme"],
+    ["https://www.zara.com/fr/fr/femme-accessoires-l1003.html", "femme"]
 ];
 
 const FAMILY_TO_DEPT = {
@@ -26,8 +35,8 @@ const FAMILY_TO_DEPT = {
     "BELT":"ceinture"
 };
 
-function deptFor(familyName){
-    return FAMILY_TO_DEPT[familyName] || "access";
+function deptFor(familyName, name){
+    return FAMILY_TO_DEPT[familyName] || classifyDept(name, "access");
 }
 
 function imageUrl(component){
@@ -47,7 +56,7 @@ function productUrl(component){
     }
 }
 
-async function scrapeOneCategory(page, url, collected){
+async function scrapeOneCategory(page, url, gender, collected){
 
     let captured = false;
 
@@ -67,7 +76,8 @@ async function scrapeOneCategory(page, url, collected){
                                 price: (c.price/100).toFixed(2).replace(".",",") + " €",
                                 image,
                                 url: url2,
-                                dept: deptFor(c.familyName)
+                                dept: deptFor(c.familyName, c.name),
+                                gender
                             });
                         });
                     });
@@ -97,15 +107,13 @@ async function scrapeZara(url, brand, category){
 
         const collected = new Map();
 
-        for(const catUrl of [url, ...CATEGORY_PAGES]){
-
-            if(collected.size >= 1200) break;
+        for(const [catUrl, gender] of CATEGORY_PAGES){
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
             try{
                 const before = collected.size;
-                await scrapeOneCategory(page, catUrl, collected);
+                await scrapeOneCategory(page, catUrl, gender, collected);
                 console.log(catUrl, "->", collected.size-before, "produits (total", collected.size, ")");
             }catch(e){
                 console.log("Erreur sur", catUrl, ":", e.message);
@@ -115,7 +123,7 @@ async function scrapeZara(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,1200);
+        const capped = Array.from(collected.values());
 
         console.log("PRODUITS TROUVES:", capped.length);
 
