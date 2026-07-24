@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 
 const EXTRA_CATEGORIES = [
@@ -92,7 +92,7 @@ async function scrapeOneCategory(page, url, collected){
         const batch = await page.evaluate(extractBatch);
         batch.forEach(p=>{
             if(!p.url) return;
-            collected.set(p.url, {
+            setCollectedItem(collected, p.url, {
                 name: p.name,
                 price: p.price,
                 image: p.image,

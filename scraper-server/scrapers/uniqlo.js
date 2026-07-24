@@ -1,4 +1,5 @@
 const { chromium } = require("playwright");
+const { setCollectedItem } = require("./_shared");
 
 
 // Uniqlo charge les fiches produit un peu paresseusement : sur certaines
@@ -104,7 +105,7 @@ async function scrapeOneCategory(page, url, gender, collected){
     // grille partiellement virtualisée : on accumule les tuiles au fur et à
     // mesure du scroll (au lieu d'extraire une seule fois à la fin, ce qui
     // ratait les tuiles du haut redevenues des coquilles vides)
-    (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, {...p, gender}); });
+    (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) setCollectedItem(collected, p.url, {...p, gender}); });
 
     let stable=0, last=0;
 
@@ -114,7 +115,7 @@ async function scrapeOneCategory(page, url, gender, collected){
 
         await page.waitForTimeout(700);
 
-        (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) collected.set(p.url, {...p, gender}); });
+        (await page.evaluate(extractVisibleTiles)).forEach(p=>{ if(p.url) setCollectedItem(collected, p.url, {...p, gender}); });
 
         const c = await page.evaluate(()=>document.querySelectorAll(".product-tile").length);
 

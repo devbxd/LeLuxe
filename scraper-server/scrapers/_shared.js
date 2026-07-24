@@ -46,4 +46,31 @@ function genderFromText(text){
   return null;
 }
 
-module.exports = { classifyDept, genderFromUrl, genderFromText, DEPT_RULES };
+// Beaucoup de scrapers alimentent une Map "collected" en bouclant sur des
+// URLs de catégorie homme puis femme : si le même produit (même URL) se
+// retrouve listé dans les deux (article unisexe, tuile de recommandation
+// croisée...), la boucle femme écrasait silencieusement le genre "homme"
+// déjà enregistré (dernier écrit gagne) — c'est ce qui faisait apparaître
+// des articles homme dans le filtre femme (ex: Lacoste). On centralise
+// l'écriture ici : en cas de conflit de genre sur une même clé, on ne
+// tranche pas au hasard, on marque l'article ambigu (gender:null) plutôt
+// que de lui attribuer arbitrairement le genre du dernier passage.
+function setCollectedItem(collected, key, item){
+  if(!key) return;
+  const existing = collected.get(key);
+  if(!existing){
+    collected.set(key, item);
+    return;
+  }
+  if(existing.gender && item.gender && existing.gender !== item.gender){
+    // vu sous les deux genres -> ambigu, on ne tranche pas au hasard
+    collected.set(key, { ...existing, ...item, gender: null });
+  } else if(!item.gender && existing.gender){
+    // le nouveau passage n'a pas de genre connu : on garde celui déjà établi
+    collected.set(key, { ...existing, ...item, gender: existing.gender });
+  } else {
+    collected.set(key, item);
+  }
+}
+
+module.exports = { classifyDept, genderFromUrl, genderFromText, setCollectedItem, DEPT_RULES };

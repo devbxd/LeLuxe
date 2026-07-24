@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://fr.sandro-paris.com/fr/femme/pret-a-porter/",
@@ -64,7 +64,7 @@ async function scrapeOneCategory(page, url, collected){
         let key = p.url || p.image;
         if(!key) return;
         const gender = /woman/i.test(p.gender) ? "femme" : /man/i.test(p.gender) ? "homme" : genderFromUrl(url);
-        collected.set(key, {
+        setCollectedItem(collected, key, {
             name: p.name,
             price: p.price,
             image: p.image,

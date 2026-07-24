@@ -1,4 +1,5 @@
 const { chromium } = require("playwright");
+const { setCollectedItem } = require("./_shared");
 
 
 // Chaque URL de catégorie est étiquetée homme/femme pour que les articles
@@ -92,7 +93,7 @@ async function scrapeOneCategory(page, url, gender, collected){
 
     });
 
-    products.forEach(p=>{ let key = p.url || p.image; if(key) collected.set(key, {...p, gender}); });
+    products.forEach(p=>{ let key = p.url || p.image; if(key) setCollectedItem(collected, key, {...p, gender}); });
 
 }
 

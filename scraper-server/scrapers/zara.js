@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept } = require("./_shared");
+const { classifyDept, setCollectedItem } = require("./_shared");
 
 // Zara ne rend pas le nom/prix dans le DOM final (widget React côté client),
 // mais la page appelle sa propre API interne pour peupler la grille :
@@ -71,7 +71,7 @@ async function scrapeOneCategory(page, url, gender, collected){
                             const url2 = productUrl(c);
                             const image = imageUrl(c);
                             if(!url2 || !image) return;
-                            collected.set(url2, {
+                            setCollectedItem(collected, url2, {
                                 name: c.name,
                                 price: (c.price/100).toFixed(2).replace(".",",") + " €",
                                 image,

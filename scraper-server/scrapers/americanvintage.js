@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://www.americanvintage-store.com/fr/en/women/",
@@ -50,7 +50,7 @@ async function scrapeOneCategory(page, url, collected){
     products.forEach(p=>{
         let key = p.url || p.image;
         if(!key) return;
-        collected.set(key, {
+        setCollectedItem(collected, key, {
             name: p.name,
             price: p.price,
             image: p.image,

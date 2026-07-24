@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept } = require("./_shared");
+const { classifyDept, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://www.michaelkors.fr/femme-sacs/",
@@ -45,7 +45,7 @@ async function scrapeOneCategory(page, url, collected){
     const gender = /\/homme-/.test(url) ? "homme" : "femme";
     const fallbackDept = /-sacs\//.test(url) ? "sacs" : /-chaussures\//.test(url) ? "chaussures" : /-montres\//.test(url) ? "bijoux" : /-bijoux\//.test(url) ? "bijoux" : "vetements";
     products.forEach(p=>{
-        collected.set(p.url, { name:p.name, price:p.price, image:p.image, url:p.url, dept: classifyDept(p.name,fallbackDept), gender });
+        setCollectedItem(collected, p.url, { name:p.name, price:p.price, image:p.image, url:p.url, dept: classifyDept(p.name,fallbackDept), gender });
     });
 }
 

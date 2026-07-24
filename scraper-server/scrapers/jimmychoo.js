@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://row.jimmychoo.com/fr_FR/femme/chaussures/",
@@ -43,7 +43,7 @@ async function scrapeOneCategory(page, url, collected){
     else if(/accessoires/.test(url)) urlDept = "access";
 
     products.forEach(p=>{
-        collected.set(p.url, {
+        setCollectedItem(collected, p.url, {
             name: p.name,
             price: p.price,
             image: p.image,

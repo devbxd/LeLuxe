@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://www.adidas.fr/homme-chaussures",
@@ -40,7 +40,7 @@ async function scrapeOneCategory(page, url, collected){
     });
 
     products.forEach(p=>{
-        collected.set(p.url, {
+        setCollectedItem(collected, p.url, {
             name: p.name,
             price: p.price,
             image: p.image,

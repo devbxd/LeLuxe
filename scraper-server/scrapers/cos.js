@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept } = require("./_shared");
+const { classifyDept, setCollectedItem } = require("./_shared");
 const { extractNextDataProducts } = require("./_nextdata");
 
 const BASE = "https://www.cos.com/fr-fr";
@@ -58,7 +58,7 @@ async function scrapeCos(url, brand, category){
                 const before = collected.size;
                 items.forEach(p=>{
                     if(!p.url) return;
-                    collected.set(p.url, {
+                    setCollectedItem(collected, p.url, {
                         name: p.name,
                         price: p.price,
                         image: p.image,

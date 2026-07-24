@@ -1,5 +1,5 @@
 const { chromium } = require("playwright");
-const { classifyDept, genderFromUrl } = require("./_shared");
+const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 const { extractItemListFromPage } = require("./_jsonld");
 
 // The Kooples publie un JSON-LD ItemList complet (SEO) sur ses pages
@@ -42,7 +42,7 @@ async function scrapeThekooples(url, brand, category){
                 const before = collected.size;
                 items.forEach(p=>{
                     if(!p.url) return;
-                    collected.set(p.url, {
+                    setCollectedItem(collected, p.url, {
                         name: p.name,
                         price: p.price,
                         image: p.image,
