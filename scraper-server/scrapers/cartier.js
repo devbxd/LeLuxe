@@ -27,8 +27,14 @@ async function scrapeOneCategory(page, url, collected){
         document.querySelectorAll(".product-list__grid .product").forEach(tile=>{
             const name = tile.querySelector(".product__name")?.textContent.trim();
             const desc = tile.querySelector(".product__desc")?.textContent.trim();
-            const priceEl = Array.from(tile.querySelectorAll("*")).find(e=>e.children.length===0 && /\d+[.,]?\d*\s*(€|EUR)/.test(e.textContent||""));
-            const price = priceEl ? priceEl.textContent.trim() : null;
+            // le prix Cartier s'affiche avec un espace comme séparateur de
+            // milliers ("12 500 €") : un regex qui ne capture qu'un seul
+            // groupe de chiffres tronque le nombre (ex: "500 €" au lieu de
+            // "12 500 €") -> on capture tous les groupes de chiffres avant le €
+            const priceRe = /(\d{1,3}(?:[\s ]\d{3})*|\d+)([.,]\d+)?\s*(€|EUR)/;
+            const priceEl = Array.from(tile.querySelectorAll("*")).find(e=>e.children.length===0 && priceRe.test(e.textContent||""));
+            const priceMatch = priceEl ? priceEl.textContent.trim().match(priceRe) : null;
+            const price = priceMatch ? priceMatch[0] : null;
             const img = tile.querySelector("img");
             const image = img ? (img.currentSrc || img.src) : "";
             const a = tile.closest("a") || tile.querySelector("a");
