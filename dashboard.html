@@ -139,11 +139,14 @@ input,select{font:inherit;}
       <div class="paste-zone" tabindex="0" id="newzone-hermesbags">Coller image<br>(Ctrl+V)</div>
       <input type="text" placeholder="Nom du sac" id="newname-hermesbags" style="flex:2;min-width:160px;border:1px solid #e5e2dc;border-radius:6px;padding:8px 10px;font-size:12.5px;">
       <input type="number" step="0.01" placeholder="Prix" id="newprice-hermesbags" style="width:90px;border:1px solid #e5e2dc;border-radius:6px;padding:8px;font-size:12.5px;">
+      <label style="display:flex; flex-direction:column; font-size:9.5px; color:#a39d8f; text-transform:uppercase; letter-spacing:.04em;">Date de la descente
+        <input type="date" id="newdate-hermesbags" style="border:1px solid #e5e2dc;border-radius:6px;padding:7px 8px;font-size:12.5px;margin-top:2px;">
+      </label>
       <input type="hidden" id="newdept-hermesbags" value="sacs">
       <input type="hidden" id="newgender-hermesbags" value="">
       <button class="btn" data-additem="hermesbags">Ajouter</button>
     </div>
-    <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing.</p>
+    <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing, regroupée par date de descente ("Nouveautés du...").</p>
   </div>
 
   <div class="stat-row">
@@ -410,9 +413,12 @@ function renderHermesAdmin(){
       <div class="item-fields">
         <input class="fname" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" data-editname="hermesbags|${it.id}" style="flex:2;min-width:160px;">
         <input class="fprice" type="number" step="0.01" placeholder="Prix" value="${it.price==null?'':it.price}" data-editprice="hermesbags|${it.id}">
+        <input type="date" value="${it.dropDate||''}" data-editdate="hermesbags|${it.id}" title="Date de la descente">
       </div>
       <button class="item-del" data-delitem="hermesbags|${it.id}" title="Supprimer l'article">✕</button>
     </div>`).join('') || `<p class="empty-hint">Aucun sac ajouté pour l'instant.</p>`;
+  const dateInput = document.getElementById('newdate-hermesbags');
+  if(dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0,10);
 }
 
 function renderAdmin(){
@@ -485,6 +491,10 @@ function renderAdmin(){
     const [bId,iId] = el.dataset.editgender.split('|');
     findBrand(bId).items.find(i=>i.id===iId).gender = el.value || null; saveCatalog();
   }));
+  document.querySelectorAll('[data-editdate]').forEach(el=> el.addEventListener('change', ()=>{
+    const [bId,iId] = el.dataset.editdate.split('|');
+    findBrand(bId).items.find(i=>i.id===iId).dropDate = el.value || null; saveCatalog();
+  }));
   document.querySelectorAll('[data-pastezone]').forEach(el=>{
     const [bId,iId] = el.dataset.pastezone.split('|');
     setupPasteZone(el, (dataUrl)=>{ findBrand(bId).items.find(i=>i.id===iId).image = dataUrl; saveCatalog(); });
@@ -495,9 +505,11 @@ function renderAdmin(){
     const price = parseFloat(document.getElementById('newprice-'+bId).value);
     const dept = document.getElementById('newdept-'+bId).value;
     const gender = document.getElementById('newgender-'+bId).value || null;
+    const dateEl = document.getElementById('newdate-'+bId);
+    const dropDate = dateEl ? (dateEl.value || null) : null;
     if(!name){ alert("Merci de donner un nom à l'article."); return; }
     const brand = findBrand(bId);
-    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, image:null, isNew:true};
+    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, isNew:true};
     const zone = document.getElementById('newzone-'+bId);
     const img = zone.querySelector('img');
     if(img) newItem.image = img.src;
