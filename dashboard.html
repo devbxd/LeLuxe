@@ -43,6 +43,18 @@ input,select{font:inherit;}
 .btn:disabled{opacity:.45; cursor:not-allowed;}
 
 .section-title{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8a8478; margin:30px 0 12px; font-weight:700;}
+.hint code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:11.5px;}
+
+.refresh-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px;}
+.refresh-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
+.refresh-state{font-size:12.5px; color:#8a8478;}
+.refresh-state.err{color:#b3261e;}
+.progress-outer{background:#f0eee9; border-radius:20px; height:8px; overflow:hidden; margin-top:16px;}
+.progress-inner{background:#161513; height:100%; width:0%; transition:width .4s ease;}
+.refresh-label{font-size:12px; color:#8a8478; margin-top:8px;}
+.refresh-log{max-height:200px; overflow-y:auto; margin-top:10px; font-size:12px; line-height:1.9; border-top:1px solid #f0eee9; padding-top:8px;}
+.refresh-log .log-ok{color:#2f6b3a;}
+.refresh-log .log-err{color:#b3261e;}
 .add-brand-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
 .add-brand-card input, .add-brand-card select{border:1px solid #ddd8cf; border-radius:8px; padding:10px 12px; font-size:13px;}
 .add-brand-card #newBrandName{flex:2; min-width:180px;}
@@ -126,6 +138,20 @@ input,select{font:inherit;}
     <div class="stat-chip"><b id="statMarket">0</b><span>Annonces vide-dressing</span></div>
   </div>
 
+  <div class="section-title">Rafraîchir les nouveautés</div>
+  <div class="refresh-card">
+    <div class="refresh-row">
+      <button class="btn" id="refreshAllBtn">Rafraîchir toutes les marques</button>
+      <span id="refreshState" class="refresh-state"></span>
+    </div>
+    <div id="refreshProgressWrap" class="hidden">
+      <div class="progress-outer"><div class="progress-inner" id="refreshBar"></div></div>
+      <div id="refreshLabel" class="refresh-label"></div>
+      <div id="refreshLog" class="refresh-log"></div>
+    </div>
+    <p class="hint">Repasse sur chaque marque et ajoute les nouveaux articles publiés depuis le dernier passage. Nécessite que le serveur scraper tourne sur cet ordinateur (dossier <code>scraper-server</code> → <code>node server.js</code>) — ça peut prendre du temps (plusieurs dizaines de minutes) selon le nombre de marques.</p>
+  </div>
+
   <div class="section-title">Ajouter une marque</div>
   <div class="add-brand-card">
     <input type="text" id="newBrandName" placeholder="Nom de la marque">
@@ -165,6 +191,7 @@ input,select{font:inherit;}
 </div>
 
 <script>
+const SCRAPER_API = "http://localhost:5678";
 /* ================= TAXONOMIE (alignée sur boutique.html) ================= */
 const DEPTS_COMMON = {
   tshirt:'T-shirts', chemise:'Chemises', pull:'Pulls & Sweats', veste:'Vestes & Manteaux',
@@ -492,6 +519,86 @@ document.getElementById('addBrandBtn').addEventListener('click', ()=>{
   document.getElementById('newBrandExternal').checked=false;
   saveCatalog(); renderStats(); renderAdmin();
 });
+
+/* ================= RAFRAICHIR LES NOUVEAUTES ================= */
+let refreshPollHandle = null;
+
+function formatRefreshResult(r){
+  if(r.error) return `<div class="log-err">✗ ${r.brand||'?'} — ${r.error}</div>`;
+  const bits = [`+${r.added} nouveau${r.added>1?'x':''}`];
+  if(r.updated) bits.push(`${r.updated} mis à jour`);
+  return `<div class="log-ok">✓ ${r.brand} — ${bits.join(', ')} (total ${r.total})</div>`;
+}
+
+function renderRefreshProgress(p){
+  const pct = p.total ? Math.round(p.done / p.total * 100) : 0;
+  document.getElementById('refreshBar').style.width = pct + '%';
+  document.getElementById('refreshLabel').textContent =
+    `${p.done} / ${p.total} marques traitées` + (p.currentBrand ? ` — en cours : ${p.currentBrand}` : '');
+  document.getElementById('refreshLog').innerHTML = p.results.slice().reverse().map(formatRefreshResult).join('');
+}
+
+async function pollRefreshStatus(){
+  clearInterval(refreshPollHandle);
+  refreshPollHandle = setInterval(async ()=>{
+    let p;
+    try{
+      const res = await fetch(`${SCRAPER_API}/refresh-all/status`);
+      p = await res.json();
+    }catch(e){
+      clearInterval(refreshPollHandle);
+      document.getElementById('refreshState').textContent = "Connexion au serveur scraper perdue.";
+      document.getElementById('refreshState').classList.add('err');
+      document.getElementById('refreshAllBtn').disabled = false;
+      return;
+    }
+    renderRefreshProgress(p);
+    if(!p.running){
+      clearInterval(refreshPollHandle);
+      document.getElementById('refreshAllBtn').disabled = false;
+      document.getElementById('refreshState').textContent = "Terminé.";
+      try{
+        const fresh = await fetchRow('main');
+        if(fresh){ DATA = fresh; renderStats(); renderAdmin(); }
+      }catch(e){}
+    }
+  }, 2000);
+}
+
+document.getElementById('refreshAllBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('refreshAllBtn');
+  const stateEl = document.getElementById('refreshState');
+  stateEl.classList.remove('err');
+  stateEl.textContent = "Démarrage…";
+  try{
+    const res = await fetch(`${SCRAPER_API}/refresh-all`, { method:'POST' });
+    if(res.status===429){ stateEl.textContent = "Un rafraîchissement est déjà en cours."; return; }
+    if(!res.ok){ throw new Error('Erreur serveur ('+res.status+')'); }
+    btn.disabled = true;
+    stateEl.textContent = "En cours…";
+    document.getElementById('refreshProgressWrap').classList.remove('hidden');
+    pollRefreshStatus();
+  }catch(e){
+    stateEl.textContent = "Serveur scraper injoignable — vérifie qu'il tourne sur cet ordinateur (node server.js dans scraper-server).";
+    stateEl.classList.add('err');
+  }
+});
+
+// si un rafraîchissement était déjà en cours (page rechargée entre-temps),
+// on reprend l'affichage de la progression au lieu de perdre le suivi
+(async ()=>{
+  try{
+    const res = await fetch(`${SCRAPER_API}/refresh-all/status`);
+    const p = await res.json();
+    if(p.running){
+      document.getElementById('refreshAllBtn').disabled = true;
+      document.getElementById('refreshState').textContent = "En cours…";
+      document.getElementById('refreshProgressWrap').classList.remove('hidden');
+      renderRefreshProgress(p);
+      pollRefreshStatus();
+    }
+  }catch(e){}
+})();
 
 /* ================= INIT ================= */
 async function init(){
