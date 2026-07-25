@@ -109,9 +109,14 @@ a{color:inherit;}
 .sell-banner-btn:hover{background:#000; transform:translateY(-1px);}
 
 .hermes-section{margin-bottom:38px;}
-.hermes-head{display:flex; align-items:baseline; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
-.hermes-head h2{font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; letter-spacing:.01em;}
-.hermes-head p{font-size:12px; color:var(--muted);}
+.hermes-banner{display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px 30px; border-radius:var(--radius-m); background:linear-gradient(135deg,#e2670e,#c44f04); color:#fff; margin-bottom:24px; cursor:pointer; flex-wrap:wrap; transition:transform .2s var(--ease), box-shadow .2s var(--ease);}
+.hermes-banner:hover{transform:translateY(-2px); box-shadow:0 16px 32px rgba(196,79,4,.35);}
+.hermes-banner-left{display:flex; align-items:center; gap:16px;}
+.hermes-banner-logo{width:46px; height:46px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 2px 8px rgba(0,0,0,.15);}
+.hermes-banner-logo img{width:65%; height:65%; object-fit:contain;}
+.hermes-banner-title{font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; margin-bottom:3px;}
+.hermes-banner-text{font-size:12.5px; opacity:.92; max-width:46ch;}
+.hermes-banner-cta{flex-shrink:0; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; white-space:nowrap; border-bottom:1.5px solid rgba(255,255,255,.7); padding-bottom:2px;}
 .hermes-group{margin-bottom:26px;}
 .hermes-group:last-child{margin-bottom:0;}
 .hermes-group-title{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:var(--gold); margin-bottom:12px;}
@@ -496,9 +501,15 @@ a{color:inherit;}
         <button class="sell-banner-btn" id="sellBannerBtn" data-i18n="sellBannerCta">Vendre un article</button>
       </div>
       <div class="hermes-section hidden" id="hermesSection">
-        <div class="hermes-head">
-          <h2>Hermès Bags</h2>
-          <p data-i18n="hermesSubtitle"></p>
+        <div class="hermes-banner" id="hermesBanner">
+          <div class="hermes-banner-left">
+            <span class="hermes-banner-logo"><img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://www.hermes.com" alt=""></span>
+            <div>
+              <div class="hermes-banner-title">Hermès</div>
+              <div class="hermes-banner-text" data-i18n="hermesBannerText"></div>
+            </div>
+          </div>
+          <span class="hermes-banner-cta" data-i18n="hermesBannerCta"></span>
         </div>
         <div id="hermesGroups"></div>
       </div>
@@ -775,7 +786,7 @@ const LANG = {
     heroTextLuxe:"Parcourez chaque maison par ordre alphabétique, ou cliquez un nom dans la liste pour y aller directement.",
     heroTextPasluxe:"Le style des podiums, le budget en moins. Parcourez chaque enseigne par ordre alphabétique.",
     heroTextMagasins:"Les grands magasins parisiens, chacun avec son style. Cliquez pour visiter leur site officiel.",
-    hermesSubtitle:"Une sélection resserrée, choisie avec soin.", hermesNewOn:"Nouveautés du",
+    hermesBannerText:"Une sélection de sacs d'exception, renouvelée à chaque nouvelle arrivée.", hermesBannerCta:"Découvrir →", hermesNewOn:"Nouveautés du",
     statMarques:"marques", siteOfficiel:"Site officiel", articles:"articles",
     emptyBrands:"Aucune marque pour l'instant.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
@@ -850,7 +861,7 @@ const LANG = {
     heroTextLuxe:"Browse each house alphabetically, or click a name in the list to jump straight to it.",
     heroTextPasluxe:"Runway style, without the runway price. Browse each brand alphabetically.",
     heroTextMagasins:"Paris's great department stores, each with its own style. Click to visit their official site.",
-    hermesSubtitle:"A tight selection, chosen with care.", hermesNewOn:"New in on",
+    hermesBannerText:"A hand-picked selection of exceptional bags, refreshed with every new arrival.", hermesBannerCta:"Discover →", hermesNewOn:"New in on",
     statMarques:"brands", siteOfficiel:"Official site", articles:"items",
     emptyBrands:"No brand yet.",
     allBrandsBack:"← All brands", resultats:"results",
@@ -925,7 +936,7 @@ const LANG = {
     heroTextLuxe:"تصفح كل ماركة حسب الترتيب الأبجدي، أو اضغط على اسم في القائمة للانتقال إليه مباشرة.",
     heroTextPasluxe:"أناقة عروض الأزياء بميزانية أقل. تصفح كل علامة حسب الترتيب الأبجدي.",
     heroTextMagasins:"كبرى المتاجر الباريسية، لكل منها أسلوبها الخاص. اضغط لزيارة موقعها الرسمي.",
-    hermesSubtitle:"مجموعة مختارة بعناية.", hermesNewOn:"وصل حديثاً بتاريخ",
+    hermesBannerText:"تشكيلة مختارة من الحقائب الاستثنائية، تتجدد مع كل وصول جديد.", hermesBannerCta:"اكتشف ←", hermesNewOn:"وصل حديثاً بتاريخ",
     statMarques:"ماركة", siteOfficiel:"الموقع الرسمي", articles:"منتج",
     emptyBrands:"لا توجد ماركات حالياً.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
@@ -1470,6 +1481,9 @@ function closePostModal(){
   document.getElementById('postScrim').classList.remove('open');
 }
 document.getElementById('sellBannerBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
+document.getElementById('hermesBanner').addEventListener('click', ()=>{
+  document.getElementById('hermesGroups').scrollIntoView({behavior:'smooth', block:'start'});
+});
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);
 document.getElementById('postScrim').addEventListener('click', closePostModal);
