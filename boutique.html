@@ -1204,7 +1204,7 @@ function renderBrandNav(){
   document.querySelectorAll('.brand-nav-item button').forEach(el=> el.addEventListener('click', ()=> goToBrandSection(el.dataset.brand)));
 }
 function renderHome(){
-  const brands = visibleBrands();
+  const brands = visibleBrands().slice().sort((a,b)=> itemCountForGender(b) - itemCountForGender(a) || a.name.localeCompare(b.name,'fr'));
   document.getElementById('heroTitle').textContent = state.universe==='luxe' ? t('heroTitleLuxe') : state.universe==='magasins' ? t('heroTitleMagasins') : t('heroTitlePasluxe');
   document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
   document.getElementById('statCount').textContent = brands.length;
