@@ -1313,7 +1313,8 @@ let lastPostedId = null;
 let pendingListingImage = null;
 function waLink(l){
   const digits = (l.phone||'').replace(/[^\d]/g,'');
-  const msg = `${t('whatsappInterestMsg')} : ${l.name}`;
+  const price = l.price!=null ? ` (${fmt(l.price, true)})` : '';
+  const msg = `${t('whatsappInterestMsg')} : ${l.name}${price}`;
   return `https://wa.me/${digits}?text=${encodeURIComponent(msg)}`;
 }
 function readAndResizeImage(file, maxSize){
