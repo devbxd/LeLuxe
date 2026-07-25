@@ -161,8 +161,8 @@ app.post("/refresh/:brand", async (req,res)=>{
   }
 });
 
-const PORT = 5678;
+const PORT = process.env.PORT || 5678;
 app.listen(PORT, ()=>{
-  console.log(`Serveur lancé http://localhost:${PORT}`);
+  console.log(`Serveur lancé sur le port ${PORT}`);
   console.log("Marques disponibles pour le rafraîchissement:", Object.keys(SCRAPERS).length);
 });

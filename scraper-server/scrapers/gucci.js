@@ -131,7 +131,7 @@ async function scrapeGucci(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless:false
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 

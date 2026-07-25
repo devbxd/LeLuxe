@@ -60,7 +60,7 @@ async function scrapeOneCategory(page, url, collected){
 
 async function scrapeCartier(url, brand, category){
 
-    const browser = await chromium.launch({ headless:false });
+    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
 
     try{
 

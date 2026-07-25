@@ -2,8 +2,13 @@
   "name": "scraper-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
+    "start": "node server.js",
+    "postinstall": "npx playwright install --with-deps chromium",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
