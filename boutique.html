@@ -796,6 +796,7 @@ const LANG = {
     hermesBannerText:"Une sélection de sacs d'exception, renouvelée à chaque nouvelle arrivée.", hermesBannerCta:"Découvrir →", hermesNewOn:"Nouveautés du",
     statMarques:"marques", siteOfficiel:"Site officiel", articles:"articles",
     emptyBrands:"Aucune marque pour l'instant.",
+    hermesEmpty:"Aucun sac pour l'instant — la prochaine sélection arrive très bientôt.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
     sortDefault:"Trier : Sélection", sortNew:"Nouveautés", sortPriceAsc:"Prix croissant", sortPriceDesc:"Prix décroissant",
     emptyDept:"Aucun article dans ce rayon.", nouveauBadge:"Nouveau",
@@ -871,6 +872,7 @@ const LANG = {
     hermesBannerText:"A hand-picked selection of exceptional bags, refreshed with every new arrival.", hermesBannerCta:"Discover →", hermesNewOn:"New in on",
     statMarques:"brands", siteOfficiel:"Official site", articles:"items",
     emptyBrands:"No brand yet.",
+    hermesEmpty:"No bags yet — the next selection is coming very soon.",
     allBrandsBack:"← All brands", resultats:"results",
     sortDefault:"Sort: Featured", sortNew:"New arrivals", sortPriceAsc:"Price: low to high", sortPriceDesc:"Price: high to low",
     emptyDept:"No item in this category.", nouveauBadge:"New",
@@ -946,6 +948,7 @@ const LANG = {
     hermesBannerText:"تشكيلة مختارة من الحقائب الاستثنائية، تتجدد مع كل وصول جديد.", hermesBannerCta:"اكتشف ←", hermesNewOn:"وصل حديثاً بتاريخ",
     statMarques:"ماركة", siteOfficiel:"الموقع الرسمي", articles:"منتج",
     emptyBrands:"لا توجد ماركات حالياً.",
+    hermesEmpty:"لا توجد حقائب بعد — التشكيلة القادمة قريباً جداً.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
     sortDefault:"الترتيب: مختارة", sortNew:"وصل حديثاً", sortPriceAsc:"السعر: من الأقل للأعلى", sortPriceDesc:"السعر: من الأعلى للأقل",
     emptyDept:"لا توجد منتجات في هذا القسم.", nouveauBadge:"جديد",
@@ -1268,12 +1271,11 @@ function hermesCard(it){
     </div>`;
 }
 function updateHermesBanner(){
-  const brand = findBrand('hermesbags');
-  document.getElementById('hermesSection').classList.toggle('hidden', !brand || !brand.items.length);
+  document.getElementById('hermesSection').classList.remove('hidden');
 }
 function renderHermes(){
   const brand = findBrand('hermesbags');
-  if(!brand || !brand.items.length){ document.getElementById('hermesGroups').innerHTML = ''; return; }
+  if(!brand || !brand.items.length){ document.getElementById('hermesGroups').innerHTML = `<div class="empty">${t('hermesEmpty')}</div>`; return; }
 
   const groups = new Map();
   brand.items.forEach(it=>{
