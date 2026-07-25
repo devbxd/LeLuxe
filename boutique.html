@@ -1337,7 +1337,6 @@ function readAndResizeImage(file, maxSize){
     reader.readAsDataURL(file);
   });
 }
-document.getElementById('photoDrop').addEventListener('click', ()=> document.getElementById('pfImage').click());
 document.getElementById('pfImage').addEventListener('change', async (e)=>{
   const file = e.target.files[0];
   if(!file) return;
