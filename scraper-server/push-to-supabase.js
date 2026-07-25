@@ -38,6 +38,22 @@ function genId(){
   return 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2,9);
 }
 
+// Meme format de reference que le reste du catalogue (prefixe = 3 premieres
+// lettres du nom de marque + numero sequentiel), pour que les articles
+// ajoutes via un re-scrape restent cherchables par reference sur le site.
+function makeRefAssigner(brand){
+  const clean = (brand.name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z]/g,'').toUpperCase();
+  const prefix = clean.slice(0,3) || 'ART';
+  let maxSeq = 0;
+  brand.items.forEach(it=>{
+    if(it.ref && it.ref.startsWith(prefix+'-')){
+      const n = parseInt(it.ref.slice(prefix.length+1),10);
+      if(!isNaN(n) && n>maxSeq) maxSeq = n;
+    }
+  });
+  return () => { maxSeq++; return prefix + '-' + String(maxSeq).padStart(4,'0'); };
+}
+
 async function main(){
   const [,, brandName, category, jsonFile, universeArg] = process.argv;
   if(!brandName || !category || !jsonFile){
@@ -60,6 +76,7 @@ async function main(){
   }
 
   const existingByUrl = new Map(brand.items.filter(it=>it.sourceUrl).map(it=>[it.sourceUrl, it]));
+  const nextRef = makeRefAssigner(brand);
   let added = 0, updated = 0;
 
   scraped.forEach(p=>{
@@ -76,6 +93,7 @@ async function main(){
     }
     const newItem = {
       id: genId(),
+      ref: nextRef(),
       name: p.name || 'Produit',
       dept: p.dept || classifyDept(p.name, category),
       gender,

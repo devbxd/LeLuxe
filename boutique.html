@@ -190,7 +190,8 @@ a{color:inherit;}
 .modal-close:hover{background:var(--line-soft); transform:rotate(90deg);}
 .modal-brand{font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; font-weight:600;}
 .modal-name{font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:600; margin-bottom:10px; line-height:1.25;}
-.modal-price{font-size:17px; font-weight:600; margin-bottom:18px;}
+.modal-price{font-size:17px; font-weight:600; margin-bottom:6px;}
+.modal-ref{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--faint); margin-bottom:18px;}
 .modal-desc{font-size:13px; color:#777; line-height:1.7; margin-bottom:26px;}
 .opt-label{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--faint); margin-bottom:10px;}
 .size-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px;}
@@ -561,6 +562,7 @@ a{color:inherit;}
     <div class="modal-brand" id="modalBrand"></div>
     <div class="modal-name" id="modalName"></div>
     <div class="modal-price" id="modalPrice"></div>
+    <div class="modal-ref" id="modalRef"></div>
     <div class="modal-desc" id="modalDesc"></div>
     <div class="opt-label" data-i18n="tailleLabel">Taille</div>
     <div class="size-row" id="sizeRow"></div>
@@ -741,7 +743,7 @@ const DEPT_ICON = {
 const LANG = {
   fr:{
     loading:"Chargement de la boutique…",
-    searchPlaceholder:"Rechercher une marque ou un article…",
+    searchPlaceholder:"Rechercher une marque, un article ou une référence…",
     wishTitle:"Liste d'envies", cartTitle:"Panier",
     univers:"Univers", prestige:"Prestige", tendance:"Tendance",
     genre:"Genre", tout:"Tout", femme:"Femme", homme:"Homme",
@@ -763,6 +765,8 @@ const LANG = {
     commandeConfirmee:"Commande confirmée — merci !", votreNomPlaceholder:"Votre nom (pour la facture)",
     emptyCart:"Votre sac est vide.", emptyWish:"Votre liste d'envies est vide.",
     indiquerNomAlert:"Merci d'indiquer votre nom pour la facture.",
+    priceOnRequest:"Le vendeur vous communiquera le prix",
+    refLabel:"Réf.",
     footerBrandDesc:"Une sélection de maisons de luxe et d'enseignes accessibles, réunies en un seul endroit.",
     footerBoutique:"Boutique", footerContact:"Contact", footerLivraison:"Livraison",
     footerWorldwide:"Livraison dans le monde entier", footerParis:"Paris, France",
@@ -813,7 +817,7 @@ const LANG = {
   },
   en:{
     loading:"Loading the boutique…",
-    searchPlaceholder:"Search a brand or an item…",
+    searchPlaceholder:"Search a brand, an item or a reference…",
     wishTitle:"Wishlist", cartTitle:"Bag",
     univers:"World", prestige:"Prestige", tendance:"Trend",
     genre:"Gender", tout:"All", femme:"Women", homme:"Men",
@@ -835,6 +839,8 @@ const LANG = {
     commandeConfirmee:"Order confirmed — thank you!", votreNomPlaceholder:"Your name (for the invoice)",
     emptyCart:"Your bag is empty.", emptyWish:"Your wishlist is empty.",
     indiquerNomAlert:"Please enter your name for the invoice.",
+    priceOnRequest:"The seller will confirm the price with you",
+    refLabel:"Ref.",
     footerBrandDesc:"A curated selection of luxury houses and accessible brands, gathered in one place.",
     footerBoutique:"Shop", footerContact:"Contact", footerLivraison:"Delivery",
     footerWorldwide:"Worldwide Delivery", footerParis:"Paris, France",
@@ -885,7 +891,7 @@ const LANG = {
   },
   ar:{
     loading:"جارٍ تحميل المتجر…",
-    searchPlaceholder:"ابحث عن ماركة أو منتج…",
+    searchPlaceholder:"ابحث عن ماركة أو منتج أو مرجع…",
     wishTitle:"قائمة الرغبات", cartTitle:"الحقيبة",
     univers:"الفئة", prestige:"الفخامة", tendance:"الرائج",
     genre:"الجنس", tout:"الكل", femme:"نساء", homme:"رجال",
@@ -907,6 +913,8 @@ const LANG = {
     commandeConfirmee:"تم تأكيد الطلب — شكراً لك!", votreNomPlaceholder:"اسمك (للفاتورة)",
     emptyCart:"حقيبتك فارغة.", emptyWish:"قائمة رغباتك فارغة.",
     indiquerNomAlert:"الرجاء إدخال اسمك من أجل الفاتورة.",
+    priceOnRequest:"سيتواصل معك البائع لتحديد السعر",
+    refLabel:"مرجع",
     footerBrandDesc:"مجموعة مختارة من الماركات الفاخرة والعلامات التجارية في مكان واحد.",
     footerBoutique:"المتجر", footerContact:"تواصل معنا", footerLivraison:"التوصيل",
     footerWorldwide:"توصيل حول العالم", footerParis:"باريس، فرنسا",
@@ -1191,8 +1199,9 @@ function sortedBrandsFor(uv){
   return brandsFor(uv).slice().sort((a,b)=> a.name.localeCompare(b.name, 'fr'));
 }
 function visibleBrands(){
+  const term = state.search.toLowerCase();
   return sortedBrandsFor(state.universe)
-    .filter(b=> b.name.toLowerCase().includes(state.search.toLowerCase()))
+    .filter(b=> !term || b.name.toLowerCase().includes(term) || b.items.some(i=> i.ref && i.ref.toLowerCase().includes(term)))
     .filter(b=> b.external || state.gender==='all' || itemCountForGender(b)>0);
 }
 function renderBrandNav(){
@@ -1268,7 +1277,10 @@ function renderPLP(){
     usedDepts.map(d=> `<button class="dept-chip ${state.deptFilter===d?'active':''}" data-dept="${d}">${DEPTS[d]||d}</button>`).join('');
   document.querySelectorAll('#deptChips .dept-chip').forEach(el=> el.addEventListener('click', ()=>{ state.deptFilter=el.dataset.dept; renderPLP(); }));
   if(state.deptFilter!=='all') items = items.filter(i=>i.dept===state.deptFilter);
-  if(state.search) items = items.filter(i=> i.name.toLowerCase().includes(state.search.toLowerCase()));
+  if(state.search){
+    const term = state.search.toLowerCase();
+    items = items.filter(i=> i.name.toLowerCase().includes(term) || (i.ref && i.ref.toLowerCase().includes(term)));
+  }
   if(state.sort==='price-asc') items.sort((a,b)=>a.price-b.price);
   if(state.sort==='price-desc') items.sort((a,b)=>b.price-a.price);
   if(state.sort==='new') items.sort((a,b)=>(b.isNew?1:0)-(a.isNew?1:0));
@@ -1422,6 +1434,7 @@ function openDetail(itemId){
   document.getElementById('modalBrand').textContent = brand.name;
   document.getElementById('modalName').textContent = item.name;
   document.getElementById('modalPrice').textContent = fmt(item.price, isLuxe);
+  document.getElementById('modalRef').textContent = item.ref ? `${t('refLabel')} ${item.ref}` : '';
   document.getElementById('modalDesc').textContent = DESCRIPTIONS[(item.name.length+item.dept.length)%DESCRIPTIONS.length];
   document.getElementById('modalQty').textContent = 1;
   document.getElementById('sizeRow').innerHTML = sizes.map(s=> `<button class="size-chip ${s===modalState.size?'active':''}" data-size="${s}">${s}</button>`).join('');
@@ -1491,7 +1504,7 @@ function renderCartBody(){
         <div class="li-name">${item.name}${c.size&&c.size!=='undefined'?' · '+c.size:''}</div>
         <div class="li-bottom">
           <div class="qty-stepper"><button data-cq="${c.id}|${c.size}|-1">−</button><span>${c.qty}</span><button data-cq="${c.id}|${c.size}|1">+</button></div>
-          <div class="li-price">${item.price==null ? 'x' : fmt(item.price*c.qty, isLuxe)}</div>
+          <div class="li-price">${item.price==null ? t('priceOnRequest') : fmt(item.price*c.qty, isLuxe)}</div>
         </div>
         <button class="li-remove" data-crm="${c.id}|${c.size}">${t('retirer')}</button>
       </div>
@@ -1573,7 +1586,7 @@ function openReceipt(clientName){
     <div class="receipt-item-row">
       <div class="c1">${l.image?`<img src="${l.image}">`:''}</div>
       <div class="c2">${l.name}${l.qty>1?' × '+l.qty:''}</div>
-      <div class="c3">${l.price==null ? 'x' : '€'+Math.round(l.price*l.qty)}</div>
+      <div class="c3">${l.price==null ? t('priceOnRequest') : '€'+Math.round(l.price*l.qty)}</div>
     </div>`).join('');
   document.getElementById('rcptSubtotal').textContent = '€'+Math.round(subtotalEur);
   document.getElementById('rcptTotalEur').textContent = '€'+Math.round(subtotalEur);
@@ -1590,7 +1603,7 @@ document.getElementById('receiptDownloadBtn').addEventListener('click', ()=> win
 document.getElementById('receiptWhatsappBtn').addEventListener('click', ()=>{
   if(!lastReceipt) return;
   const r = lastReceipt;
-  const itemsTxt = r.lines.map(l=> `• ${l.name}${l.qty>1?' x'+l.qty:''} — ${l.price==null?'x':'€'+Math.round(l.price*l.qty)}`).join('\n');
+  const itemsTxt = r.lines.map(l=> `• ${l.name}${l.qty>1?' x'+l.qty:''} — ${l.price==null?t('priceOnRequest'):'€'+Math.round(l.price*l.qty)}`).join('\n');
   const msg = `LE LUXE — Nouvelle commande\n\nClient: ${r.clientName}\nFacture: ${r.receiptNo}\n\n${itemsTxt}\n\nTotal: €${Math.round(r.subtotalEur)} (≈ $${Math.round(r.totalUsd)} USD)\n\nPaiement via Whish Money à envoyer à ce numéro.`;
   window.open(`https://wa.me/${MERCHANT_WHATSAPP}?text=${encodeURIComponent(msg)}`, '_blank');
 });

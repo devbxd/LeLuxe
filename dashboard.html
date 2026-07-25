@@ -226,6 +226,23 @@ let DATA = { brands: [] };
 let MARKET = [];
 function findBrand(id){ return DATA.brands.find(b=>b.id===id); }
 
+// Prefixe de reference a partir du nom de marque (3 premieres lettres,
+// sans accents) : garde le meme format que les references generees pour
+// le reste du catalogue, pour que la recherche client par reference
+// fonctionne aussi sur les articles ajoutes depuis le dashboard.
+function nextRef(brand){
+  const clean = (brand.name||'').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-zA-Z]/g,'').toUpperCase();
+  const prefix = clean.slice(0,3) || 'ART';
+  let maxSeq = 0;
+  (brand.items||[]).forEach(it=>{
+    if(it.ref && it.ref.startsWith(prefix+'-')){
+      const n = parseInt(it.ref.slice(prefix.length+1),10);
+      if(!isNaN(n) && n>maxSeq) maxSeq = n;
+    }
+  });
+  return prefix + '-' + String(maxSeq+1).padStart(4,'0');
+}
+
 /* ================= HELPERS UI ================= */
 function setupPasteZone(zone, onImage){
   zone.addEventListener('paste', (e)=>{
@@ -422,7 +439,7 @@ function renderAdmin(){
     const gender = document.getElementById('newgender-'+bId).value || null;
     if(!name){ alert("Merci de donner un nom à l'article."); return; }
     const brand = findBrand(bId);
-    const newItem = {id:genId(), name, price:isNaN(price)?null:price, dept, gender, image:null, isNew:true};
+    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, image:null, isNew:true};
     const zone = document.getElementById('newzone-'+bId);
     const img = zone.querySelector('img');
     if(img) newItem.image = img.src;
