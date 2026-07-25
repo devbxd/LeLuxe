@@ -511,13 +511,20 @@ a{color:inherit;}
           </div>
           <span class="hermes-banner-cta" data-i18n="hermesBannerCta"></span>
         </div>
-        <div id="hermesGroups"></div>
       </div>
       <div class="hero-row">
         <div><h1 id="heroTitle">Les maisons</h1><p id="heroText"></p></div>
         <div class="stat"><b id="statCount">0</b><span data-i18n="statMarques">marques</span></div>
       </div>
       <div id="homeGrid"></div>
+    </div>
+
+    <div id="viewHermes" class="hidden">
+      <div class="hero-row">
+        <div><h1>Hermès Bags</h1><p data-i18n="hermesBannerText"></p></div>
+        <button class="back-link" id="hermesBackBtn" data-i18n="allBrandsBack">← Toutes les marques</button>
+      </div>
+      <div id="hermesGroups"></div>
     </div>
 
     <div id="viewPLP" class="hidden">
@@ -1218,12 +1225,14 @@ function renderStorefront(){
   document.getElementById('viewHome').classList.toggle('hidden', state.view!=='home');
   document.getElementById('viewPLP').classList.toggle('hidden', state.view!=='plp');
   document.getElementById('viewMarket').classList.toggle('hidden', state.view!=='market');
-  document.querySelector('.sidebar').classList.toggle('hidden', state.view==='market');
-  document.querySelector('.main').classList.toggle('main-full', state.view==='market');
+  document.getElementById('viewHermes').classList.toggle('hidden', state.view!=='hermes');
+  document.querySelector('.sidebar').classList.toggle('hidden', state.view==='market' || state.view==='hermes');
+  document.querySelector('.main').classList.toggle('main-full', state.view==='market' || state.view==='hermes');
   renderBrandNav();
   if(state.view==='home') renderHome();
   else if(state.view==='plp') renderPLP();
   else if(state.view==='market') renderMarket();
+  else if(state.view==='hermes') renderHermes();
   renderCounts();
 }
 function itemCountForGender(b){
@@ -1258,11 +1267,13 @@ function hermesCard(it){
       </div>
     </div>`;
 }
+function updateHermesBanner(){
+  const brand = findBrand('hermesbags');
+  document.getElementById('hermesSection').classList.toggle('hidden', !brand || !brand.items.length);
+}
 function renderHermes(){
   const brand = findBrand('hermesbags');
-  const section = document.getElementById('hermesSection');
-  if(!brand || !brand.items.length){ section.classList.add('hidden'); return; }
-  section.classList.remove('hidden');
+  if(!brand || !brand.items.length){ document.getElementById('hermesGroups').innerHTML = ''; return; }
 
   const groups = new Map();
   brand.items.forEach(it=>{
@@ -1296,7 +1307,7 @@ function renderHermes(){
   document.querySelectorAll('[data-openhermes]').forEach(el=> el.addEventListener('click', ()=> openDetail(el.dataset.openhermes)));
 }
 function renderHome(){
-  renderHermes();
+  updateHermesBanner();
   const brands = visibleBrands().slice().sort((a,b)=> itemCountForGender(b) - itemCountForGender(a) || a.name.localeCompare(b.name,'fr'));
   document.getElementById('heroTitle').textContent = state.universe==='luxe' ? t('heroTitleLuxe') : state.universe==='magasins' ? t('heroTitleMagasins') : t('heroTitlePasluxe');
   document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
@@ -1482,8 +1493,9 @@ function closePostModal(){
 }
 document.getElementById('sellBannerBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
 document.getElementById('hermesBanner').addEventListener('click', ()=>{
-  document.getElementById('hermesGroups').scrollIntoView({behavior:'smooth', block:'start'});
+  state.view='hermes'; renderStorefront(); scrollMainIntoViewMobile();
 });
+document.getElementById('hermesBackBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); scrollMainIntoViewMobile(); });
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);
 document.getElementById('postScrim').addEventListener('click', closePostModal);
