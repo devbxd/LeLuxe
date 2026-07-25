@@ -45,6 +45,7 @@ input,select{font:inherit;}
 .section-title{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8a8478; margin:30px 0 12px; font-weight:700;}
 .hint code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:11.5px;}
 
+.hermes-admin-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:8px;}
 .refresh-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px;}
 .refresh-row{display:flex; align-items:center; gap:14px; flex-wrap:wrap;}
 .refresh-state{font-size:12.5px; color:#8a8478;}
@@ -129,6 +130,20 @@ input,select{font:inherit;}
   <div class="admin-head">
     <h1>Tableau de bord — Le Luxe</h1>
     <a href="boutique.html" target="_blank">Voir la boutique ↗</a>
+  </div>
+
+  <div class="section-title">Hermès Bags (section manuelle)</div>
+  <div class="hermes-admin-card">
+    <div id="hermesItemsList"></div>
+    <div class="add-item-row">
+      <div class="paste-zone" tabindex="0" id="newzone-hermesbags">Coller image<br>(Ctrl+V)</div>
+      <input type="text" placeholder="Nom du sac" id="newname-hermesbags" style="flex:2;min-width:160px;border:1px solid #e5e2dc;border-radius:6px;padding:8px 10px;font-size:12.5px;">
+      <input type="number" step="0.01" placeholder="Prix" id="newprice-hermesbags" style="width:90px;border:1px solid #e5e2dc;border-radius:6px;padding:8px;font-size:12.5px;">
+      <input type="hidden" id="newdept-hermesbags" value="sacs">
+      <input type="hidden" id="newgender-hermesbags" value="">
+      <button class="btn" data-additem="hermesbags">Ajouter</button>
+    </div>
+    <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing.</p>
   </div>
 
   <div class="stat-row">
@@ -306,6 +321,7 @@ let filterType = 'all';
 
 function visibleBrandList(){
   return DATA.brands.filter(b=>{
+    if(b.pinned) return false;
     if(searchTerm && !b.name.toLowerCase().includes(searchTerm)) return false;
     if(filterUv!=='all' && b.universe!==filterUv) return false;
     if(filterType==='catalog' && b.external) return false;
@@ -385,7 +401,22 @@ function renderBrandBody(b, DEPTS){
   return html;
 }
 
+function renderHermesAdmin(){
+  const brand = findBrand('hermesbags');
+  if(!brand) return;
+  document.getElementById('hermesItemsList').innerHTML = brand.items.map(it=>`
+    <div class="item-row">
+      <div class="paste-zone" tabindex="0" data-pastezone="hermesbags|${it.id}">${it.image?`<img src="${it.image}">`:'Coller image<br>(Ctrl+V)'}</div>
+      <div class="item-fields">
+        <input class="fname" type="text" value="${(it.name||'').replace(/"/g,'&quot;')}" data-editname="hermesbags|${it.id}" style="flex:2;min-width:160px;">
+        <input class="fprice" type="number" step="0.01" placeholder="Prix" value="${it.price==null?'':it.price}" data-editprice="hermesbags|${it.id}">
+      </div>
+      <button class="item-del" data-delitem="hermesbags|${it.id}" title="Supprimer l'article">✕</button>
+    </div>`).join('') || `<p class="empty-hint">Aucun sac ajouté pour l'instant.</p>`;
+}
+
 function renderAdmin(){
+  renderHermesAdmin();
   const list = visibleBrandList();
   document.getElementById('adminBrandList').innerHTML = list.map(b=>{
     const DEPTS = deptsFor(b.universe);

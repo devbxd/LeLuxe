@@ -107,6 +107,19 @@ a{color:inherit;}
 .sell-banner-text{font-size:12.5px; color:var(--muted); max-width:52ch;}
 .sell-banner-btn{flex-shrink:0; background:var(--ink); color:#fff; padding:12px 24px; border-radius:24px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
 .sell-banner-btn:hover{background:#000; transform:translateY(-1px);}
+
+.hermes-section{margin-bottom:38px;}
+.hermes-head{display:flex; align-items:baseline; gap:14px; margin-bottom:16px; flex-wrap:wrap;}
+.hermes-head h2{font-family:'Cormorant Garamond',serif; font-size:26px; font-weight:600; letter-spacing:.01em;}
+.hermes-head p{font-size:12px; color:var(--muted);}
+.hermes-row{display:flex; gap:16px; overflow-x:auto; padding-bottom:6px; scrollbar-width:thin;}
+.hermes-card{flex:0 0 200px; cursor:pointer; border:1px solid var(--line); border-radius:var(--radius-m); overflow:hidden; background:#fff; transition:border-color .2s var(--ease), transform .2s var(--ease), box-shadow .2s var(--ease);}
+.hermes-card:hover{border-color:var(--gold-soft); transform:translateY(-3px); box-shadow:0 14px 28px rgba(0,0,0,.07);}
+.hermes-card .hc-img{aspect-ratio:1/1; background:#f6f6f6; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.hermes-card .hc-img img{width:100%; height:100%; object-fit:cover;}
+.hermes-card .hc-body{padding:12px 14px;}
+.hermes-card .hc-name{font-size:12.5px; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.hermes-card .hc-price{font-size:12px; color:var(--muted);}
 @media (max-width:900px){
   .promo-carousel{height:260px;}
   .promo-slide{padding:24px;}
@@ -479,6 +492,13 @@ a{color:inherit;}
         </div>
         <button class="sell-banner-btn" id="sellBannerBtn" data-i18n="sellBannerCta">Vendre un article</button>
       </div>
+      <div class="hermes-section hidden" id="hermesSection">
+        <div class="hermes-head">
+          <h2>Hermès Bags</h2>
+          <p data-i18n="hermesSubtitle"></p>
+        </div>
+        <div class="hermes-row" id="hermesRow"></div>
+      </div>
       <div class="hero-row">
         <div><h1 id="heroTitle">Les maisons</h1><p id="heroText"></p></div>
         <div class="stat"><b id="statCount">0</b><span data-i18n="statMarques">marques</span></div>
@@ -752,6 +772,7 @@ const LANG = {
     heroTextLuxe:"Parcourez chaque maison par ordre alphabétique, ou cliquez un nom dans la liste pour y aller directement.",
     heroTextPasluxe:"Le style des podiums, le budget en moins. Parcourez chaque enseigne par ordre alphabétique.",
     heroTextMagasins:"Les grands magasins parisiens, chacun avec son style. Cliquez pour visiter leur site officiel.",
+    hermesSubtitle:"Une sélection resserrée, choisie avec soin.",
     statMarques:"marques", siteOfficiel:"Site officiel", articles:"articles",
     emptyBrands:"Aucune marque pour l'instant.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
@@ -826,6 +847,7 @@ const LANG = {
     heroTextLuxe:"Browse each house alphabetically, or click a name in the list to jump straight to it.",
     heroTextPasluxe:"Runway style, without the runway price. Browse each brand alphabetically.",
     heroTextMagasins:"Paris's great department stores, each with its own style. Click to visit their official site.",
+    hermesSubtitle:"A tight selection, chosen with care.",
     statMarques:"brands", siteOfficiel:"Official site", articles:"items",
     emptyBrands:"No brand yet.",
     allBrandsBack:"← All brands", resultats:"results",
@@ -900,6 +922,7 @@ const LANG = {
     heroTextLuxe:"تصفح كل ماركة حسب الترتيب الأبجدي، أو اضغط على اسم في القائمة للانتقال إليه مباشرة.",
     heroTextPasluxe:"أناقة عروض الأزياء بميزانية أقل. تصفح كل علامة حسب الترتيب الأبجدي.",
     heroTextMagasins:"كبرى المتاجر الباريسية، لكل منها أسلوبها الخاص. اضغط لزيارة موقعها الرسمي.",
+    hermesSubtitle:"مجموعة مختارة بعناية.",
     statMarques:"ماركة", siteOfficiel:"الموقع الرسمي", articles:"منتج",
     emptyBrands:"لا توجد ماركات حالياً.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
@@ -1174,7 +1197,7 @@ document.getElementById('promoCarousel').addEventListener('mouseenter', ()=> cle
 document.getElementById('promoCarousel').addEventListener('mouseleave', ()=> restartPromoTimer());
 
 /* ================= RENDER ================= */
-function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv); }
+function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinned); }
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
   document.querySelectorAll('.gender-tab').forEach(t=> t.classList.toggle('active', t.dataset.g===state.gender));
@@ -1212,7 +1235,23 @@ function renderBrandNav(){
   ).join('');
   document.querySelectorAll('.brand-nav-item button').forEach(el=> el.addEventListener('click', ()=> goToBrandSection(el.dataset.brand)));
 }
+function renderHermes(){
+  const brand = findBrand('hermesbags');
+  const section = document.getElementById('hermesSection');
+  if(!brand || !brand.items.length){ section.classList.add('hidden'); return; }
+  section.classList.remove('hidden');
+  document.getElementById('hermesRow').innerHTML = brand.items.map(it=> `
+    <div class="hermes-card" data-openhermes="${it.id}">
+      <div class="hc-img">${it.image?`<img src="${it.image}" alt="" loading="lazy">`:''}</div>
+      <div class="hc-body">
+        <div class="hc-name">${it.name}</div>
+        <div class="hc-price">${it.price==null ? t('priceOnRequest') : fmt(it.price, true)}</div>
+      </div>
+    </div>`).join('');
+  document.querySelectorAll('[data-openhermes]').forEach(el=> el.addEventListener('click', ()=> openDetail(el.dataset.openhermes)));
+}
 function renderHome(){
+  renderHermes();
   const brands = visibleBrands().slice().sort((a,b)=> itemCountForGender(b) - itemCountForGender(a) || a.name.localeCompare(b.name,'fr'));
   document.getElementById('heroTitle').textContent = state.universe==='luxe' ? t('heroTitleLuxe') : state.universe==='magasins' ? t('heroTitleMagasins') : t('heroTitlePasluxe');
   document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
