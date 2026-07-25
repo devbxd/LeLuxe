@@ -509,7 +509,7 @@ function renderAdmin(){
     const dropDate = dateEl ? (dateEl.value || null) : null;
     if(!name){ alert("Merci de donner un nom à l'article."); return; }
     const brand = findBrand(bId);
-    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, isNew:true};
+    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, addedAt:Date.now()};
     const zone = document.getElementById('newzone-'+bId);
     const img = zone.querySelector('img');
     if(img) newItem.image = img.src;

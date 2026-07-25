@@ -84,7 +84,7 @@ function mergeItemsIntoBrand(brand, scraped, category){
       gender,
       price: parsePrice(p.price),
       image: p.image || null,
-      isNew: true,
+      addedAt: Date.now(),
       sourceUrl: p.url || null
     };
     brand.items.push(newItem);

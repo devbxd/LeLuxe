@@ -1064,6 +1064,10 @@ function fmt(v, luxe){
   const locale = {fr:'fr-FR', en:'en-GB', ar:'ar-LB'}[state.lang] || 'fr-FR';
   return v.toLocaleString(locale, {minimumFractionDigits: luxe?0:2, maximumFractionDigits: luxe?0:2, numberingSystem:'latn'}) + ' €';
 }
+const NEW_BADGE_DAYS = 30;
+function isItemNew(it){
+  return !!it.addedAt && (Date.now() - it.addedAt) < NEW_BADGE_DAYS*24*60*60*1000;
+}
 
 /* ================= SHARED DATABASE (Supabase) ================= */
 function supaConfigured(){
@@ -1380,14 +1384,14 @@ function renderPLP(){
   }
   if(state.sort==='price-asc') items.sort((a,b)=>a.price-b.price);
   if(state.sort==='price-desc') items.sort((a,b)=>b.price-a.price);
-  if(state.sort==='new') items.sort((a,b)=>(b.isNew?1:0)-(a.isNew?1:0));
+  if(state.sort==='new') items.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
   document.getElementById('sortSelect').value = state.sort;
   document.getElementById('plpGrid').innerHTML = items.map(it=>{
     const wished = state.wish.includes(it.id);
     return `<div class="p-tile" data-item="${it.id}">
       <div class="p-image">
         ${it.image ? `<img src="${it.image}">` : ICONS[DEPT_ICON[it.dept]]||''}
-        ${it.isNew?`<span class="p-new">${t('nouveauBadge')}</span>`:''}
+        ${isItemNew(it)?`<span class="p-new">${t('nouveauBadge')}</span>`:''}
         <button class="p-heart ${wished?'active':''}" data-heart="${it.id}"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg></button>
       </div>
       <div class="p-info"><div class="p-name">${it.name}</div><div class="p-price">${fmt(it.price, isLuxe)}</div></div>
