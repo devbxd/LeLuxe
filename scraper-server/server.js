@@ -86,6 +86,35 @@ async function saveCatalog(data){
 
 let progress = { running:false, total:0, done:0, currentBrand:null, results:[], startedAt:null, finishedAt:null };
 
+// Le plan gratuit de Render n'a que 512 Mo de RAM : enchainer les 39
+// scrapers dans un seul processus (chacun ouvrant un vrai Chromium) finit
+// par saturer la memoire et faire planter/redemarrer le service en cours
+// de route, perdant tout le travail non encore sauvegarde. /refresh-next
+// ne traite qu'UNE seule marque par appel (un seul Chromium a la fois,
+// ferme avant la fin de la requete) et retient sa position via un curseur
+// persiste dans Supabase, pour repartir pile ou il s'est arrete meme si
+// le service redemarre entre deux appels. Concu pour etre appele toutes
+// les ~15 minutes par un cronjob externe.
+async function getCursorIndex(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.refresh_cursor&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  const rows = await res.json();
+  return (rows[0] && typeof rows[0].data.index === 'number') ? rows[0].data.index : 0;
+}
+async function setCursorIndex(index){
+  await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method:'POST',
+    headers:{
+      apikey: SUPABASE_KEY,
+      Authorization:`Bearer ${SUPABASE_KEY}`,
+      'Content-Type':'application/json',
+      Prefer:'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({ id:'refresh_cursor', data:{ index } })
+  });
+}
+
 app.get("/", (req,res)=>{
   res.send("Scraper OK");
 });
@@ -139,6 +168,41 @@ app.post("/refresh-all", (req,res)=>{
     progress.currentBrand = null;
     progress.finishedAt = Date.now();
   })();
+});
+
+app.post("/refresh-next", async (req,res)=>{
+  const brandNames = Object.keys(SCRAPERS);
+  let index;
+  try{
+    index = await getCursorIndex();
+  }catch(e){
+    return res.status(500).json({ error: "Impossible de lire le curseur: "+e.message });
+  }
+  if(!(index>=0) || index>=brandNames.length) index = 0;
+  const brandName = brandNames[index];
+  const nextIndex = (index+1) % brandNames.length;
+
+  try{
+    const DATA = await fetchCatalog();
+    const brand = DATA.brands.find(b=> b.name.toLowerCase()===brandName.toLowerCase());
+    let result;
+    if(!brand){
+      result = { brand:brandName, error:"Marque introuvable dans le catalogue" };
+    }else{
+      const scraperFn = SCRAPERS[brandName];
+      const scraped = await scraperFn('', brandName, 'refresh');
+      const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
+      await saveCatalog(DATA);
+      result = { brand:brandName, added, updated, total: brand.items.length };
+    }
+    await setCursorIndex(nextIndex);
+    res.json({ ...result, position:`${index+1}/${brandNames.length}`, nextBrand: brandNames[nextIndex] });
+  }catch(e){
+    // on avance quand meme le curseur pour ne pas rester bloque
+    // indefiniment sur une marque qui plante systematiquement
+    await setCursorIndex(nextIndex).catch(()=>{});
+    res.status(500).json({ brand:brandName, error: e.message, position:`${index+1}/${brandNames.length}`, nextBrand: brandNames[nextIndex] });
+  }
 });
 
 app.post("/refresh/:brand", async (req,res)=>{
