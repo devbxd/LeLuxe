@@ -182,26 +182,28 @@ app.post("/refresh-next", async (req,res)=>{
   const brandName = brandNames[index];
   const nextIndex = (index+1) % brandNames.length;
 
+  // Un scrape reel (ouverture du site, navigation, attentes) prend souvent
+  // plus longtemps que ce qu'un declencheur externe (cron-job.org) accepte
+  // d'attendre avant de considerer la requete en echec (timeout) - meme si
+  // le travail se termine bien cote serveur ensuite. On repond donc tout
+  // de suite pour accuser reception, puis on scrape en arriere-plan.
+  res.json({ started:true, brand:brandName, position:`${index+1}/${brandNames.length}`, nextBrand: brandNames[nextIndex] });
+  await setCursorIndex(nextIndex).catch(()=>{});
+
   try{
     const DATA = await fetchCatalog();
     const brand = DATA.brands.find(b=> b.name.toLowerCase()===brandName.toLowerCase());
-    let result;
     if(!brand){
-      result = { brand:brandName, error:"Marque introuvable dans le catalogue" };
-    }else{
-      const scraperFn = SCRAPERS[brandName];
-      const scraped = await scraperFn('', brandName, 'refresh');
-      const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
-      await saveCatalog(DATA);
-      result = { brand:brandName, added, updated, total: brand.items.length };
+      console.log(`[refresh-next] ${brandName} : marque introuvable dans le catalogue`);
+      return;
     }
-    await setCursorIndex(nextIndex);
-    res.json({ ...result, position:`${index+1}/${brandNames.length}`, nextBrand: brandNames[nextIndex] });
+    const scraperFn = SCRAPERS[brandName];
+    const scraped = await scraperFn('', brandName, 'refresh');
+    const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
+    await saveCatalog(DATA);
+    console.log(`[refresh-next] ${brandName} : +${added} nouveaux, ${updated} mis a jour (total ${brand.items.length})`);
   }catch(e){
-    // on avance quand meme le curseur pour ne pas rester bloque
-    // indefiniment sur une marque qui plante systematiquement
-    await setCursorIndex(nextIndex).catch(()=>{});
-    res.status(500).json({ brand:brandName, error: e.message, position:`${index+1}/${brandNames.length}`, nextBrand: brandNames[nextIndex] });
+    console.log(`[refresh-next] ${brandName} : erreur - ${e.message}`);
   }
 });
 
