@@ -1409,7 +1409,13 @@ function renderHome(){
   document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
   document.getElementById('statCount').textContent = brands.length;
   const logoTag = b => b.logo ? `<span class="bt-logo"><img src="${b.logo}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></span>` : '';
+  const FEATURED_DEPT_PREF = { RickOwens: 'veste' };
   const featuredImage = b => {
+    const pref = FEATURED_DEPT_PREF[b.name];
+    if(pref){
+      const preferred = (b.items||[]).filter(i=>i.image && i.dept===pref).sort((a,b)=>(b.price||0)-(a.price||0));
+      if(preferred.length) return preferred[0].image;
+    }
     const withImg = (b.items||[]).filter(i=>i.image).sort((a,b)=>(b.price||0)-(a.price||0));
     return withImg.length ? withImg[0].image : null;
   };
