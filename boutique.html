@@ -39,10 +39,21 @@ a{color:inherit;}
 .setup-banner b{color:#ffd166;}
 
 /* ---------- LOADING ---------- */
-.loading-screen{position:fixed; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:100; font-size:13px; color:#999; letter-spacing:.1em; text-transform:uppercase;}
+.loading-screen{position:fixed; inset:0; background:#fff; z-index:100; padding:16px 32px; overflow:hidden;}
+.sk{background:linear-gradient(90deg, #f0efec 25%, #f8f7f5 37%, #f0efec 63%); background-size:400% 100%; animation:sk-shimmer 1.6s ease-in-out infinite; border-radius:var(--radius-m);}
+@keyframes sk-shimmer{0%{background-position:100% 50%;} 100%{background-position:0% 50%;}}
+.skeleton-topbar{display:flex; align-items:center; gap:28px; padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:36px;}
+.skeleton-topbar .sk-word{width:110px; height:22px; border-radius:4px;}
+.skeleton-topbar .sk-search{flex:1; max-width:380px; height:36px; border-radius:999px;}
+.skeleton-topbar .sk-icons{width:120px; height:32px; border-radius:20px; margin-left:auto;}
+.skeleton-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:14px; max-width:1280px; margin:0 auto;}
+.skeleton-grid .sk-tile{height:150px;}
+.skeleton-grid .sk-tile.big{grid-column:span 2; grid-row:span 2; height:320px;}
+@media (prefers-reduced-motion: reduce){ .sk{animation:none; background:#f0efec;} }
 
 /* ============ TOPBAR ============ */
 .topbar{position:sticky; top:0; z-index:30; background:rgba(255,255,255,.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); display:flex; align-items:center; gap:28px; padding:16px 32px; border-bottom:1px solid var(--line); transition:box-shadow .25s ease;}
+.topbar.scrolled{box-shadow:0 8px 24px rgba(0,0,0,.06);}
 .wordmark{font-family:'Cormorant Garamond',serif; font-size:23px; letter-spacing:.32em; font-weight:600; text-transform:uppercase; flex-shrink:0; cursor:pointer; padding-left:.32em;}
 .searchbox{flex:1; max-width:380px; display:flex; align-items:center; gap:8px; background:#f5f5f5; border-radius:999px; padding:9px 16px; border:1px solid transparent; transition:border-color .2s ease, background .2s ease;}
 .searchbox:focus-within{background:#fff; border-color:var(--gold-soft);}
@@ -134,9 +145,22 @@ a{color:inherit;}
   .promo-dots{bottom:10px;}
 }
 
+/* ---------- HERO BANNER ---------- */
+.hero-banner{position:relative; height:520px; border-radius:var(--radius-l); overflow:hidden; margin-bottom:34px; background-size:cover; background-position:center; display:flex; align-items:flex-end;}
+.hero-banner-scrim{position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,.72) 0%, rgba(0,0,0,.32) 45%, rgba(0,0,0,.08) 75%);}
+.hero-banner-content{position:relative; z-index:1; padding:52px 56px; color:#fff; max-width:640px;}
+.hero-banner-word{font-family:'Cormorant Garamond',serif; font-size:12px; letter-spacing:.5em; text-transform:uppercase; opacity:.75; margin-bottom:18px; padding-left:.5em;}
+.hero-banner-title{font-family:'Cormorant Garamond',serif; font-size:clamp(34px,5vw,58px); font-weight:600; line-height:1.12; margin-bottom:26px;}
+.hero-banner-cta{background:#fff; color:var(--ink); padding:14px 30px; border-radius:30px; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; transition:transform .18s ease, box-shadow .18s ease;}
+.hero-banner-cta:hover{transform:translateY(-2px); box-shadow:0 10px 24px rgba(0,0,0,.25);}
+@media (max-width:900px){
+  .hero-banner{height:420px;}
+  .hero-banner-content{padding:32px 26px;}
+}
+
 /* ---------- HOME ---------- */
-.hero-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px; flex-wrap:wrap; gap:14px; padding-bottom:26px; border-bottom:1px solid var(--line);}
-.hero-row h1{font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:600; letter-spacing:.01em;}
+.hero-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap; gap:14px; padding-bottom:30px; border-bottom:1px solid var(--line);}
+.hero-row h1{font-family:'Cormorant Garamond',serif; font-size:50px; font-weight:600; letter-spacing:.01em;}
 .hero-row p{color:var(--muted); font-size:13.5px; margin-top:8px; max-width:420px; line-height:1.6;}
 .stat{font-size:11.5px; color:var(--faint); text-align:right; letter-spacing:.08em; text-transform:uppercase;}
 .stat b{display:block; font-size:26px; color:var(--ink); font-family:'Cormorant Garamond',serif; letter-spacing:0; text-transform:none;}
@@ -150,6 +174,19 @@ a{color:inherit;}
 .brand-tile.is-external .bt-meta{color:var(--gold);}
 .brand-tile.is-external{background:var(--gold-mist);}
 .brand-tile.is-external::after{content:'↗'; position:absolute; top:12px; right:14px; font-size:12px; color:var(--gold);}
+.brand-tile.featured{grid-column:span 2; grid-row:span 2; min-height:320px; background-size:cover; background-position:center; align-items:flex-start; justify-content:flex-end; padding:26px; border:none;}
+.brand-tile.featured .bt-scrim{position:absolute; inset:0; background:linear-gradient(0deg, rgba(0,0,0,.68) 0%, rgba(0,0,0,.18) 55%, rgba(0,0,0,0) 80%); border-radius:inherit;}
+.brand-tile.featured .bt-name{position:relative; z-index:1; color:#fff; font-size:24px;}
+.brand-tile.featured .bt-meta{position:relative; z-index:1; color:rgba(255,255,255,.85);}
+.brand-tile.featured:hover{transform:translateY(-3px); box-shadow:0 20px 40px rgba(0,0,0,.22);}
+@media (max-width:900px){
+  .brand-tile.featured{grid-column:span 2; grid-row:span 1; min-height:220px;}
+}
+
+/* ---------- SCROLL REVEAL ---------- */
+.reveal{opacity:0; transform:translateY(18px); transition:opacity .6s var(--ease), transform .6s var(--ease);}
+.reveal.in-view{opacity:1; transform:translateY(0);}
+@media (prefers-reduced-motion: reduce){ .reveal{opacity:1; transform:none; transition:none;} }
 .brand-tile.pulse-highlight{animation:brandPulse 2s ease-out;}
 @keyframes brandPulse{
   0%{box-shadow:0 0 0 0 rgba(176,141,87,0); border-color:var(--line);}
@@ -165,7 +202,7 @@ a{color:inherit;}
 /* ---------- PLP ---------- */
 .plp-crumb{font-size:11px; color:var(--faint); margin-bottom:10px; letter-spacing:.04em;}
 .plp-head{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:20px; flex-wrap:wrap; gap:10px;}
-.plp-head h1{font-family:'Cormorant Garamond',serif; font-size:36px; font-weight:600;}
+.plp-head h1{font-family:'Cormorant Garamond',serif; font-size:42px; font-weight:600;}
 .plp-count{font-size:12px; color:var(--faint); margin-top:5px;}
 .gender-notice{font-size:11.5px; color:var(--gold-ink,#8a6d2f); background:var(--gold-mist); border:1px solid var(--gold-soft); border-radius:8px; padding:9px 14px; margin-bottom:18px;}
 .plp-toolbar{display:flex; justify-content:space-between; align-items:center; gap:14px; padding:16px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); margin-bottom:26px; flex-wrap:wrap;}
@@ -185,8 +222,8 @@ a{color:inherit;}
 .p-tile{cursor:pointer;}
 .p-image{aspect-ratio:3/4; background:#f6f6f6; border-radius:var(--radius-m); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; transition:box-shadow .25s ease;}
 .p-tile:hover .p-image{box-shadow:0 14px 28px rgba(0,0,0,.1);}
-.p-image img{width:100%; height:100%; object-fit:cover; transition:transform .5s var(--ease);}
-.p-tile:hover .p-image img{transform:scale(1.06);}
+.p-image img{width:86%; height:86%; object-fit:contain; transition:transform .5s var(--ease);}
+.p-tile:hover .p-image img{transform:scale(1.05);}
 .p-image svg{width:36px; height:36px; stroke:#ccc; fill:none; stroke-width:1.1;}
 .p-new{position:absolute; top:10px; left:10px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; background:var(--ink); color:#fff; padding:4px 8px; border-radius:3px; font-weight:600;}
 .p-heart{position:absolute; top:8px; right:8px; width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.95); display:flex; align-items:center; justify-content:center; opacity:0; transform:translateY(-4px); transition:opacity .2s ease, transform .2s ease; box-shadow:0 2px 8px rgba(0,0,0,.08);}
@@ -204,8 +241,14 @@ a{color:inherit;}
 .modal{position:fixed; top:50%; left:50%; transform:translate(-50%,-48%) scale(.97); width:min(760px,92vw); max-height:86vh; background:#fff; border-radius:var(--radius-l); z-index:61; display:flex; overflow:hidden; opacity:0; pointer-events:none; transition:opacity .3s ease, transform .3s var(--ease); box-shadow:0 30px 80px rgba(0,0,0,.25);}
 .modal.open{opacity:1; pointer-events:auto; transform:translate(-50%,-50%) scale(1);}
 .modal-visual{width:44%; background:#f6f6f6; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-.modal-visual img{width:100%; height:100%; object-fit:cover;}
+.modal-visual img{width:100%; height:100%; object-fit:cover; cursor:zoom-in;}
 .modal-visual svg{width:90px; height:90px; stroke:#d4d4d4; fill:none; stroke-width:1;}
+
+.lightbox{position:fixed; inset:0; background:rgba(10,10,10,.94); z-index:80; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s ease; padding:40px;}
+.lightbox.open{opacity:1; pointer-events:auto;}
+.lightbox img{max-width:100%; max-height:100%; object-fit:contain; box-shadow:0 30px 80px rgba(0,0,0,.5);}
+.lightbox-close{position:absolute; top:22px; right:26px; width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.12); color:#fff; font-size:16px; transition:background .15s ease;}
+.lightbox-close:hover{background:rgba(255,255,255,.22);}
 .modal-body{padding:36px 38px; flex:1; overflow-y:auto; display:flex; flex-direction:column;}
 .modal-close{position:absolute; top:16px; right:18px; width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid #eee; transition:background .15s ease, transform .15s ease;}
 .modal-close:hover{background:var(--line-soft); transform:rotate(90deg);}
@@ -390,7 +433,7 @@ a{color:inherit;}
   .brand-nav-item button.active{border-color:#111;}
 
   .main{padding:20px 16px 24px;}
-  .hero-row h1{font-size:24px;}
+  .hero-row h1{font-size:30px;}
   .plp-grid{grid-template-columns:repeat(2,1fr); gap:14px 10px;}
   .p-name, .p-price{font-size:12px;}
   .brand-wall{grid-template-columns:repeat(2,1fr);}
@@ -438,7 +481,21 @@ a{color:inherit;}
 </head>
 <body>
 
-<div class="loading-screen" id="loadingScreen" data-i18n="loading">Chargement de la boutique…</div>
+<div class="loading-screen" id="loadingScreen">
+  <div class="skeleton-topbar">
+    <div class="sk sk-word"></div>
+    <div class="sk sk-search"></div>
+    <div class="sk sk-icons"></div>
+  </div>
+  <div class="skeleton-grid">
+    <div class="sk sk-tile big"></div>
+    <div class="sk sk-tile big"></div>
+    <div class="sk sk-tile"></div>
+    <div class="sk sk-tile"></div>
+    <div class="sk sk-tile"></div>
+    <div class="sk sk-tile"></div>
+  </div>
+</div>
 <div class="setup-banner hidden" id="setupBanner">
   ⚠️ Ce site n'est pas encore relié à sa base de données. Ouvrez <b>dashboard.html</b> pour suivre les instructions de configuration (une seule fois), puis collez les mêmes identifiants ici en haut du fichier <b>boutique.html</b>.
 </div>
@@ -487,6 +544,14 @@ a{color:inherit;}
 
   <main class="main">
     <div id="viewHome">
+      <div class="hero-banner hidden" id="heroBanner">
+        <div class="hero-banner-scrim"></div>
+        <div class="hero-banner-content">
+          <div class="hero-banner-word">Le Luxe</div>
+          <h1 class="hero-banner-title" data-i18n="heroBannerTitle"></h1>
+          <button class="hero-banner-cta" id="heroBannerCta" data-i18n="heroBannerCta"></button>
+        </div>
+      </div>
       <div class="promo-carousel hidden" id="promoCarousel">
         <div class="promo-track" id="promoTrack"></div>
         <button class="promo-arrow prev" id="promoPrev" aria-label="Précédent">‹</button>
@@ -614,6 +679,11 @@ a{color:inherit;}
     <button class="add-bag-btn" id="modalAdd" data-i18n="ajouterSac">Ajouter au sac</button>
     <button class="wish-link" id="modalWish"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg><span data-i18n="ajouterWishlist">Ajouter à la liste d'envies</span></button>
   </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose">✕</button>
+  <img id="lightboxImg" src="" alt="">
 </div>
 
 <div class="modal-scrim" id="postScrim"></div>
@@ -793,6 +863,7 @@ const LANG = {
     heroTextLuxe:"Parcourez chaque maison par ordre alphabétique, ou cliquez un nom dans la liste pour y aller directement.",
     heroTextPasluxe:"Le style des podiums, le budget en moins. Parcourez chaque enseigne par ordre alphabétique.",
     heroTextMagasins:"Les grands magasins parisiens, chacun avec son style. Cliquez pour visiter leur site officiel.",
+    heroBannerTitle:"L'exception, à portée de main.", heroBannerCta:"Explorer la collection",
     hermesBannerText:"Une sélection de sacs d'exception, renouvelée à chaque nouvelle arrivée.", hermesBannerCta:"Découvrir →", hermesNewOn:"Nouveautés du",
     statMarques:"marques", siteOfficiel:"Site officiel", articles:"articles",
     emptyBrands:"Aucune marque pour l'instant.",
@@ -869,6 +940,7 @@ const LANG = {
     heroTextLuxe:"Browse each house alphabetically, or click a name in the list to jump straight to it.",
     heroTextPasluxe:"Runway style, without the runway price. Browse each brand alphabetically.",
     heroTextMagasins:"Paris's great department stores, each with its own style. Click to visit their official site.",
+    heroBannerTitle:"Exception, within reach.", heroBannerCta:"Explore the collection",
     hermesBannerText:"A hand-picked selection of exceptional bags, refreshed with every new arrival.", hermesBannerCta:"Discover →", hermesNewOn:"New in on",
     statMarques:"brands", siteOfficiel:"Official site", articles:"items",
     emptyBrands:"No brand yet.",
@@ -945,6 +1017,7 @@ const LANG = {
     heroTextLuxe:"تصفح كل ماركة حسب الترتيب الأبجدي، أو اضغط على اسم في القائمة للانتقال إليه مباشرة.",
     heroTextPasluxe:"أناقة عروض الأزياء بميزانية أقل. تصفح كل علامة حسب الترتيب الأبجدي.",
     heroTextMagasins:"كبرى المتاجر الباريسية، لكل منها أسلوبها الخاص. اضغط لزيارة موقعها الرسمي.",
+    heroBannerTitle:"الاستثناء، في متناول يدك.", heroBannerCta:"استكشف المجموعة",
     hermesBannerText:"تشكيلة مختارة من الحقائب الاستثنائية، تتجدد مع كل وصول جديد.", hermesBannerCta:"اكتشف ←", hermesNewOn:"وصل حديثاً بتاريخ",
     statMarques:"ماركة", siteOfficiel:"الموقع الرسمي", articles:"منتج",
     emptyBrands:"لا توجد ماركات حالياً.",
@@ -1143,7 +1216,24 @@ async function initCatalog(){
   document.getElementById('loadingScreen').classList.add('hidden');
   computePromoSlides();
   renderPromo();
+  renderHeroBanner();
   renderStorefront();
+}
+function pickHeroImage(){
+  const candidates = (DATA.brands||[]).filter(b=> b.universe==='luxe' && !b.external && b.items && b.items.length);
+  candidates.sort((a,b)=> b.items.length - a.items.length);
+  for(const b of candidates.slice(0,8)){
+    const withImg = b.items.filter(i=>i.image).sort((a,b)=>(b.price||0)-(a.price||0));
+    if(withImg.length) return withImg[0].image;
+  }
+  return null;
+}
+function renderHeroBanner(){
+  const el = document.getElementById('heroBanner');
+  const img = pickHeroImage();
+  if(!img){ el.classList.add('hidden'); return; }
+  el.classList.remove('hidden');
+  el.style.backgroundImage = `url("${img}")`;
 }
 // Rafraîchit le catalogue toutes les 15s pour refléter les changements faits depuis le dashboard, sans recharger la page.
 async function pollCatalog(){
@@ -1319,22 +1409,51 @@ function renderHome(){
   document.getElementById('heroText').textContent = state.universe==='luxe' ? t('heroTextLuxe') : state.universe==='magasins' ? t('heroTextMagasins') : t('heroTextPasluxe');
   document.getElementById('statCount').textContent = brands.length;
   const logoTag = b => b.logo ? `<span class="bt-logo"><img src="${b.logo}" alt="" loading="lazy" onerror="this.parentElement.style.display='none'"></span>` : '';
-  document.getElementById('homeGrid').innerHTML = `<div class="brand-wall">` + (brands.map(b=>{
+  const featuredImage = b => {
+    const withImg = (b.items||[]).filter(i=>i.image).sort((a,b)=>(b.price||0)-(a.price||0));
+    return withImg.length ? withImg[0].image : null;
+  };
+  document.getElementById('homeGrid').innerHTML = `<div class="brand-wall">` + (brands.map((b,i)=>{
     if(b.external){
-      return `<button class="brand-tile is-external" id="brand-row-${b.id}" data-external-url="${b.officialUrl}">
+      return `<button class="brand-tile is-external reveal" id="brand-row-${b.id}" data-external-url="${b.officialUrl}">
         ${logoTag(b)}
         <span class="bt-name">${b.name}</span>
         <span class="bt-meta">${t('siteOfficiel')}</span>
       </button>`;
     }
-    return `<button class="brand-tile" id="brand-row-${b.id}" data-openbrand="${b.id}">
+    const img = i<4 ? featuredImage(b) : null;
+    if(img){
+      return `<button class="brand-tile featured reveal" id="brand-row-${b.id}" data-openbrand="${b.id}" style="background-image:url('${img}')">
+        <span class="bt-scrim"></span>
+        <span class="bt-name">${b.name}</span>
+        <span class="bt-meta">${itemCountForGender(b)} ${t('articles')}</span>
+      </button>`;
+    }
+    return `<button class="brand-tile reveal" id="brand-row-${b.id}" data-openbrand="${b.id}">
       ${logoTag(b)}
       <span class="bt-name">${b.name}</span>
       <span class="bt-meta">${itemCountForGender(b)} ${t('articles')}</span>
     </button>`;
   }).join('') || `<div class="empty">${t('emptyBrands')}</div>`) + `</div>`;
+  observeReveal();
   document.querySelectorAll('[data-openbrand]').forEach(el=> el.addEventListener('click', ()=> openBrand(el.dataset.openbrand)));
   document.querySelectorAll('[data-external-url]').forEach(el=> el.addEventListener('click', ()=> window.open(el.dataset.externalUrl, '_blank', 'noopener')));
+}
+let revealObserver = null;
+function observeReveal(){
+  const els = document.querySelectorAll('.reveal:not(.in-view)');
+  if(!('IntersectionObserver' in window)){ els.forEach(el=>el.classList.add('in-view')); return; }
+  if(!revealObserver){
+    revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold:0.08, rootMargin:'0px 0px -40px 0px' });
+  }
+  els.forEach(el=> revealObserver.observe(el));
 }
 function scrollMainIntoViewMobile(){
   if(window.innerWidth>900) return;
@@ -1498,6 +1617,9 @@ function closePostModal(){
   document.getElementById('postScrim').classList.remove('open');
 }
 document.getElementById('sellBannerBtn').addEventListener('click', ()=>{ state.view='market'; renderStorefront(); scrollMainIntoViewMobile(); });
+document.getElementById('heroBannerCta').addEventListener('click', ()=>{
+  document.getElementById('homeGrid').scrollIntoView({behavior:'smooth', block:'start'});
+});
 document.getElementById('hermesBanner').addEventListener('click', ()=>{
   state.view='hermes'; renderStorefront(); scrollMainIntoViewMobile();
 });
@@ -1559,6 +1681,15 @@ document.querySelectorAll('[data-q]').forEach(el=> el.addEventListener('click', 
 }));
 document.getElementById('modalClose').addEventListener('click', closeModal);
 document.getElementById('modalScrim').addEventListener('click', closeModal);
+document.getElementById('modalVisual').addEventListener('click', (e)=>{
+  const img = e.target.closest('img');
+  if(!img) return;
+  document.getElementById('lightboxImg').src = img.src;
+  document.getElementById('lightbox').classList.add('open');
+});
+function closeLightbox(){ document.getElementById('lightbox').classList.remove('open'); }
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', (e)=>{ if(e.target.id==='lightbox') closeLightbox(); });
 document.getElementById('modalWish').addEventListener('click', ()=>{
   if(!modalState.itemId) return;
   toggleWish(modalState.itemId);
@@ -1731,6 +1862,9 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 applyStaticI18n();
 initCatalog();
+window.addEventListener('scroll', ()=>{
+  document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 8);
+}, { passive:true });
 </script>
 </body>
 </html>
