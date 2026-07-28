@@ -14,6 +14,9 @@
 <script>
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+// Adresse email du compte PayPal Business qui recoit les 3,99$ d'acces au vide-dressing
+const PAYPAL_BUSINESS_EMAIL = "COLLEZ_VOTRE_EMAIL_PAYPAL_ICI";
+const MARKET_ACCESS_PRICE = "3.99";
 </script>
 <style>
 :root{
@@ -279,6 +282,27 @@ a{color:inherit;}
 .photo-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; height:130px; border:1.5px dashed #ddd; border-radius:var(--radius-s); cursor:pointer; color:var(--faint); font-size:12px; text-align:center; padding:10px; transition:border-color .15s ease, background .15s ease; overflow:hidden; position:relative;}
 .photo-drop:hover{border-color:var(--gold-soft); background:var(--line-soft);}
 .photo-drop img{max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;}
+
+/* ---------- PAYWALL VIDE-DRESSING ---------- */
+.paywall-wrap{display:flex; justify-content:center; padding:60px 20px 90px;}
+.paywall-card{max-width:460px; width:100%; text-align:center; background:#fff; border:1px solid var(--line); border-radius:var(--radius-l); padding:52px 40px; box-shadow:0 30px 70px rgba(0,0,0,.06);}
+.paywall-eyebrow{font-size:11px; letter-spacing:.28em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:18px;}
+.paywall-title{font-family:'Cormorant Garamond',serif; font-size:32px; font-weight:600; line-height:1.2; margin-bottom:14px;}
+.paywall-text{font-size:13.5px; color:var(--muted); line-height:1.65; margin-bottom:28px;}
+.paywall-price{display:flex; align-items:baseline; justify-content:center; gap:10px; margin-bottom:22px;}
+.paywall-amount{font-family:'Cormorant Garamond',serif; font-size:52px; font-weight:600;}
+.paywall-once{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint);}
+.paywall-perks{list-style:none; text-align:left; margin-bottom:30px; display:flex; flex-direction:column; gap:12px;}
+.paywall-perks li{font-size:13px; color:var(--ink); padding-left:26px; position:relative; line-height:1.5;}
+.paywall-perks li::before{content:'✓'; position:absolute; left:0; top:0; color:var(--gold); font-weight:700;}
+.paywall-pay-btn{width:100%; display:flex; align-items:center; justify-content:center; gap:10px; background:#ffc439; color:#111; padding:16px; border-radius:30px; font-size:13.5px; font-weight:700; letter-spacing:.02em; transition:transform .18s ease, box-shadow .18s ease;}
+.paywall-pay-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.14);}
+.paywall-secure{margin-top:16px; font-size:11px; color:var(--faint); letter-spacing:.02em;}
+@media (max-width:900px){
+  .paywall-card{padding:38px 26px;}
+  .paywall-title{font-size:26px;}
+  .paywall-amount{font-size:42px;}
+}
 
 /* ---------- VIDE-DRESSING ---------- */
 .post-item-btn{background:var(--ink); color:#fff; padding:12px 22px; border-radius:24px; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
@@ -611,6 +635,40 @@ a{color:inherit;}
       <div class="plp-grid" id="plpGrid"></div>
     </div>
 
+    <div id="viewMarketPaywall" class="hidden">
+      <div class="paywall-wrap">
+        <div class="paywall-card">
+          <div class="paywall-eyebrow" data-i18n="paywallEyebrow">Vide-dressing</div>
+          <h1 class="paywall-title" data-i18n="paywallTitle"></h1>
+          <p class="paywall-text" data-i18n="paywallText"></p>
+          <div class="paywall-price">
+            <span class="paywall-amount">3,99&nbsp;$</span>
+            <span class="paywall-once" data-i18n="paywallOnce"></span>
+          </div>
+          <ul class="paywall-perks">
+            <li data-i18n="paywallPerk1"></li>
+            <li data-i18n="paywallPerk2"></li>
+            <li data-i18n="paywallPerk3"></li>
+          </ul>
+          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalForm">
+            <input type="hidden" name="cmd" value="_xclick">
+            <input type="hidden" name="business" id="paypalBusiness" value="">
+            <input type="hidden" name="item_name" value="Acces Vide-dressing - Le Luxe">
+            <input type="hidden" name="amount" id="paypalAmount" value="">
+            <input type="hidden" name="currency_code" value="USD">
+            <input type="hidden" name="no_shipping" value="1">
+            <input type="hidden" name="return" id="paypalReturn" value="">
+            <input type="hidden" name="cancel_return" id="paypalCancel" value="">
+            <button type="submit" class="paywall-pay-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7.5 21H4l2.6-16.5h6.9c3 0 5 1.7 4.5 4.6-.6 3.6-3.3 5.4-6.6 5.4H9.2L7.5 21zm10.2-13c.2 3-1.9 5.3-5.3 5.3H9.8l-1 6.2h2.9l.8-5h2c3.7 0 6.6-2 7.3-5.9.4-2.1-.2-3.8-1.3-4.8.1.7.1 1.4-.1 2.2z"/></svg>
+              <span data-i18n="paywallPayBtn"></span>
+            </button>
+          </form>
+          <p class="paywall-secure" data-i18n="paywallSecure"></p>
+        </div>
+      </div>
+    </div>
+
     <div id="viewMarket" class="hidden">
       <div class="hero-row">
         <div><h1 data-i18n="marketHeroTitle">Vide-dressing entre particuliers</h1><p data-i18n="marketHeroText"></p></div>
@@ -905,6 +963,14 @@ const LANG = {
     ],
     aboutSignature:"Du terrain de football aux boutiques de Paris — chaque étape de ce parcours a façonné la vision derrière Le Luxe.",
     marketNavTitle:"Vide-dressing", marketHeroTitle:"Vide-dressing entre particuliers",
+    paywallEyebrow:"Vide-dressing", paywallTitle:"Accédez au vide-dressing",
+    paywallText:"Payez une seule fois pour déposer et vendre vos articles de luxe directement à d'autres membres.",
+    paywallOnce:"paiement unique",
+    paywallPerk1:"Payez 3,99 $ une seule fois",
+    paywallPerk2:"Vendez ensuite autant d'articles que vous voulez, sans aucune commission",
+    paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
+    paywallPayBtn:"Payer avec PayPal",
+    paywallSecure:"Paiement sécurisé par PayPal — carte bancaire ou compte PayPal acceptés.",
     marketHeroText:"Vendez vos pièces de luxe directement entre particuliers. Déposez une annonce en une minute, sans commission.",
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
@@ -982,6 +1048,14 @@ const LANG = {
     ],
     aboutSignature:"From the football pitch to the boutiques of Paris—every step of the journey shaped the vision behind Le Luxe.",
     marketNavTitle:"Preloved", marketHeroTitle:"Peer-to-peer preloved marketplace",
+    paywallEyebrow:"Preloved marketplace", paywallTitle:"Unlock the marketplace",
+    paywallText:"Pay once to list and sell your luxury pieces directly to other members.",
+    paywallOnce:"one-time payment",
+    paywallPerk1:"Pay $3.99, just once",
+    paywallPerk2:"Then sell as many items as you want, commission-free",
+    paywallPerk3:"Instant access, valid for life on this device",
+    paywallPayBtn:"Pay with PayPal",
+    paywallSecure:"Secure payment via PayPal — card or PayPal balance accepted.",
     marketHeroText:"Sell your luxury pieces directly to other members. List an item in a minute, no commission.",
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
@@ -1059,6 +1133,14 @@ const LANG = {
     ],
     aboutSignature:"من ملعب كرة القدم إلى متاجر باريس — كل خطوة في هذه الرحلة شكّلت الرؤية وراء Le Luxe.",
     marketNavTitle:"السوق الحر", marketHeroTitle:"سوق إعادة البيع بين الأفراد",
+    paywallEyebrow:"التبضّع بين الأفراد", paywallTitle:"افتح قسم البيع",
+    paywallText:"ادفع مرة واحدة لعرض وبيع قطعك الفاخرة مباشرة لأعضاء آخرين.",
+    paywallOnce:"دفعة واحدة فقط",
+    paywallPerk1:"ادفع 3.99$ مرة واحدة فقط",
+    paywallPerk2:"ثم بع بقدر ما تريد من القطع، بدون أي عمولة",
+    paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
+    paywallPayBtn:"الدفع عبر PayPal",
+    paywallSecure:"دفع آمن عبر PayPal — بطاقة مصرفية أو رصيد PayPal.",
     marketHeroText:"بيع قطعك الفاخرة مباشرة لأفراد آخرين. انشر إعلانك في دقيقة واحدة، بدون عمولة.",
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
@@ -1316,19 +1398,25 @@ document.getElementById('promoCarousel').addEventListener('mouseleave', ()=> res
 
 /* ================= RENDER ================= */
 function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinned); }
+function hasMarketAccess(){
+  return localStorage.getItem('armoire_market_paid_v1') === '1';
+}
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
   document.querySelectorAll('.gender-tab').forEach(t=> t.classList.toggle('active', t.dataset.g===state.gender));
+  const marketUnlocked = state.view==='market' && hasMarketAccess();
+  const marketLocked = state.view==='market' && !hasMarketAccess();
   document.getElementById('viewHome').classList.toggle('hidden', state.view!=='home');
   document.getElementById('viewPLP').classList.toggle('hidden', state.view!=='plp');
-  document.getElementById('viewMarket').classList.toggle('hidden', state.view!=='market');
+  document.getElementById('viewMarket').classList.toggle('hidden', !marketUnlocked);
+  document.getElementById('viewMarketPaywall').classList.toggle('hidden', !marketLocked);
   document.getElementById('viewHermes').classList.toggle('hidden', state.view!=='hermes');
   document.querySelector('.sidebar').classList.toggle('hidden', state.view==='market' || state.view==='hermes');
   document.querySelector('.main').classList.toggle('main-full', state.view==='market' || state.view==='hermes');
   renderBrandNav();
   if(state.view==='home') renderHome();
   else if(state.view==='plp') renderPLP();
-  else if(state.view==='market') renderMarket();
+  else if(marketUnlocked) renderMarket();
   else if(state.view==='hermes') renderHermes();
   renderCounts();
 }
@@ -1864,9 +1952,30 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
   setTimeout(()=>{ renderCartBody(); document.getElementById('confirmMsg').classList.remove('show'); closeDrawer('cart'); }, 1800);
 });
 
+/* ================= PAYWALL VIDE-DRESSING (PayPal) ================= */
+function setupMarketPaywall(){
+  // le retour de PayPal ajoute ?vd_paid=1 a l'URL : on memorise l'acces sur
+  // cet appareil (localStorage) puis on nettoie l'URL, pour que le client
+  // ne repaye jamais une deuxieme fois sur ce meme navigateur
+  const params = new URLSearchParams(location.search);
+  if(params.get('vd_paid') === '1'){
+    localStorage.setItem('armoire_market_paid_v1', '1');
+    params.delete('vd_paid');
+    const clean = location.pathname + (params.toString() ? '?'+params.toString() : '');
+    history.replaceState(null, '', clean);
+    state.view = 'market';
+  }
+  const base = location.origin + location.pathname;
+  document.getElementById('paypalBusiness').value = PAYPAL_BUSINESS_EMAIL;
+  document.getElementById('paypalAmount').value = MARKET_ACCESS_PRICE;
+  document.getElementById('paypalReturn').value = base + '?vd_paid=1';
+  document.getElementById('paypalCancel').value = base;
+}
+
 /* ================= INIT ================= */
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 applyStaticI18n();
+setupMarketPaywall();
 initCatalog();
 window.addEventListener('scroll', ()=>{
   document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 8);
