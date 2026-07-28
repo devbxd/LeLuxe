@@ -279,6 +279,8 @@ a{color:inherit;}
 .form-row label{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--faint);}
 .form-row input, .form-row select{border:1px solid #ddd; border-radius:var(--radius-s); padding:10px 12px; font-size:13.5px; background:#fff;}
 .form-row input:focus, .form-row select:focus{outline:none; border-color:var(--gold-soft);}
+.fee-hint{font-size:12px; color:var(--muted); background:var(--gold-mist); border:1px solid var(--gold-soft); border-radius:var(--radius-s); padding:11px 14px; margin-bottom:16px; line-height:1.5;}
+.fee-hint b{color:var(--ink);}
 .photo-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; height:130px; border:1.5px dashed #ddd; border-radius:var(--radius-s); cursor:pointer; color:var(--faint); font-size:12px; text-align:center; padding:10px; transition:border-color .15s ease, background .15s ease; overflow:hidden; position:relative;}
 .photo-drop:hover{border-color:var(--gold-soft); background:var(--line-soft);}
 .photo-drop img{max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;}
@@ -786,10 +788,22 @@ a{color:inherit;}
         <label data-i18n="formLocation">Localisation</label>
         <input type="text" id="pfLocation" required data-i18n-placeholder="formLocationPlaceholder" placeholder="Ville, pays">
       </div>
-      <button type="submit" class="add-bag-btn" data-i18n="formSubmit">Publier l'annonce</button>
+      <div class="fee-hint" id="feeHint"></div>
+      <button type="submit" class="add-bag-btn" id="postSubmitBtn" data-i18n="formSubmit">Publier l'annonce</button>
     </form>
   </div>
 </div>
+
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalItemForm" class="hidden">
+  <input type="hidden" name="cmd" value="_xclick">
+  <input type="hidden" name="business" id="paypalItemBusiness" value="">
+  <input type="hidden" name="item_name" id="paypalItemName" value="">
+  <input type="hidden" name="amount" id="paypalItemAmount" value="">
+  <input type="hidden" name="currency_code" value="EUR">
+  <input type="hidden" name="no_shipping" value="1">
+  <input type="hidden" name="return" id="paypalItemReturn" value="">
+  <input type="hidden" name="cancel_return" id="paypalItemCancel" value="">
+</form>
 
 <div class="drawer-scrim" id="cartScrim"></div>
 <div class="drawer" id="cartDrawer">
@@ -975,6 +989,8 @@ const LANG = {
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
     formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
+    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par PayPal pour publier l'annonce.",
+    postSubmitPay:"Payer {fee} € et publier",
     formPhoto:"Photo", formPhotoHint:"Ajouter une photo",
     formNamePlaceholder:"Ex : Sac Chanel Classic Flap", formLocationPlaceholder:"Ville, pays",
     contactSeller:"Contacter le vendeur", marketListingCount:"annonces",
@@ -1060,6 +1076,8 @@ const LANG = {
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
     formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
+    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable via PayPal to publish your listing.",
+    postSubmitPay:"Pay {fee} € and publish",
     formPhoto:"Photo", formPhotoHint:"Add a photo",
     formNamePlaceholder:"E.g. Chanel Classic Flap bag", formLocationPlaceholder:"City, country",
     contactSeller:"Contact seller", marketListingCount:"listings",
@@ -1145,6 +1163,8 @@ const LANG = {
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
     formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
+    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع عبر PayPal لنشر الإعلان.",
+    postSubmitPay:"ادفع {fee} € وانشر",
     formPhoto:"صورة", formPhotoHint:"أضف صورة",
     formNamePlaceholder:"مثال: حقيبة Chanel Classic Flap", formLocationPlaceholder:"المدينة، البلد",
     contactSeller:"تواصل مع البائع", marketListingCount:"إعلان",
@@ -1295,6 +1315,7 @@ async function initCatalog(){
     document.getElementById('setupBanner').textContent = "⚠️ Impossible de joindre la base de données. Vérifiez les identifiants collés en haut de boutique.html.";
   }
   try{ state.market = await fetchMarketplace(); }catch(e){ state.market = []; }
+  publishPendingListingIfPaid();
   document.getElementById('loadingScreen').classList.add('hidden');
   computePromoSlides();
   renderPromo();
@@ -1702,9 +1723,22 @@ function renderMarket(){
     lastPostedId = null;
   }
 }
+const LISTING_FEE_RATE = 0.05;
+function listingFeeFor(price){
+  if(isNaN(price) || price<=0) return 0;
+  return Math.max(0.5, Math.round(price * LISTING_FEE_RATE * 100) / 100);
+}
+function updateFeeHint(){
+  const price = parseFloat(document.getElementById('pfPrice').value);
+  const fee = listingFeeFor(price);
+  const feeStr = fee.toFixed(2);
+  document.getElementById('feeHint').textContent = t('postFeeHint').replace('{fee}', feeStr);
+  document.getElementById('postSubmitBtn').textContent = fee>0 ? t('postSubmitPay').replace('{fee}', feeStr) : t('formSubmit');
+}
 function openPostModal(){
   document.getElementById('postModal').classList.add('open');
   document.getElementById('postScrim').classList.add('open');
+  updateFeeHint();
 }
 function closePostModal(){
   document.getElementById('postModal').classList.remove('open');
@@ -1721,6 +1755,7 @@ document.getElementById('hermesBackBtn').addEventListener('click', ()=>{ state.v
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);
 document.getElementById('postScrim').addEventListener('click', closePostModal);
+document.getElementById('pfPrice').addEventListener('input', updateFeeHint);
 document.getElementById('postForm').addEventListener('submit', async (e)=>{
   e.preventDefault();
   const name = document.getElementById('pfName').value.trim();
@@ -1730,16 +1765,19 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   const location = document.getElementById('pfLocation').value.trim();
   if(!name || !phone || !location || isNaN(price)) return;
   const listing = { id: genId(), name, category, price, phone, location, image: pendingListingImage, createdAt: Date.now() };
-  state.market.unshift(listing);
-  lastPostedId = listing.id;
-  closePostModal();
-  document.getElementById('postForm').reset();
-  pendingListingImage = null;
-  document.getElementById('photoPreview').classList.add('hidden');
-  document.getElementById('photoPreview').removeAttribute('src');
-  document.getElementById('photoDropText').classList.remove('hidden');
-  renderMarket();
-  saveMarketplace();
+  const fee = listingFeeFor(price);
+
+  // Le brouillon d'annonce doit survivre l'aller-retour vers PayPal (qui
+  // recharge completement la page) : on le garde dans localStorage, et on
+  // ne le publie reellement qu'au retour, une fois le paiement confirme.
+  localStorage.setItem('armoire_pending_listing', JSON.stringify(listing));
+  const base = currentPageUrl();
+  document.getElementById('paypalItemBusiness').value = PAYPAL_BUSINESS_EMAIL;
+  document.getElementById('paypalItemName').value = `Frais de publication - ${name}`.slice(0,127);
+  document.getElementById('paypalItemAmount').value = fee.toFixed(2);
+  document.getElementById('paypalItemReturn').value = base + '?item_paid=1';
+  document.getElementById('paypalItemCancel').value = base;
+  document.getElementById('paypalItemForm').submit();
 });
 
 /* ---------- MODAL ---------- */
@@ -1953,23 +1991,46 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
 });
 
 /* ================= PAYWALL VIDE-DRESSING (PayPal) ================= */
+function currentPageUrl(){
+  return window.location.origin + window.location.pathname;
+}
+function consumeUrlFlag(name){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get(name) !== '1') return false;
+  params.delete(name);
+  const clean = window.location.pathname + (params.toString() ? '?'+params.toString() : '');
+  history.replaceState(null, '', clean);
+  return true;
+}
 function setupMarketPaywall(){
   // le retour de PayPal ajoute ?vd_paid=1 a l'URL : on memorise l'acces sur
   // cet appareil (localStorage) puis on nettoie l'URL, pour que le client
   // ne repaye jamais une deuxieme fois sur ce meme navigateur
-  const params = new URLSearchParams(location.search);
-  if(params.get('vd_paid') === '1'){
+  if(consumeUrlFlag('vd_paid')){
     localStorage.setItem('armoire_market_paid_v1', '1');
-    params.delete('vd_paid');
-    const clean = location.pathname + (params.toString() ? '?'+params.toString() : '');
-    history.replaceState(null, '', clean);
     state.view = 'market';
   }
-  const base = location.origin + location.pathname;
+  const base = currentPageUrl();
   document.getElementById('paypalBusiness').value = PAYPAL_BUSINESS_EMAIL;
   document.getElementById('paypalAmount').value = MARKET_ACCESS_PRICE;
   document.getElementById('paypalReturn').value = base + '?vd_paid=1';
   document.getElementById('paypalCancel').value = base;
+}
+// Le brouillon d'annonce (voir postForm submit) n'est publie qu'ici, au
+// retour du paiement du frais de publication (5% du prix) - appele apres
+// le chargement de state.market pour pouvoir l'inserer directement dedans.
+function publishPendingListingIfPaid(){
+  if(!consumeUrlFlag('item_paid')) return;
+  const draftRaw = localStorage.getItem('armoire_pending_listing');
+  localStorage.removeItem('armoire_pending_listing');
+  if(!draftRaw) return;
+  try{
+    const listing = JSON.parse(draftRaw);
+    state.market.unshift(listing);
+    lastPostedId = listing.id;
+    saveMarketplace();
+  }catch(e){}
+  state.view = 'market';
 }
 
 /* ================= INIT ================= */
