@@ -67,12 +67,17 @@ a{color:inherit;}
 .icon-btn:hover{background:var(--line-soft); transform:translateY(-1px);}
 .icon-btn svg{width:19px; height:19px; stroke:#111; fill:none; stroke-width:1.5;}
 .badge{position:absolute; top:1px; right:1px; background:var(--gold); color:#fff; font-size:9px; font-weight:700; width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
+.menu-btn{display:none;}
 
 /* ---------- LANGUAGE SWITCH ---------- */
 .lang-switch{position:relative; direction:ltr; display:flex; flex-shrink:0; background:var(--line-soft); border-radius:999px; padding:3px; width:114px; height:32px;}
 .lang-thumb{position:absolute; top:3px; left:3px; bottom:3px; width:calc(33.333% - 2px); background:#fff; border-radius:999px; box-shadow:0 1px 5px rgba(0,0,0,.1); transition:transform .28s var(--ease); z-index:0;}
 .lang-switch button{position:relative; z-index:1; flex:1; font-size:10.5px; letter-spacing:.04em; font-weight:600; color:#999; border-radius:999px; transition:color .2s ease;}
 .lang-switch button.active{color:var(--ink);}
+.lang-switch-mobile{display:none;}
+.sidebar-mobile-head{display:none;}
+.sidebar-scrim{position:fixed; inset:0; background:rgba(20,18,14,.45); z-index:58; opacity:0; pointer-events:none; transition:opacity .3s ease;}
+.sidebar-scrim.open{opacity:1; pointer-events:auto;}
 
 /* ============ LAYOUT ============ */
 .layout{display:flex; align-items:flex-start; max-width:1440px; margin:0 auto;}
@@ -143,8 +148,8 @@ a{color:inherit;}
 .hermes-card .hc-name{font-size:12.5px; font-weight:600; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
 .hermes-card .hc-price{font-size:12px; color:var(--muted);}
 @media (max-width:900px){
-  .promo-carousel{height:236px; margin-bottom:26px;}
-  .promo-slide{padding:20px 50px;}
+  .promo-carousel{height:280px; margin:-22px -16px 30px; border-radius:0;}
+  .promo-slide{padding:26px 50px;}
   .promo-wordmark{margin-bottom:8px;}
   .promo-tag{margin-bottom:10px;}
   .promo-name{font-size:22px; line-height:1.25; margin-bottom:8px;}
@@ -441,33 +446,37 @@ a{color:inherit;}
 }
 
 @media (max-width:900px){
-  .topbar{gap:12px; padding:12px 16px;}
+  .topbar{gap:10px; padding:12px 16px;}
   .wordmark{font-size:15px; letter-spacing:.18em;}
   .searchbox{padding:8px 12px;}
   .searchbox input{font-size:16px;}
   .icon-btn{width:44px; height:44px;}
   .top-actions{gap:0;}
+  .lang-switch{display:none;}
+  .menu-btn{display:flex;}
 
+  /* ---- navigation repliee dans un tiroir (menu hamburger) ---- */
   .layout{flex-direction:column; align-items:stretch;}
   .sidebar{
-    width:100%; height:auto; position:sticky; top:60px; z-index:20;
-    background:#fff; border-right:none; border-bottom:1px solid #ececec;
-    padding:12px 16px; box-shadow:0 8px 16px rgba(0,0,0,.04);
+    position:fixed; top:0; left:0; z-index:59; width:min(320px,86vw); height:100%;
+    background:#fff; border-right:none; box-shadow:8px 0 30px rgba(0,0,0,.15);
+    padding:20px 22px; overflow-y:auto;
+    transform:translateX(-105%); transition:transform .35s cubic-bezier(.65,0,.35,1);
   }
-  .side-title{display:none;}
-  .uv-tabs{margin-bottom:10px;}
-  .gender-tabs{margin-bottom:10px;}
-  .brand-nav-list{
-    display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;
-    -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  [dir="rtl"] .sidebar{left:auto; right:0; box-shadow:-8px 0 30px rgba(0,0,0,.15); transform:translateX(105%);}
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-mobile-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin:-4px -6px 18px; padding-bottom:16px; border-bottom:1px solid var(--line);
+    font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:600; letter-spacing:.02em;
   }
-  .brand-nav-list::-webkit-scrollbar{display:none;}
-  .brand-nav-item{margin-bottom:0; flex:0 0 auto;}
-  .brand-nav-item button{
-    width:auto; white-space:nowrap; padding:8px 14px; border-radius:20px;
-    border:1px solid #e2e2e2; font-size:13px; gap:6px;
-  }
-  .brand-nav-item button.active{border-color:#111;}
+  .lang-switch-mobile{display:flex; gap:6px; margin-bottom:26px;}
+  .lang-switch-mobile button{flex:1; padding:9px 0; font-size:11px; letter-spacing:.04em; font-weight:600; color:#777; background:var(--line-soft); border-radius:8px; transition:all .15s ease;}
+  .lang-switch-mobile button.active{background:var(--ink); color:#fff;}
+  .side-title{display:block;}
+  .uv-tabs{margin-bottom:24px;}
+  .gender-tabs{margin-bottom:28px;}
+  .brand-nav-item button{padding:11px 12px; font-size:15px;}
 
   .main{padding:22px 16px 24px;}
   .sell-banner{margin-bottom:28px; padding:18px 20px; flex-direction:column; align-items:flex-start; gap:14px;}
@@ -562,11 +571,24 @@ a{color:inherit;}
       <svg viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
       <span class="badge hidden" id="cartCount">0</span>
     </button>
+    <button class="icon-btn menu-btn" id="menuBtn" title="Menu" data-i18n-title="menuTitle">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
+    </button>
   </div>
 </div>
 
+<div class="sidebar-scrim" id="sidebarScrim"></div>
 <div class="layout">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebarNav">
+    <div class="sidebar-mobile-head">
+      <span data-i18n="menuTitle">Menu</span>
+      <button class="icon-btn" id="sidebarCloseBtn">✕</button>
+    </div>
+    <div class="lang-switch-mobile" id="langSwitchMobile">
+      <button type="button" data-lang="fr">FR</button>
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ar">AR</button>
+    </div>
     <div class="side-title" data-i18n="univers">Univers</div>
     <div class="uv-tabs">
       <button class="uv-tab active" data-uv="luxe" data-i18n="prestige">Prestige</button>
@@ -942,7 +964,7 @@ const LANG = {
   fr:{
     loading:"Chargement de la boutique…",
     searchPlaceholder:"Rechercher une marque, un article ou une référence…",
-    wishTitle:"Liste d'envies", cartTitle:"Panier",
+    wishTitle:"Liste d'envies", cartTitle:"Panier", menuTitle:"Menu",
     univers:"Univers", prestige:"Prestige", tendance:"Tendance",
     genre:"Genre", tout:"Tout", femme:"Femme", homme:"Homme",
     maisons:"Maisons", enseignes:"Enseignes", magasinsTab:"Magasins",
@@ -1030,7 +1052,7 @@ const LANG = {
   en:{
     loading:"Loading the boutique…",
     searchPlaceholder:"Search a brand, an item or a reference…",
-    wishTitle:"Wishlist", cartTitle:"Bag",
+    wishTitle:"Wishlist", cartTitle:"Bag", menuTitle:"Menu",
     univers:"World", prestige:"Prestige", tendance:"Trend",
     genre:"Gender", tout:"All", femme:"Women", homme:"Men",
     maisons:"Houses", enseignes:"Brands", magasinsTab:"Department stores",
@@ -1118,7 +1140,7 @@ const LANG = {
   ar:{
     loading:"جارٍ تحميل المتجر…",
     searchPlaceholder:"ابحث عن ماركة أو منتج أو مرجع…",
-    wishTitle:"قائمة الرغبات", cartTitle:"الحقيبة",
+    wishTitle:"قائمة الرغبات", cartTitle:"الحقيبة", menuTitle:"القائمة",
     univers:"الفئة", prestige:"الفخامة", tendance:"الرائج",
     genre:"الجنس", tout:"الكل", femme:"نساء", homme:"رجال",
     maisons:"الماركات", enseignes:"العلامات", magasinsTab:"المتاجر الكبرى",
@@ -1242,7 +1264,7 @@ function applyStaticI18n(){
   document.getElementById('aboutSignature').textContent = t('aboutSignature');
   const idx = {fr:0, en:1, ar:2}[state.lang];
   document.querySelector('.lang-thumb').style.transform = `translateX(${idx*100}%)`;
-  document.querySelectorAll('.lang-switch button').forEach(b=> b.classList.toggle('active', b.dataset.lang===state.lang));
+  document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').forEach(b=> b.classList.toggle('active', b.dataset.lang===state.lang));
 }
 
 function monogramPattern(letter){
@@ -1598,6 +1620,7 @@ function observeReveal(){
 }
 function scrollMainIntoViewMobile(){
   if(window.innerWidth>900) return;
+  closeDrawer('nav');
   const m = document.querySelector('.main');
   if(!m) return;
   const top = m.getBoundingClientRect().top + window.scrollY - 66;
@@ -1605,6 +1628,7 @@ function scrollMainIntoViewMobile(){
 }
 function openBrand(id){ state.view='plp'; state.brandId=id; state.deptFilter='all'; state.sort='default'; renderStorefront(); scrollMainIntoViewMobile(); }
 function goToBrandSection(id){
+  if(window.innerWidth<=900) closeDrawer('nav');
   if(state.view!=='home'){ state.view='home'; renderStorefront(); }
   requestAnimationFrame(()=>{
     const el = document.getElementById('brand-row-'+id);
@@ -1667,16 +1691,18 @@ document.querySelectorAll('.gender-tab').forEach(btn=> btn.addEventListener('cli
   state.gender = btn.dataset.g;
   state.deptFilter = 'all';
   renderStorefront();
+  if(window.innerWidth<=900) closeDrawer('nav');
 }));
 document.getElementById('logoBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); });
 document.getElementById('searchInput').addEventListener('input', (e)=>{ state.search=e.target.value; renderStorefront(); });
-document.querySelectorAll('.lang-switch button').forEach(btn=> btn.addEventListener('click', ()=>{
+document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').forEach(btn=> btn.addEventListener('click', ()=>{
   state.lang = btn.dataset.lang;
   localStorage.setItem('armoire_lang_v1', state.lang);
   applyStaticI18n();
   computePromoSlides();
   renderPromo();
   renderStorefront();
+  if(window.innerWidth<=900) closeDrawer('nav');
 }));
 
 /* ---------- VIDE-DRESSING (C2C) ---------- */
@@ -1933,10 +1959,12 @@ function renderWishBody(){
 function openDrawer(which){
   if(which==='cart'){ renderCartBody(); document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartScrim').classList.add('open'); }
   if(which==='wish'){ renderWishBody(); document.getElementById('wishDrawer').classList.add('open'); document.getElementById('wishScrim').classList.add('open'); }
+  if(which==='nav'){ document.getElementById('sidebarNav').classList.add('open'); document.getElementById('sidebarScrim').classList.add('open'); }
 }
 function closeDrawer(which){
   if(which==='cart'){ document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartScrim').classList.remove('open'); }
   if(which==='wish'){ document.getElementById('wishDrawer').classList.remove('open'); document.getElementById('wishScrim').classList.remove('open'); }
+  if(which==='nav'){ document.getElementById('sidebarNav').classList.remove('open'); document.getElementById('sidebarScrim').classList.remove('open'); }
 }
 document.getElementById('cartBtn').addEventListener('click', ()=> openDrawer('cart'));
 document.getElementById('wishBtn').addEventListener('click', ()=> openDrawer('wish'));
@@ -1944,6 +1972,9 @@ document.getElementById('cartClose').addEventListener('click', ()=> closeDrawer(
 document.getElementById('wishClose').addEventListener('click', ()=> closeDrawer('wish'));
 document.getElementById('cartScrim').addEventListener('click', ()=> closeDrawer('cart'));
 document.getElementById('wishScrim').addEventListener('click', ()=> closeDrawer('wish'));
+document.getElementById('menuBtn').addEventListener('click', ()=> openDrawer('nav'));
+document.getElementById('sidebarCloseBtn').addEventListener('click', ()=> closeDrawer('nav'));
+document.getElementById('sidebarScrim').addEventListener('click', ()=> closeDrawer('nav'));
 /* ================= RECEIPT / PAIEMENT WHISH MONEY ================= */
 const EUR_TO_USD = 1.176; // taux fixe indicatif — à ajuster si besoin
 const MERCHANT_WHATSAPP = "96181666035"; // +961 81 666 035, format international sans + ni espaces
