@@ -68,6 +68,7 @@ a{color:inherit;}
 .icon-btn svg{width:19px; height:19px; stroke:#111; fill:none; stroke-width:1.5;}
 .badge{position:absolute; top:1px; right:1px; background:var(--gold); color:#fff; font-size:9px; font-weight:700; width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
 .menu-btn{display:none;}
+.back-btn{display:none; flex-shrink:0; margin-right:-6px;}
 
 /* ---------- LANGUAGE SWITCH ---------- */
 .lang-switch{position:relative; direction:ltr; display:flex; flex-shrink:0; background:var(--line-soft); border-radius:999px; padding:3px; width:114px; height:32px;}
@@ -551,6 +552,9 @@ a{color:inherit;}
 </div>
 
 <div class="topbar">
+  <button class="icon-btn back-btn" id="topbarBackBtn" title="Retour" data-i18n-title="allBrandsBack">
+    <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
   <div class="wordmark" id="logoBtn">Le Luxe</div>
   <div class="searchbox">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -1480,6 +1484,7 @@ function renderStorefront(){
   else if(marketUnlocked) renderMarket();
   else if(state.view==='hermes') renderHermes();
   renderCounts();
+  document.getElementById('topbarBackBtn').style.display = (state.view!=='home' && window.innerWidth<=900) ? 'flex' : 'none';
 }
 function itemCountForGender(b){
   if(state.gender==='all') return b.items.length;
@@ -1620,7 +1625,6 @@ function observeReveal(){
 }
 function scrollMainIntoViewMobile(){
   if(window.innerWidth>900) return;
-  closeDrawer('nav');
   const m = document.querySelector('.main');
   if(!m) return;
   const top = m.getBoundingClientRect().top + window.scrollY - 66;
@@ -1691,9 +1695,9 @@ document.querySelectorAll('.gender-tab').forEach(btn=> btn.addEventListener('cli
   state.gender = btn.dataset.g;
   state.deptFilter = 'all';
   renderStorefront();
-  if(window.innerWidth<=900) closeDrawer('nav');
 }));
 document.getElementById('logoBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); });
+document.getElementById('topbarBackBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); window.scrollTo({top:0, behavior:'smooth'}); });
 document.getElementById('searchInput').addEventListener('input', (e)=>{ state.search=e.target.value; renderStorefront(); });
 document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').forEach(btn=> btn.addEventListener('click', ()=>{
   state.lang = btn.dataset.lang;
@@ -1702,7 +1706,6 @@ document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').for
   computePromoSlides();
   renderPromo();
   renderStorefront();
-  if(window.innerWidth<=900) closeDrawer('nav');
 }));
 
 /* ---------- VIDE-DRESSING (C2C) ---------- */
