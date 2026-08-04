@@ -460,7 +460,7 @@ a{color:inherit;}
   .sidebar{
     position:fixed; top:0; left:0; z-index:59; width:min(320px,86vw); height:100%;
     background:#fff; border-right:none; box-shadow:8px 0 30px rgba(0,0,0,.15);
-    padding:20px 22px; overflow-y:auto;
+    padding:20px 22px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
     transform:translateX(-105%); transition:transform .35s cubic-bezier(.65,0,.35,1);
   }
   [dir="rtl"] .sidebar{left:auto; right:0; box-shadow:-8px 0 30px rgba(0,0,0,.15); transform:translateX(105%);}
@@ -1959,12 +1959,12 @@ function renderWishBody(){
 function openDrawer(which){
   if(which==='cart'){ renderCartBody(); document.getElementById('cartDrawer').classList.add('open'); document.getElementById('cartScrim').classList.add('open'); }
   if(which==='wish'){ renderWishBody(); document.getElementById('wishDrawer').classList.add('open'); document.getElementById('wishScrim').classList.add('open'); }
-  if(which==='nav'){ document.getElementById('sidebarNav').classList.add('open'); document.getElementById('sidebarScrim').classList.add('open'); }
+  if(which==='nav'){ document.getElementById('sidebarNav').classList.add('open'); document.getElementById('sidebarScrim').classList.add('open'); document.body.style.overflow='hidden'; }
 }
 function closeDrawer(which){
   if(which==='cart'){ document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('cartScrim').classList.remove('open'); }
   if(which==='wish'){ document.getElementById('wishDrawer').classList.remove('open'); document.getElementById('wishScrim').classList.remove('open'); }
-  if(which==='nav'){ document.getElementById('sidebarNav').classList.remove('open'); document.getElementById('sidebarScrim').classList.remove('open'); }
+  if(which==='nav'){ document.getElementById('sidebarNav').classList.remove('open'); document.getElementById('sidebarScrim').classList.remove('open'); document.body.style.overflow=''; }
 }
 document.getElementById('cartBtn').addEventListener('click', ()=> openDrawer('cart'));
 document.getElementById('wishBtn').addEventListener('click', ()=> openDrawer('wish'));
