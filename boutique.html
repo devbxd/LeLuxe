@@ -434,17 +434,6 @@ a{color:inherit;}
 .site-footer-inner{max-width:1440px; margin:0 auto; padding:48px 40px 34px; display:flex; justify-content:space-between; gap:40px; flex-wrap:wrap;}
 .footer-brand .wordmark{font-size:20px; margin-bottom:10px; cursor:default;}
 .footer-brand p{font-size:12.5px; color:var(--muted); max-width:280px; line-height:1.7;}
-.newsletter-form{margin-top:22px; max-width:300px;}
-.newsletter-label{display:block; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold); font-weight:600; margin-bottom:10px;}
-.newsletter-row{display:flex; gap:8px;}
-.newsletter-row input{flex:1; min-width:0; border:1px solid #ddd0ac; border-radius:var(--radius-s); padding:10px 12px; font-size:12.5px; background:#fff;}
-.newsletter-row input:focus{outline:none; border-color:var(--gold);}
-.newsletter-row button{flex-shrink:0; background:var(--ink); color:#fff; border-radius:var(--radius-s); padding:10px 16px; font-size:11px; letter-spacing:.06em; text-transform:uppercase; font-weight:600; transition:background .15s ease;}
-.newsletter-row button:hover{background:#000;}
-.newsletter-row button:disabled{opacity:.5; cursor:not-allowed;}
-.newsletter-msg{font-size:11.5px; margin-top:8px; min-height:14px;}
-.newsletter-msg.ok{color:#3a7a4e;}
-.newsletter-msg.err{color:#b3261e;}
 .footer-cols{display:flex; gap:56px; flex-wrap:wrap;}
 .footer-col h4{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; font-weight:600;}
 .footer-col div{font-size:12.5px; color:#444; line-height:2.1;}
@@ -750,14 +739,6 @@ a{color:inherit;}
     <div class="footer-brand">
       <div class="wordmark">Le Luxe</div>
       <p data-i18n="footerBrandDesc">Une sélection de maisons de luxe et d'enseignes accessibles, réunies en un seul endroit.</p>
-      <form class="newsletter-form" id="newsletterForm">
-        <label class="newsletter-label" for="newsletterEmail" data-i18n="newsletterLabel">Soyez alerté des nouvelles pièces</label>
-        <div class="newsletter-row">
-          <input type="email" id="newsletterEmail" required data-i18n-placeholder="newsletterPlaceholder" placeholder="Votre email">
-          <button type="submit" data-i18n="newsletterCta">S'inscrire</button>
-        </div>
-        <div class="newsletter-msg" id="newsletterMsg"></div>
-      </form>
     </div>
     <div class="footer-cols">
       <div class="footer-col">
@@ -1015,8 +996,6 @@ const LANG = {
     priceOnRequest:"Le vendeur vous communiquera le prix",
     refLabel:"Réf.",
     footerBrandDesc:"Une sélection de maisons de luxe et d'enseignes accessibles, réunies en un seul endroit.",
-    newsletterLabel:"Soyez alerté des nouvelles pièces", newsletterPlaceholder:"Votre email", newsletterCta:"S'inscrire",
-    newsletterOk:"Merci ! Vous recevrez un email pour les nouvelles pièces.", newsletterErr:"Une erreur est survenue, réessayez.", newsletterInvalid:"Merci d'entrer un email valide.",
     footerBoutique:"Boutique", footerContact:"Contact", footerLivraison:"Livraison",
     footerWorldwide:"Livraison dans le monde entier", footerParis:"Paris, France",
     footerRights:"Tous droits réservés.",
@@ -1105,8 +1084,6 @@ const LANG = {
     priceOnRequest:"The seller will confirm the price with you",
     refLabel:"Ref.",
     footerBrandDesc:"A curated selection of luxury houses and accessible brands, gathered in one place.",
-    newsletterLabel:"Get alerted about new pieces", newsletterPlaceholder:"Your email", newsletterCta:"Subscribe",
-    newsletterOk:"Thanks! You'll get an email whenever new pieces arrive.", newsletterErr:"Something went wrong, please try again.", newsletterInvalid:"Please enter a valid email.",
     footerBoutique:"Shop", footerContact:"Contact", footerLivraison:"Delivery",
     footerWorldwide:"Worldwide Delivery", footerParis:"Paris, France",
     footerRights:"All rights reserved.",
@@ -1195,8 +1172,6 @@ const LANG = {
     priceOnRequest:"سيتواصل معك البائع لتحديد السعر",
     refLabel:"مرجع",
     footerBrandDesc:"مجموعة مختارة من الماركات الفاخرة والعلامات التجارية في مكان واحد.",
-    newsletterLabel:"احصل على تنبيه بالقطع الجديدة", newsletterPlaceholder:"بريدك الإلكتروني", newsletterCta:"اشترك",
-    newsletterOk:"شكراً! ستصلك رسالة عند إضافة قطع جديدة.", newsletterErr:"حدث خطأ، حاول مجدداً.", newsletterInvalid:"يرجى إدخال بريد إلكتروني صحيح.",
     footerBoutique:"المتجر", footerContact:"تواصل معنا", footerLivraison:"التوصيل",
     footerWorldwide:"توصيل حول العالم", footerParis:"باريس، فرنسا",
     footerRights:"جميع الحقوق محفوظة.",
@@ -1389,10 +1364,6 @@ async function initCatalog(){
   computePromoSlides();
   renderPromo();
   renderHeroBanner();
-  const brandParam = new URLSearchParams(window.location.search).get('brand');
-  if(brandParam && DATA.brands.some(b=>b.id===brandParam)){
-    state.view = 'plp'; state.brandId = brandParam;
-  }
   renderStorefront();
 }
 function pickHeroImage(){
@@ -1736,31 +1707,6 @@ document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').for
   renderPromo();
   renderStorefront();
 }));
-document.getElementById('newsletterForm').addEventListener('submit', async (e)=>{
-  e.preventDefault();
-  const input = document.getElementById('newsletterEmail');
-  const msg = document.getElementById('newsletterMsg');
-  const btn = e.target.querySelector('button');
-  const email = input.value.trim();
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    msg.textContent = t('newsletterInvalid'); msg.className = 'newsletter-msg err';
-    return;
-  }
-  btn.disabled = true;
-  try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/newsletter_subscribers?on_conflict=email`, {
-      method:'POST',
-      headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'resolution=ignore-duplicates,return=minimal' },
-      body: JSON.stringify({ email })
-    });
-    if(!res.ok) throw new Error('insert failed');
-    msg.textContent = t('newsletterOk'); msg.className = 'newsletter-msg ok';
-    input.value = '';
-  }catch(err){
-    msg.textContent = t('newsletterErr'); msg.className = 'newsletter-msg err';
-    btn.disabled = false;
-  }
-});
 
 /* ---------- VIDE-DRESSING (C2C) ---------- */
 const MARKET_CATS = ['vetements','chaussures','sacs','bijoux','accessoires','beaute','autre'];
