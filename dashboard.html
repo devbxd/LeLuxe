@@ -506,7 +506,9 @@ function renderAdmin(){
 function renderMarket(){
   document.getElementById('marketList').innerHTML = MARKET.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(l=>`
     <div class="market-row">
-      ${l.image?`<img src="${l.image}">`:`<div style="width:44px;height:44px;border-radius:6px;background:#f4f3f1;flex-shrink:0;"></div>`}
+      <div style="display:flex;gap:4px;flex-shrink:0;">
+        ${(l.images && l.images.length) ? l.images.slice(0,4).map(img=>`<img src="${img}">`).join('') : `<div style="width:44px;height:44px;border-radius:6px;background:#f4f3f1;"></div>`}
+      </div>
       <div style="flex:1;">
         <div class="mi-name">${(l.name||'').replace(/</g,'&lt;')}</div>
         <div class="mi-meta">${l.category||''} · ${l.price!=null?l.price+' €':'prix ?'} · ${(l.location||'').replace(/</g,'&lt;')} · ${(l.phone||'').replace(/</g,'&lt;')}</div>

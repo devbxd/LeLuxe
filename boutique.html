@@ -68,7 +68,8 @@ a{color:inherit;}
 .icon-btn svg{width:19px; height:19px; stroke:#111; fill:none; stroke-width:1.5;}
 .badge{position:absolute; top:1px; right:1px; background:var(--gold); color:#fff; font-size:9px; font-weight:700; width:15px; height:15px; border-radius:50%; display:flex; align-items:center; justify-content:center;}
 .menu-btn{display:none;}
-.back-btn{display:none; flex-shrink:0; margin-right:-6px;}
+.back-btn{display:none; flex-shrink:0; margin-right:-6px; width:48px; height:48px;}
+.back-btn svg{width:28px; height:28px; stroke-width:2;}
 
 /* ---------- LANGUAGE SWITCH ---------- */
 .lang-switch{position:relative; direction:ltr; display:flex; flex-shrink:0; background:var(--line-soft); border-radius:999px; padding:3px; width:114px; height:32px;}
@@ -236,7 +237,7 @@ a{color:inherit;}
 .dept-chip.active{background:var(--ink); color:#fff; border-color:var(--ink);}
 .sort-select{border:1px solid #e0e0e0; border-radius:var(--radius-s); padding:8px 12px; font-size:12px; background:#fff; transition:border-color .15s ease;}
 .sort-select:hover{border-color:var(--ink);}
-.back-link{font-size:12px; color:var(--faint); transition:color .15s ease;}
+.back-link{font-size:16px; font-weight:600; color:var(--faint); transition:color .15s ease;}
 .back-link:hover{color:var(--ink);}
 .plp-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:28px 20px;}
 .p-tile{cursor:pointer;}
@@ -301,6 +302,12 @@ a{color:inherit;}
 .photo-drop{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; height:130px; border:1.5px dashed #ddd; border-radius:var(--radius-s); cursor:pointer; color:var(--faint); font-size:12px; text-align:center; padding:10px; transition:border-color .15s ease, background .15s ease; overflow:hidden; position:relative;}
 .photo-drop:hover{border-color:var(--gold-soft); background:var(--line-soft);}
 .photo-drop img{max-width:100%; max-height:100%; object-fit:contain; border-radius:4px;}
+.photo-drop-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:8px;}
+.photo-drop-grid .photo-drop{height:auto; aspect-ratio:1/1; font-size:9px; padding:4px; gap:4px;}
+.photo-drop-grid .photo-drop.filled{border-style:solid; border-color:var(--gold-soft);}
+.photo-count-hint{font-size:11.5px; color:var(--faint); margin-top:8px;}
+.photo-count-hint.ok{color:#3a7a4e;}
+.photo-count-hint.err{color:#b3261e;}
 
 /* ---------- PAYWALL VIDE-DRESSING ---------- */
 .paywall-wrap{display:flex; justify-content:center; padding:60px 20px 90px;}
@@ -627,7 +634,7 @@ a{color:inherit;}
       </div>
       <div class="sell-banner">
         <div>
-          <div class="sell-banner-title" data-i18n="sellBannerTitle">Une pièce de luxe à vendre ?</div>
+          <div class="sell-banner-title" data-i18n="sellBannerTitle">Have your luxury item to sell worldwide</div>
           <div class="sell-banner-text" data-i18n="sellBannerText">Déposez votre annonce en une minute et vendez directement à d'autres membres, sans commission.</div>
         </div>
         <button class="sell-banner-btn" id="sellBannerBtn" data-i18n="sellBannerCta">Vendre un article</button>
@@ -794,12 +801,30 @@ a{color:inherit;}
     <div class="modal-name" data-i18n="postItemBtn">Déposer un article</div>
     <form id="postForm">
       <div class="form-row">
-        <label data-i18n="formPhoto">Photo</label>
-        <label class="photo-drop" id="photoDrop">
-          <img id="photoPreview" class="hidden">
-          <span id="photoDropText" data-i18n="formPhotoHint">Ajouter une photo</span>
-          <input type="file" id="pfImage" accept="image/*" class="hidden">
-        </label>
+        <label data-i18n="formPhoto4">4 photos obligatoires</label>
+        <div class="photo-drop-grid" id="photoDropGrid">
+          <label class="photo-drop" data-slot="0">
+            <img class="photo-preview hidden">
+            <span class="photo-drop-text">1</span>
+            <input type="file" accept="image/*" class="hidden">
+          </label>
+          <label class="photo-drop" data-slot="1">
+            <img class="photo-preview hidden">
+            <span class="photo-drop-text">2</span>
+            <input type="file" accept="image/*" class="hidden">
+          </label>
+          <label class="photo-drop" data-slot="2">
+            <img class="photo-preview hidden">
+            <span class="photo-drop-text">3</span>
+            <input type="file" accept="image/*" class="hidden">
+          </label>
+          <label class="photo-drop" data-slot="3">
+            <img class="photo-preview hidden">
+            <span class="photo-drop-text">4</span>
+            <input type="file" accept="image/*" class="hidden">
+          </label>
+        </div>
+        <div class="photo-count-hint" id="photoCountHint">0 / 4 photos ajoutées — les 4 sont nécessaires pour publier.</div>
       </div>
       <div class="form-row">
         <label data-i18n="formItemName">Nom de l'article</label>
@@ -1034,6 +1059,7 @@ const LANG = {
     postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par PayPal pour publier l'annonce.",
     postSubmitPay:"Payer {fee} € et publier",
     formPhoto:"Photo", formPhotoHint:"Ajouter une photo",
+    formPhoto4:"4 photos obligatoires", formPhoto4Hint:"{n} / 4 photos ajoutées — les 4 sont nécessaires pour publier.", formPhoto4Missing:"Merci d'ajouter 4 photos pour publier votre annonce.",
     formNamePlaceholder:"Ex : Sac Chanel Classic Flap", formLocationPlaceholder:"Ville, pays",
     contactSeller:"Contacter le vendeur", marketListingCount:"annonces",
     whatsappInterestMsg:"Bonjour, je suis intéressé(e) par votre annonce",
@@ -1041,7 +1067,7 @@ const LANG = {
     mktCatBijoux:"Bijoux & Montres", mktCatAccessoires:"Accessoires", mktCatBeaute:"Beauté", mktCatAutre:"Autre",
     postSuccessMsg:"Votre annonce a été publiée !",
     discoverCta:"Découvrir",
-    sellBannerTitle:"Une pièce de luxe à vendre ?",
+    sellBannerTitle:"Have your luxury item to sell worldwide",
     sellBannerText:"Déposez votre annonce en une minute et vendez directement à d'autres membres, sans commission.",
     sellBannerCta:"Vendre un article",
     promoSlides:[
@@ -1122,6 +1148,7 @@ const LANG = {
     postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable via PayPal to publish your listing.",
     postSubmitPay:"Pay {fee} € and publish",
     formPhoto:"Photo", formPhotoHint:"Add a photo",
+    formPhoto4:"4 photos required", formPhoto4Hint:"{n} / 4 photos added — all 4 are required to publish.", formPhoto4Missing:"Please add 4 photos to publish your listing.",
     formNamePlaceholder:"E.g. Chanel Classic Flap bag", formLocationPlaceholder:"City, country",
     contactSeller:"Contact seller", marketListingCount:"listings",
     whatsappInterestMsg:"Hello, I'm interested in your listing",
@@ -1129,7 +1156,7 @@ const LANG = {
     mktCatBijoux:"Jewellery & Watches", mktCatAccessoires:"Accessories", mktCatBeaute:"Beauty", mktCatAutre:"Other",
     postSuccessMsg:"Your listing has been published!",
     discoverCta:"Discover",
-    sellBannerTitle:"Have a luxury piece to sell?",
+    sellBannerTitle:"Have your luxury item to sell worldwide",
     sellBannerText:"List your item in a minute and sell directly to other members, no commission.",
     sellBannerCta:"Sell an item",
     promoSlides:[
@@ -1210,6 +1237,7 @@ const LANG = {
     postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع عبر PayPal لنشر الإعلان.",
     postSubmitPay:"ادفع {fee} € وانشر",
     formPhoto:"صورة", formPhotoHint:"أضف صورة",
+    formPhoto4:"4 صور مطلوبة", formPhoto4Hint:"{n} / 4 صور مضافة — الصور الأربع مطلوبة للنشر.", formPhoto4Missing:"يرجى إضافة 4 صور لنشر إعلانك.",
     formNamePlaceholder:"مثال: حقيبة Chanel Classic Flap", formLocationPlaceholder:"المدينة، البلد",
     contactSeller:"تواصل مع البائع", marketListingCount:"إعلان",
     whatsappInterestMsg:"مرحباً، أنا مهتم بإعلانك",
@@ -1712,7 +1740,7 @@ document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').for
 const MARKET_CATS = ['vetements','chaussures','sacs','bijoux','accessoires','beaute','autre'];
 const MARKET_CAT_KEY = { vetements:'mktCatVetements', chaussures:'mktCatChaussures', sacs:'mktCatSacs', bijoux:'mktCatBijoux', accessoires:'mktCatAccessoires', beaute:'mktCatBeaute', autre:'mktCatAutre' };
 let lastPostedId = null;
-let pendingListingImage = null;
+let pendingListingImages = [null, null, null, null];
 function waLink(l){
   const digits = (l.phone||'').replace(/[^\d]/g,'');
   const price = l.price!=null ? ` (${fmt(l.price, true)})` : '';
@@ -1740,14 +1768,26 @@ function readAndResizeImage(file, maxSize){
     reader.readAsDataURL(file);
   });
 }
-document.getElementById('pfImage').addEventListener('change', async (e)=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  pendingListingImage = await readAndResizeImage(file, 900);
-  const preview = document.getElementById('photoPreview');
-  preview.src = pendingListingImage;
-  preview.classList.remove('hidden');
-  document.getElementById('photoDropText').classList.add('hidden');
+function updatePhotoCountHint(){
+  const count = pendingListingImages.filter(Boolean).length;
+  const hint = document.getElementById('photoCountHint');
+  hint.textContent = t('formPhoto4Hint').replace('{n}', count);
+  hint.classList.toggle('ok', count===4);
+  hint.classList.remove('err');
+}
+document.querySelectorAll('#photoDropGrid .photo-drop').forEach(zone=>{
+  const slot = parseInt(zone.dataset.slot, 10);
+  zone.querySelector('input[type=file]').addEventListener('change', async (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    pendingListingImages[slot] = await readAndResizeImage(file, 900);
+    const preview = zone.querySelector('.photo-preview');
+    preview.src = pendingListingImages[slot];
+    preview.classList.remove('hidden');
+    zone.querySelector('.photo-drop-text').classList.add('hidden');
+    zone.classList.add('filled');
+    updatePhotoCountHint();
+  });
 });
 function renderMarket(){
   document.getElementById('marketCats').innerHTML = ['all', ...MARKET_CATS].map(c=>
@@ -1760,7 +1800,7 @@ function renderMarket(){
 
   document.getElementById('marketGrid').innerHTML = listings.map(l=> `
     <div class="market-card" id="market-card-${l.id}">
-      <div class="mc-photo">${l.image ? `<img src="${l.image}" alt="">` : ''}</div>
+      <div class="mc-photo">${l.images && l.images[0] ? `<img src="${l.images[0]}" alt="">` : ''}</div>
       <span class="mc-cat">${t(MARKET_CAT_KEY[l.category]||'mktCatAutre')}</span>
       <div class="mc-name">${escapeHtml(l.name)}</div>
       <div class="mc-price">${fmt(l.price, true)}</div>
@@ -1794,6 +1834,14 @@ function openPostModal(){
   document.getElementById('postModal').classList.add('open');
   document.getElementById('postScrim').classList.add('open');
   updateFeeHint();
+  pendingListingImages = [null, null, null, null];
+  document.querySelectorAll('#photoDropGrid .photo-drop').forEach(zone=>{
+    zone.classList.remove('filled');
+    zone.querySelector('.photo-preview').classList.add('hidden');
+    zone.querySelector('.photo-drop-text').classList.remove('hidden');
+    zone.querySelector('input[type=file]').value = '';
+  });
+  updatePhotoCountHint();
 }
 function closePostModal(){
   document.getElementById('postModal').classList.remove('open');
@@ -1819,7 +1867,12 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   const phone = document.getElementById('pfPhone').value.trim();
   const location = document.getElementById('pfLocation').value.trim();
   if(!name || !phone || !location || isNaN(price)) return;
-  const listing = { id: genId(), name, category, price, phone, location, image: pendingListingImage, createdAt: Date.now() };
+  if(pendingListingImages.filter(Boolean).length < 4){
+    document.getElementById('photoCountHint').classList.add('err');
+    alert(t('formPhoto4Missing'));
+    return;
+  }
+  const listing = { id: genId(), name, category, price, phone, location, images: pendingListingImages.slice(), createdAt: Date.now() };
   const fee = listingFeeFor(price);
 
   // Le brouillon d'annonce doit survivre l'aller-retour vers PayPal (qui
