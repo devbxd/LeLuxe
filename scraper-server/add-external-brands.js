@@ -2,8 +2,7 @@
 // blocage géo) comme entrées "vitrine" : nom + lien vers le site officiel,
 // sans produits. Classées luxe / pasluxe selon leur positionnement réel.
 
-const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
-const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+const { fetchCatalog, saveBrand } = require('./supabaseStore');
 
 const EXTERNAL_BRANDS = [
     // ---------- LUXE ----------
@@ -94,16 +93,10 @@ function slugId(name){
 }
 
 async function main(){
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    });
-    const rows = await res.json();
-    const DATA = rows[0].data;
-
-    const existingIds = new Set(DATA.brands.map(b => b.id));
-    const existingNames = new Set(DATA.brands.map(b => b.name.toLowerCase()));
+    const DATA = await fetchCatalog();
 
     let added = 0, updated = 0;
+    const touched = [];
 
     EXTERNAL_BRANDS.forEach(([name, url, universe]) => {
         const id = slugId(name);
@@ -114,33 +107,23 @@ async function main(){
             already.universe = universe;
             if(!already.items) already.items = [];
             updated++;
+            touched.push(already);
             return;
         }
-        DATA.brands.push({
-            id,
-            name,
-            items: [],
-            universe,
-            external: true,
-            officialUrl: url
-        });
+        const brand = { id, name, items: [], universe, external: true, officialUrl: url };
+        DATA.brands.push(brand);
+        touched.push(brand);
         added++;
     });
 
     console.log("Ajoutées:", added, "Mises à jour:", updated, "Total marques:", DATA.brands.length);
 
-    const putRes = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            "Prefer": "resolution=merge-duplicates,return=minimal"
-        },
-        body: JSON.stringify({ id: "main", data: DATA })
-    });
-
-    console.log("save status:", putRes.status);
+    // Chaque marque touchée est sa propre ligne : on ne réécrit que celles-ci.
+    let ok = 0;
+    for(const brand of touched){
+        if(await saveBrand(brand)) ok++;
+    }
+    console.log("sauvegardées:", ok, "/", touched.length);
 }
 
 main().catch(e => { console.log("ERREUR:", e.message); process.exit(1); });

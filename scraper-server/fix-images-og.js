@@ -5,8 +5,7 @@
 // la balise <meta property="og:image">. On la relit produit par produit
 // pour remplacer l'image par la vraie photo officielle.
 
-const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
-const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+const { fetchCatalog, saveBrand } = require('./supabaseStore');
 
 const BRAND_NAME = process.argv[2];
 if(!BRAND_NAME){
@@ -30,11 +29,7 @@ async function getOgImage(url){
 }
 
 async function main(){
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
-        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-    });
-    const rows = await res.json();
-    const DATA = rows[0].data;
+    const DATA = await fetchCatalog();
     const brand = DATA.brands.find(b => b.name === BRAND_NAME);
     if(!brand){ console.log("Marque introuvable:", BRAND_NAME); return; }
 
@@ -56,17 +51,8 @@ async function main(){
 
     console.log(`\nVerifies: ${checked}, modifies: ${changed}, echecs: ${failed}`);
 
-    const putRes = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
-        method: "POST",
-        headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            "Content-Type": "application/json",
-            "Prefer": "resolution=merge-duplicates,return=minimal"
-        },
-        body: JSON.stringify({ id: "main", data: DATA })
-    });
-    console.log("save status:", putRes.status);
+    const ok = await saveBrand(brand);
+    console.log("save ok:", ok);
 }
 
 main().catch(e => { console.log("ERREUR:", e.message); process.exit(1); });

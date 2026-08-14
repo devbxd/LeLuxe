@@ -226,6 +226,27 @@ async function saveRow(id, data){
   if(!res.ok) console.error('Échec de sauvegarde Supabase:', res.status, await res.text());
   return res.ok;
 }
+// Le catalogue est stocké une ligne par marque (id = "brand:<id>"), pas dans
+// un seul gros bloc : avec ~28 000 articles, réécrire tout le catalogue à
+// chaque modification (un prix changé, un sac ajouté...) dépassait le temps
+// maximum autorisé par la base de données et échouait silencieusement —
+// c'était la cause des sacs Hermès qui n'apparaissaient pas après ajout.
+// Chaque sauvegarde ne touche maintenant que la marque modifiée.
+async function fetchAllBrands(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error('read failed');
+  const rows = await res.json();
+  return rows.map(r=>r.data);
+}
+async function deleteBrandRow(brandId){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.${encodeURIComponent('brand:'+brandId)}`, {
+    method:'DELETE',
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, Prefer:'return=minimal' }
+  });
+  return res.ok;
+}
 let saveTimer = null;
 function flashSaved(ok){
   if(!ok) return;
@@ -234,17 +255,15 @@ function flashSaved(ok){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=> pill.classList.remove('show'), 1300);
 }
-async function saveCatalog(){ flashSaved(await saveRow('main', DATA)); }
+async function saveCatalog(brand){ flashSaved(await saveRow('brand:'+brand.id, brand)); }
 async function saveMarket(){ flashSaved(await saveRow('marketplace', { listings: MARKET })); }
 
-// Le catalogue peut peser des dizaines de milliers d'articles : le
-// renvoyer entier à Supabase à chaque frappe clavier (sans attendre)
-// rend l'interface totalement figée. On repousse l'envoi de 700ms après
-// la dernière frappe, pour n'envoyer qu'une seule fois la version finale.
-let debouncedSaveHandle = null;
-function scheduleSave(){
-  clearTimeout(debouncedSaveHandle);
-  debouncedSaveHandle = setTimeout(saveCatalog, 700);
+// Repousse l'envoi de 700ms après la dernière frappe (par marque), pour ne
+// pas renvoyer la marque en cours d'édition à chaque caractère tapé.
+const debouncedSaveHandles = new Map();
+function scheduleSave(brand){
+  clearTimeout(debouncedSaveHandles.get(brand.id));
+  debouncedSaveHandles.set(brand.id, setTimeout(()=> saveCatalog(brand), 700));
 }
 
 /* ================= DATA ================= */
@@ -434,51 +453,53 @@ function renderAdmin(){
     expandedBrand = expandedBrand===id ? null : id;
     renderAdmin();
   }));
-  document.querySelectorAll('[data-delbrand]').forEach(el=> el.addEventListener('click', (e)=>{
+  document.querySelectorAll('[data-delbrand]').forEach(el=> el.addEventListener('click', async (e)=>{
     e.stopPropagation();
     if(!confirm('Supprimer cette marque et tous ses articles ?')) return;
-    DATA.brands = DATA.brands.filter(b=>b.id!==el.dataset.delbrand);
-    saveCatalog(); renderStats(); renderAdmin();
+    const bId = el.dataset.delbrand;
+    DATA.brands = DATA.brands.filter(b=>b.id!==bId);
+    renderStats(); renderAdmin();
+    await deleteBrandRow(bId);
   }));
   document.querySelectorAll('[data-editbname]').forEach(el=> el.addEventListener('input', ()=>{
-    findBrand(el.dataset.editbname).name = el.value; scheduleSave();
+    const brand = findBrand(el.dataset.editbname); brand.name = el.value; scheduleSave(brand);
   }));
   document.querySelectorAll('[data-editbuv]').forEach(el=> el.addEventListener('change', ()=>{
-    findBrand(el.dataset.editbuv).universe = el.value; saveCatalog(); renderAdmin();
+    const brand = findBrand(el.dataset.editbuv); brand.universe = el.value; saveCatalog(brand); renderAdmin();
   }));
   document.querySelectorAll('[data-editblink]').forEach(el=> el.addEventListener('input', ()=>{
-    findBrand(el.dataset.editblink).officialUrl = el.value; scheduleSave();
+    const brand = findBrand(el.dataset.editblink); brand.officialUrl = el.value; scheduleSave(brand);
   }));
   document.querySelectorAll('[data-delitem]').forEach(el=> el.addEventListener('click', ()=>{
     const [bId,iId] = el.dataset.delitem.split('|');
     const brand = findBrand(bId); brand.items = brand.items.filter(i=>i.id!==iId);
-    saveCatalog(); renderStats(); renderAdmin();
+    saveCatalog(brand); renderStats(); renderAdmin();
   }));
   document.querySelectorAll('[data-editname]').forEach(el=> el.addEventListener('input', ()=>{
     const [bId,iId] = el.dataset.editname.split('|');
-    findBrand(bId).items.find(i=>i.id===iId).name = el.value; scheduleSave();
+    const brand = findBrand(bId); brand.items.find(i=>i.id===iId).name = el.value; scheduleSave(brand);
   }));
   document.querySelectorAll('[data-editprice]').forEach(el=> el.addEventListener('input', ()=>{
     const [bId,iId] = el.dataset.editprice.split('|');
     const v = parseFloat(el.value);
-    findBrand(bId).items.find(i=>i.id===iId).price = isNaN(v) ? null : v;
-    scheduleSave();
+    const brand = findBrand(bId); brand.items.find(i=>i.id===iId).price = isNaN(v) ? null : v;
+    scheduleSave(brand);
   }));
   document.querySelectorAll('[data-editdept]').forEach(el=> el.addEventListener('change', ()=>{
     const [bId,iId] = el.dataset.editdept.split('|');
-    findBrand(bId).items.find(i=>i.id===iId).dept = el.value; saveCatalog();
+    const brand = findBrand(bId); brand.items.find(i=>i.id===iId).dept = el.value; saveCatalog(brand);
   }));
   document.querySelectorAll('[data-editgender]').forEach(el=> el.addEventListener('change', ()=>{
     const [bId,iId] = el.dataset.editgender.split('|');
-    findBrand(bId).items.find(i=>i.id===iId).gender = el.value || null; saveCatalog();
+    const brand = findBrand(bId); brand.items.find(i=>i.id===iId).gender = el.value || null; saveCatalog(brand);
   }));
   document.querySelectorAll('[data-editdate]').forEach(el=> el.addEventListener('change', ()=>{
     const [bId,iId] = el.dataset.editdate.split('|');
-    findBrand(bId).items.find(i=>i.id===iId).dropDate = el.value || null; saveCatalog();
+    const brand = findBrand(bId); brand.items.find(i=>i.id===iId).dropDate = el.value || null; saveCatalog(brand);
   }));
   document.querySelectorAll('[data-pastezone]').forEach(el=>{
     const [bId,iId] = el.dataset.pastezone.split('|');
-    setupPasteZone(el, (dataUrl)=>{ findBrand(bId).items.find(i=>i.id===iId).image = dataUrl; saveCatalog(); });
+    setupPasteZone(el, (dataUrl)=>{ const brand = findBrand(bId); brand.items.find(i=>i.id===iId).image = dataUrl; saveCatalog(brand); });
   });
   document.querySelectorAll('[data-additem]').forEach(el=> el.addEventListener('click', ()=>{
     const bId = el.dataset.additem;
@@ -496,7 +517,7 @@ function renderAdmin(){
     if(img) newItem.image = img.src;
     brand.items.push(newItem);
     expandedBrand = bId;
-    saveCatalog(); renderStats(); renderAdmin();
+    saveCatalog(brand); renderStats(); renderAdmin();
   }));
   document.querySelectorAll('[id^="newzone-"]').forEach(zone=>{
     setupPasteZone(zone, ()=>{});
@@ -543,7 +564,7 @@ document.getElementById('addBrandBtn').addEventListener('click', ()=>{
   document.getElementById('newBrandName').value='';
   document.getElementById('newBrandLink').value='';
   document.getElementById('newBrandExternal').checked=false;
-  saveCatalog(); renderStats(); renderAdmin();
+  saveCatalog(brand); renderStats(); renderAdmin();
 });
 
 /* ================= INIT ================= */
@@ -553,8 +574,8 @@ async function init(){
     return;
   }
   try{
-    const data = await fetchRow('main');
-    DATA = data || { brands: [] };
+    const brands = await fetchAllBrands();
+    DATA = { brands };
     const marketData = await fetchRow('marketplace');
     MARKET = (marketData && marketData.listings) || [];
   }catch(e){

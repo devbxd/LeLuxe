@@ -3,8 +3,7 @@
 // - noms manquants/trop courts ("0", "", null) -> dérivés du sourceUrl
 // - images manquantes -> item marqué (juste rapporté, pas de fix possible sans re-scrape)
 
-const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
-const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+const { fetchCatalog, saveBrand } = require('./supabaseStore');
 
 function nameFromUrl(url){
     try{
@@ -27,13 +26,10 @@ function cleanWhitespace(name){
 }
 
 async function main(){
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
-        headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
-    });
-    const rows = await res.json();
-    const DATA = rows[0].data;
+    const DATA = await fetchCatalog();
 
     const report = {};
+    const touched = [];
     let totalNoImage = 0;
     let totalBadImage = 0;
 
@@ -71,23 +67,18 @@ async function main(){
         if(renamed || whitespaceFixed || noImage){
             report[brand.name] = { renamed, whitespaceFixed, noImage };
         }
+        if(renamed || whitespaceFixed) touched.push(brand);
     });
 
     console.log(JSON.stringify(report, null, 2));
     console.log("TOTAL noImage:", totalNoImage, "TOTAL badImage(data-uri/placeholder):", totalBadImage);
 
-    const putRes = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
-        method:'POST',
-        headers:{
-            apikey: SUPABASE_KEY,
-            Authorization:`Bearer ${SUPABASE_KEY}`,
-            'Content-Type':'application/json',
-            'Prefer':'resolution=merge-duplicates,return=minimal'
-        },
-        body: JSON.stringify({ id:'main', data: DATA })
-    });
-
-    console.log('save status:', putRes.status);
+    // Seules les marques dont un nom a vraiment changé sont réécrites.
+    let ok = 0;
+    for(const brand of touched){
+        if(await saveBrand(brand)) ok++;
+    }
+    console.log('sauvegardées:', ok, '/', touched.length);
 }
 
 main().catch(e=>{ console.log('ERREUR:', e.message); process.exit(1); });

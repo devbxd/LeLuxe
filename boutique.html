@@ -1028,21 +1028,33 @@ const LANG = {
     rcptThanksBig:"Merci de laisser Le Luxe faire partie de votre élégance.",
     rcptDownload:"Télécharger", rcptWhatsapp:"Envoyer via WhatsApp", rcptClose:"Fermer",
     aboutEyebrow:"Notre histoire",
-    aboutTitle:"Du terrain de football au luxe parisien",
+    aboutTitle:"L'histoire derrière Le Luxe Paris",
     aboutParagraphs:[
       "Tout voyage commence quelque part.",
       "Le mien n'a pas commencé dans une boutique de luxe.",
       "Il a commencé sur un terrain de football.",
       "Le football m'a appris la discipline, la résilience, l'esprit d'équipe et la détermination à toujours progresser. Ces valeurs sont devenues le socle de tout ce que j'allais construire dans ma carrière.",
-      "Ma passion pour les gens et l'expérience client grandissant, j'ai rejoint Sports For Ever, où j'ai développé mes compétences en leadership et appris à inspirer et à créer du lien avec les autres.",
-      "J'ai ensuite élargi mon expérience en travaillant avec une entreprise servant une clientèle à Dubaï, ce qui a renforcé mes compétences en communication, en vente et en développement commercial international.",
-      "Ma carrière a ensuite pris un tournant décisif chez ABC Department Store, où j'ai découvert ma véritable passion pour le commerce de luxe. Travailler avec des marques de mode haut de gamme m'a permis de comprendre que le luxe va bien au-delà de la vente de produits — il s'agit de créer de la confiance, de construire des relations et d'offrir une expérience inoubliable.",
-      "Parmi toutes les marques avec lesquelles j'ai travaillé, Sandro est vite devenue ma préférée. J'admirais son style parisien sans effort, son savoir-faire exceptionnel et son élégance intemporelle. Vendre du Sandro, ce n'était pas seulement une question de mode — c'était aider les clientes et clients à exprimer leur personnalité à travers des pièces magnifiquement conçues. Cette expérience a renforcé mon amour du luxe à la française et continue d'influencer mon regard sur le style aujourd'hui.",
-      "Ces années dans le commerce de luxe ont façonné mon expertise en personal shopping, en conseil en style et en service client.",
-      "Aujourd'hui, Le Luxe Paris est le fruit de ce parcours.",
-      "Chaque article est sourcé personnellement depuis Paris, avec authenticité, transparence et une attention méticuleuse portée aux détails. Notre mission est de donner à nos clients accès aux plus grandes marques de luxe au monde, avec le même niveau de service et d'expertise que l'on trouve dans les boutiques les plus prestigieuses de Paris."
+      "Ma passion pour les gens et l'expérience client grandissant, j'ai rejoint Sports For Ever, où j'ai développé mes compétences en leadership et appris à inspirer, accompagner et créer de véritables liens avec les autres.",
+      "J'ai ensuite élargi mon expérience en travaillant avec une entreprise servant une clientèle à Dubaï, une étape qui m'a permis de renforcer mes compétences en communication, en vente et en développement commercial international.",
+      "Ma carrière a ensuite pris un tournant décisif chez ABC Department Store.",
+      "C'est là que j'ai découvert ma véritable passion pour le commerce de luxe. Travailler au contact de grandes marques de mode m'a fait comprendre que le luxe va bien au-delà de la vente d'un produit : il s'agit de créer de la confiance, de construire des relations durables et d'offrir une expérience que le client n'oublie pas.",
+      "Parmi toutes les marques avec lesquelles j'ai travaillé, Sandro est rapidement devenue ma préférée. J'admirais son élégance parisienne naturelle, son identité et son approche du style. Vendre du Sandro ne consistait pas simplement à proposer des vêtements : il s'agissait d'aider chaque client à trouver les pièces qui lui correspondent et à exprimer sa personnalité.",
+      "Cette expérience a renforcé mon attachement au luxe à la française et continue encore aujourd'hui d'influencer mon regard sur la mode, le style et le service.",
+      "Mais parfois, avancer signifie aussi savoir quitter ce que l'on connaît.",
+      "Le 10 août 2025, j'ai quitté ABC et décidé d'ouvrir un nouveau chapitre de ma vie.",
+      "J'ai alors tenté une nouvelle expérience professionnelle dans le secteur de l'assurance. Très rapidement, j'ai compris que ce domaine ne me correspondait pas. Le 10 septembre 2025, j'ai pris la décision de quitter ce poste plutôt que de poursuivre une voie dans laquelle je ne me reconnaissais pas.",
+      "Huit jours plus tard, le 18 septembre 2025, j'étais à Paris.",
+      "Je n'avais pas encore toutes les réponses. Je ne savais pas exactement jusqu'où cette décision allait me mener.",
+      "Mais je savais ce que je voulais construire : quelque chose qui réunisse ce que j'aimais réellement — le luxe, la mode, le service, les relations humaines et Paris.",
+      "C'est ainsi qu'a commencé Le Luxe Paris.",
+      "Aujourd'hui, Le Luxe Paris est le fruit de toutes ces expériences.",
+      "Chaque article est sourcé personnellement depuis Paris, avec authenticité, transparence et une attention méticuleuse portée aux détails.",
+      "Notre mission est simple : donner à nos clients accès aux plus grandes maisons et marques de luxe au monde, tout en leur offrant un service personnalisé fondé sur la confiance, l'expertise et la proximité.",
+      "Le Luxe ne consiste pas uniquement à trouver un produit.",
+      "Il s'agit de comprendre ce que recherche le client, de créer une relation durable et de lui offrir une véritable expérience parisienne du luxe, où qu'il se trouve dans le monde.",
+      "Du terrain de football aux boutiques de Paris, chaque étape de mon parcours a façonné la vision derrière Le Luxe."
     ],
-    aboutSignature:"Du terrain de football aux boutiques de Paris — chaque étape de ce parcours a façonné la vision derrière Le Luxe.",
+    aboutSignature:"Et ce parcours ne fait que commencer.",
     marketNavTitle:"Vide-dressing", marketHeroTitle:"Vide-dressing entre particuliers",
     paywallEyebrow:"Vide-dressing", paywallTitle:"Accédez au vide-dressing",
     paywallText:"Payez une seule fois pour déposer et vendre vos articles de luxe directement à d'autres membres.",
@@ -1320,13 +1332,19 @@ function isItemNew(it){
 function supaConfigured(){
   return SUPABASE_URL && SUPABASE_KEY && !SUPABASE_URL.includes('COLLEZ') && !SUPABASE_KEY.includes('COLLEZ');
 }
+// Le catalogue est stocké une ligne par marque (id = "brand:<id>") plutôt
+// que dans un seul gros bloc : au-delà de quelques Mo, réécrire tout le
+// catalogue à chaque modification dépassait le temps maximum autorisé par
+// la base de données et échouait silencieusement (articles ajoutés depuis
+// le dashboard invisibles sur le site). La lecture rassemble toutes les
+// lignes en {brands:[...]}, comme avant.
 async function fetchCatalog(){
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&select=data`, {
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
   });
   if(!res.ok) throw new Error('Erreur de lecture catalogue');
   const rows = await res.json();
-  return rows[0] ? rows[0].data : null;
+  return { brands: rows.map(r=>r.data) };
 }
 async function fetchMarketplace(){
   const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.marketplace&select=data`, {

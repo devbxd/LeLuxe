@@ -11,9 +11,7 @@
 const express = require("express");
 const cors = require("cors");
 const { mergeItemsIntoBrand } = require("./mergeLogic");
-
-const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
-const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
+const { SUPABASE_URL, SUPABASE_KEY, fetchCatalog, saveBrand } = require("./supabaseStore");
 
 const app = express();
 app.use(cors());
@@ -61,28 +59,6 @@ const SCRAPERS = {
   Initio: require("./scrapers/initio"),
   Creed: require("./scrapers/creed")
 };
-
-async function fetchCatalog(){
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.main&select=data`, {
-    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
-  });
-  const rows = await res.json();
-  return rows[0] ? rows[0].data : { brands: [] };
-}
-
-async function saveCatalog(data){
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
-    method:'POST',
-    headers:{
-      apikey: SUPABASE_KEY,
-      Authorization:`Bearer ${SUPABASE_KEY}`,
-      'Content-Type':'application/json',
-      Prefer:'resolution=merge-duplicates,return=minimal'
-    },
-    body: JSON.stringify({ id:'main', data })
-  });
-  return res.ok;
-}
 
 let progress = { running:false, total:0, done:0, currentBrand:null, results:[], startedAt:null, finishedAt:null };
 
@@ -156,7 +132,7 @@ app.post("/refresh-all", (req,res)=>{
           progress.results.push({ brand:brandName, added, updated, total: brand.items.length });
           // sauvegarde apres chaque marque : si le process s'arrete en
           // cours de route, le travail deja fait n'est pas perdu
-          await saveCatalog(DATA);
+          await saveBrand(brand);
         }
       }catch(e){
         progress.results.push({ brand:brandName, error: e.message });
@@ -200,7 +176,7 @@ app.post("/refresh-next", async (req,res)=>{
     const scraperFn = SCRAPERS[brandName];
     const scraped = await scraperFn('', brandName, 'refresh');
     const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
-    await saveCatalog(DATA);
+    await saveBrand(brand);
     console.log(`[refresh-next] ${brandName} : +${added} nouveaux, ${updated} mis a jour (total ${brand.items.length})`);
   }catch(e){
     console.log(`[refresh-next] ${brandName} : erreur - ${e.message}`);
@@ -220,7 +196,7 @@ app.post("/refresh/:brand", async (req,res)=>{
 
     const scraped = await scraperFn('', brandName, 'refresh');
     const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
-    await saveCatalog(DATA);
+    await saveBrand(brand);
     res.json({ brand: brandName, added, updated, total: brand.items.length });
   }catch(e){
     res.status(500).json({ error: e.message });
