@@ -987,6 +987,13 @@ const DEPT_ICON = {
   short:'dress', jean:'dress', jupe:'dress', robe:'dress', casquette:'access', lunettes:'access',
   ceinture:'access', maroquinerie:'bag'
 };
+// Beaucoup d'images viennent de CDN externes (sites des marques) : certaines
+// finissent par expirer/casser avec le temps. Plutot que l'icone "image
+// cassee" du navigateur, on retombe sur la meme icone de rayon que pour un
+// article sans photo.
+function imgFallback(el, dept){
+  el.outerHTML = ICONS[DEPT_ICON[dept]] || '';
+}
 
 /* ================= I18N ================= */
 const LANG = {
@@ -1553,11 +1560,16 @@ function renderBrandNav(){
   document.getElementById('brandNavList').innerHTML = brands.map(b=>
     `<li class="brand-nav-item"><button class="${state.brandId===b.id?'active':''}" data-brand="${b.id}"><span>${b.name}</span><span class="cnt">${b.external?'↗':itemCountForGender(b)}</span></button></li>`
   ).join('');
-  document.querySelectorAll('.brand-nav-item button').forEach(el=> el.addEventListener('click', ()=> goToBrandSection(el.dataset.brand)));
+  document.querySelectorAll('.brand-nav-item button').forEach(el=> el.addEventListener('click', ()=>{
+    if(window.innerWidth<=900) closeDrawer('nav');
+    const b = findBrand(el.dataset.brand);
+    if(b && b.external) window.open(b.officialUrl, '_blank', 'noopener');
+    else openBrand(el.dataset.brand);
+  }));
 }
 function hermesCard(it){
   return `<div class="hermes-card" data-openhermes="${it.id}">
-      <div class="hc-img">${it.image?`<img src="${it.image}" alt="" loading="lazy">`:''}</div>
+      <div class="hc-img">${it.image?`<img src="${it.image}" alt="" loading="lazy" onerror="imgFallback(this,'sacs')">`:''}</div>
       <div class="hc-body">
         <div class="hc-name">${it.name}</div>
         <div class="hc-price">${it.price==null ? t('priceOnRequest') : fmt(it.price, true)}</div>
@@ -1585,7 +1597,7 @@ function renderHermes(){
   const locale = {fr:'fr-FR', en:'en-GB', ar:'ar-LB'}[state.lang] || 'fr-FR';
 
   document.getElementById('hermesGroups').innerHTML = sortedKeys.map(key=>{
-    const items = groups.get(key);
+    const items = groups.get(key).slice().sort((a,b)=> (b.image?1:0) - (a.image?1:0));
     let label = '';
     if(key){
       const d = new Date(key+'T00:00:00');
@@ -1669,27 +1681,19 @@ function observeReveal(){
   }
   els.forEach(el=> revealObserver.observe(el));
 }
+// Apres un changement de vue (ouvrir une marque, le vide-dressing, Hermes...)
+// sur mobile : on ramene la page tout en haut, sans animation. L'ancienne
+// version faisait defiler en douceur jusqu'a ".main", mais sa position
+// change selon le contenu au-dessus (carrousel, bandeaux...) : le calcul
+// pouvait cibler le mauvais endroit (nouvelle vue qui semble ne pas
+// s'afficher) et l'animation donnait l'impression que "le site descend".
+// Remonter en haut instantanement est fiable dans tous les cas et montre
+// toujours le debut de la nouvelle vue.
 function scrollMainIntoViewMobile(){
   if(window.innerWidth>900) return;
-  const m = document.querySelector('.main');
-  if(!m) return;
-  const top = m.getBoundingClientRect().top + window.scrollY - 66;
-  window.scrollTo({top, behavior:'smooth'});
+  window.scrollTo({top:0, behavior:'auto'});
 }
 function openBrand(id){ state.view='plp'; state.brandId=id; state.deptFilter='all'; state.sort='default'; renderStorefront(); scrollMainIntoViewMobile(); }
-function goToBrandSection(id){
-  if(window.innerWidth<=900) closeDrawer('nav');
-  if(state.view!=='home'){ state.view='home'; renderStorefront(); }
-  requestAnimationFrame(()=>{
-    const el = document.getElementById('brand-row-'+id);
-    if(!el) return;
-    el.scrollIntoView({behavior:'smooth', block:'center'});
-    el.classList.remove('pulse-highlight');
-    void el.offsetWidth; // relance l'animation même si elle vient de tourner
-    el.classList.add('pulse-highlight');
-    el.addEventListener('animationend', ()=> el.classList.remove('pulse-highlight'), { once:true });
-  });
-}
 function renderPLP(){
   const brand = findBrand(state.brandId);
   if(!brand){ state.view='home'; renderStorefront(); return; }
@@ -1719,12 +1723,17 @@ function renderPLP(){
   if(state.sort==='price-asc') items.sort((a,b)=>a.price-b.price);
   if(state.sort==='price-desc') items.sort((a,b)=>b.price-a.price);
   if(state.sort==='new') items.sort((a,b)=>(b.addedAt||0)-(a.addedAt||0));
+  // Les articles avec photo passent avant ceux sans photo, quel que soit le
+  // tri choisi. Array.sort est stable : ce second passage ne fait que
+  // regrouper par "a une image", sans perturber l'ordre deja etabli
+  // au-dessus (prix, nouveautes...) a l'interieur de chaque groupe.
+  items.sort((a,b)=> (b.image?1:0) - (a.image?1:0));
   document.getElementById('sortSelect').value = state.sort;
   document.getElementById('plpGrid').innerHTML = items.map(it=>{
     const wished = state.wish.includes(it.id);
     return `<div class="p-tile" data-item="${it.id}">
       <div class="p-image">
-        ${it.image ? `<img src="${it.image}">` : ICONS[DEPT_ICON[it.dept]]||''}
+        ${it.image ? `<img src="${it.image}" onerror="imgFallback(this,'${it.dept}')">` : ICONS[DEPT_ICON[it.dept]]||''}
         ${isItemNew(it)?`<span class="p-new">${t('nouveauBadge')}</span>`:''}
         <button class="p-heart ${wished?'active':''}" data-heart="${it.id}"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg></button>
       </div>
@@ -1818,7 +1827,7 @@ function renderMarket(){
 
   document.getElementById('marketGrid').innerHTML = listings.map(l=> `
     <div class="market-card" id="market-card-${l.id}">
-      <div class="mc-photo">${l.images && l.images[0] ? `<img src="${l.images[0]}" alt="">` : ''}</div>
+      <div class="mc-photo">${l.images && l.images[0] ? `<img src="${l.images[0]}" alt="" onerror="this.style.display='none'">` : ''}</div>
       <span class="mc-cat">${t(MARKET_CAT_KEY[l.category]||'mktCatAutre')}</span>
       <div class="mc-name">${escapeHtml(l.name)}</div>
       <div class="mc-price">${fmt(l.price, true)}</div>
@@ -1915,7 +1924,7 @@ function openDetail(itemId){
   const DESCRIPTIONS = DESCRIPTIONS_I18N[state.lang] || DESCRIPTIONS_I18N.fr;
   const sizes = (item.dept==='bijoux'||item.dept==='access') ? ['Unique'] : (item.dept==='chaussures' ? ['36','37','38','39','40','41'] : ['XS','S','M','L','XL']);
   modalState = {itemId, qty:1, size:sizes[Math.floor(sizes.length/2)]};
-  document.getElementById('modalVisual').innerHTML = item.image ? `<img src="${item.image}">` : (ICONS[DEPT_ICON[item.dept]]||'');
+  document.getElementById('modalVisual').innerHTML = item.image ? `<img src="${item.image}" onerror="imgFallback(this,'${item.dept}')">` : (ICONS[DEPT_ICON[item.dept]]||'');
   document.getElementById('modalBrand').textContent = brand.name;
   document.getElementById('modalName').textContent = item.name;
   document.getElementById('modalPrice').textContent = fmt(item.price, isLuxe);
@@ -1992,7 +2001,7 @@ function renderCartBody(){
     const {item, brand} = found; const isLuxe = brand.universe==='luxe'; if(isLuxe) anyLuxe = true;
     subtotal += (item.price||0)*c.qty;
     return `<div class="li">
-      <div class="li-img">${item.image?`<img src="${item.image}">`:(ICONS[DEPT_ICON[item.dept]]||'')}</div>
+      <div class="li-img">${item.image?`<img src="${item.image}" onerror="imgFallback(this,'${item.dept}')">`:(ICONS[DEPT_ICON[item.dept]]||'')}</div>
       <div class="li-info">
         <div class="li-brand">${brand.name}</div>
         <div class="li-name">${item.name}${c.size&&c.size!=='undefined'?' · '+c.size:''}</div>
@@ -2017,7 +2026,7 @@ function renderWishBody(){
     const found = findItem(id); if(!found) return '';
     const {item, brand} = found; const isLuxe = brand.universe==='luxe';
     return `<div class="li">
-      <div class="li-img">${item.image?`<img src="${item.image}">`:(ICONS[DEPT_ICON[item.dept]]||'')}</div>
+      <div class="li-img">${item.image?`<img src="${item.image}" onerror="imgFallback(this,'${item.dept}')">`:(ICONS[DEPT_ICON[item.dept]]||'')}</div>
       <div class="li-info">
         <div class="li-brand">${brand.name}</div>
         <div class="li-name">${item.name}</div>

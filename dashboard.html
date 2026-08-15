@@ -404,6 +404,32 @@ function renderBrandBody(b, DEPTS){
   return html;
 }
 
+function handleAddItem(bId){
+  const name = document.getElementById('newname-'+bId).value.trim();
+  const price = parseFloat(document.getElementById('newprice-'+bId).value);
+  const dept = document.getElementById('newdept-'+bId).value;
+  const gender = document.getElementById('newgender-'+bId).value || null;
+  const dateEl = document.getElementById('newdate-'+bId);
+  const dropDate = dateEl ? (dateEl.value || null) : null;
+  if(!name){ alert("Merci de donner un nom à l'article."); return; }
+  const brand = findBrand(bId);
+  const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, addedAt:Date.now()};
+  const zone = document.getElementById('newzone-'+bId);
+  const img = zone.querySelector('img');
+  if(img) newItem.image = img.src;
+  brand.items.push(newItem);
+  expandedBrand = bId;
+  // Pour une marque normale, renderAdmin() régénère cette ligne "ajouter"
+  // avec des champs vides. Mais la section Hermès (statique, hors
+  // #adminBrandList) n'est jamais recréée — sans ce nettoyage explicite,
+  // le nom/prix saisis et l'image collée restaient affichés après l'ajout,
+  // au risque de rajouter le même article une seconde fois par erreur.
+  document.getElementById('newname-'+bId).value = '';
+  document.getElementById('newprice-'+bId).value = '';
+  zone.innerHTML = 'Coller image<br>(Ctrl+V)';
+  saveCatalog(brand); renderStats(); renderAdmin();
+}
+
 function renderHermesAdmin(){
   const brand = findBrand('hermesbags');
   if(!brand) return;
@@ -501,25 +527,14 @@ function renderAdmin(){
     const [bId,iId] = el.dataset.pastezone.split('|');
     setupPasteZone(el, (dataUrl)=>{ const brand = findBrand(bId); brand.items.find(i=>i.id===iId).image = dataUrl; saveCatalog(brand); });
   });
-  document.querySelectorAll('[data-additem]').forEach(el=> el.addEventListener('click', ()=>{
-    const bId = el.dataset.additem;
-    const name = document.getElementById('newname-'+bId).value.trim();
-    const price = parseFloat(document.getElementById('newprice-'+bId).value);
-    const dept = document.getElementById('newdept-'+bId).value;
-    const gender = document.getElementById('newgender-'+bId).value || null;
-    const dateEl = document.getElementById('newdate-'+bId);
-    const dropDate = dateEl ? (dateEl.value || null) : null;
-    if(!name){ alert("Merci de donner un nom à l'article."); return; }
-    const brand = findBrand(bId);
-    const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, addedAt:Date.now()};
-    const zone = document.getElementById('newzone-'+bId);
-    const img = zone.querySelector('img');
-    if(img) newItem.image = img.src;
-    brand.items.push(newItem);
-    expandedBrand = bId;
-    saveCatalog(brand); renderStats(); renderAdmin();
-  }));
-  document.querySelectorAll('[id^="newzone-"]').forEach(zone=>{
+  // Uniquement les boutons "Ajouter" des marques dynamiquement regenerees
+  // ci-dessus : celui d'Hermes (statique, en dehors de #adminBrandList) est
+  // lie une seule fois plus bas, sinon chaque appel a renderAdmin()
+  // accumulait un nouveau gestionnaire de clic dessus (un article Hermes
+  // pouvait alors se retrouver ajoute en plusieurs exemplaires d'un seul
+  // clic, apres quelques editions dans le tableau de bord).
+  document.querySelectorAll('#adminBrandList [data-additem]').forEach(el=> el.addEventListener('click', ()=> handleAddItem(el.dataset.additem)));
+  document.querySelectorAll('#adminBrandList [id^="newzone-"]').forEach(zone=>{
     setupPasteZone(zone, ()=>{});
   });
 }
@@ -543,6 +558,11 @@ function renderMarket(){
     saveMarket(); renderStats(); renderMarket();
   }));
 }
+
+// Section Hermès : statique (hors #adminBrandList), donc liée une seule
+// fois ici plutôt que dans renderAdmin() — voir handleAddItem().
+document.querySelector('button[data-additem="hermesbags"]').addEventListener('click', ()=> handleAddItem('hermesbags'));
+setupPasteZone(document.getElementById('newzone-hermesbags'), ()=>{});
 
 document.getElementById('searchBrand').addEventListener('input', (e)=>{ searchTerm = e.target.value.trim().toLowerCase(); renderAdmin(); });
 document.getElementById('filterUv').addEventListener('change', (e)=>{ filterUv = e.target.value; renderAdmin(); });

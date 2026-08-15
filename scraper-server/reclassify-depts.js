@@ -4,10 +4,11 @@
 // (tshirt, short, casquette, sacs, chaussures...).
 
 const { classifyDept } = require('./scrapers/_shared');
+const { normalizeDept } = require('./mergeLogic');
 const { fetchCatalog, saveBrand } = require('./supabaseStore');
 
-function classify(name, fallback){
-  return classifyDept(name, fallback);
+function classify(name, fallback, brand){
+  return normalizeDept(classifyDept(name, fallback), brand);
 }
 
 async function main(){
@@ -22,7 +23,7 @@ async function main(){
     if(skip.has(brand.name)) return;
     let changed = 0;
     brand.items.forEach(item=>{
-      const newDept = classify(item.name, item.dept);
+      const newDept = classify(item.name, item.dept, brand);
       if(newDept !== item.dept){
         item.dept = newDept;
         changed++;

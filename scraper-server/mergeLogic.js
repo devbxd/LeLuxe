@@ -53,6 +53,17 @@ function makeRefAssigner(brand){
   return () => { maxSeq++; return prefix + '-' + String(maxSeq).padStart(4,'0'); };
 }
 
+// "bijoux" (joaillerie) n'existe comme rayon que pour les maisons de luxe
+// (DEPTS_LUXE côté site) : pour une enseigne "pas luxe" (Zara, Lacoste...),
+// classifyDept peut quand meme y renvoyer "bijoux" sur un nom de produit
+// contenant "bijou"/"montre"/etc, ce qui produit un rayon qui n'existe pas
+// dans le menu de cette enseigne. On le ramene sur "access" (accessoires),
+// le rayon le plus proche disponible pour ces enseignes.
+function normalizeDept(dept, brand){
+  if(dept === 'bijoux' && brand.universe !== 'luxe') return 'access';
+  return dept;
+}
+
 // Fusionne une liste d'articles scrapes {name, price, image, url, dept?,
 // gender?} dans une marque existante. Retourne le nombre d'articles ajoutes
 // et mis a jour.
@@ -70,7 +81,7 @@ function mergeItemsIntoBrand(brand, scraped, category){
       const price = parsePrice(p.price);
       if(price!=null) existing.price = price;
       existing.image = p.image || existing.image;
-      existing.dept = p.dept || classifyDept(p.name, existing.dept);
+      existing.dept = normalizeDept(p.dept || classifyDept(p.name, existing.dept), brand);
       existing.gender = gender || existing.gender || null;
       if(!existing.ref) existing.ref = nextRef();
       updated++;
@@ -80,7 +91,7 @@ function mergeItemsIntoBrand(brand, scraped, category){
       id: genId(),
       ref: nextRef(),
       name: p.name || 'Produit',
-      dept: p.dept || classifyDept(p.name, category),
+      dept: normalizeDept(p.dept || classifyDept(p.name, category), brand),
       gender,
       price: parsePrice(p.price),
       image: p.image || null,
@@ -95,4 +106,4 @@ function mergeItemsIntoBrand(brand, scraped, category){
   return { added, updated };
 }
 
-module.exports = { parsePrice, genId, makeRefAssigner, mergeItemsIntoBrand };
+module.exports = { parsePrice, genId, makeRefAssigner, mergeItemsIntoBrand, normalizeDept };

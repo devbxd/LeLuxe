@@ -21,10 +21,18 @@ async function extractItemListFromPage(page){
                             const offer = Array.isArray(p.offers) ? p.offers[0] : p.offers;
                             if(offer && offer.price) price = offer.price;
                         }
+                        let image = typeof p.image === 'string' ? p.image : (Array.isArray(p.image) ? p.image[0] : (p.image && p.image.url) || "");
+                        // certains sites (ex: The Kooples) publient une image en chemin
+                        // relatif dans leur JSON-LD ("/fr/fr/phototheque/...") au lieu
+                        // d'une URL complète : la résoudre ici contre l'origine de la
+                        // page évite des <img> cassées côté boutique.
+                        if(image && !/^(https?:)?\/\//i.test(image)){
+                            try{ image = new URL(image, document.baseURI).href; }catch(e){}
+                        }
                         out.push({
                             name: p.name,
                             url: p.url || el.url || "",
-                            image: typeof p.image === 'string' ? p.image : (Array.isArray(p.image) ? p.image[0] : (p.image && p.image.url) || ""),
+                            image,
                             price: price!=null ? `${price} €` : "Prix inconnu"
                         });
                     });
