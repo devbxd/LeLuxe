@@ -240,6 +240,12 @@ a{color:inherit;}
 .back-link{font-size:16px; font-weight:600; color:var(--faint); transition:color .15s ease;}
 .back-link:hover{color:var(--ink);}
 .plp-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:28px 20px;}
+.plp-pagination{display:flex; justify-content:center; align-items:center; gap:8px; margin-top:48px; flex-wrap:wrap;}
+.plp-pagination button{min-width:36px; height:36px; padding:0 10px; border-radius:8px; font-size:13px; font-weight:600; color:var(--muted); transition:background .15s ease, color .15s ease;}
+.plp-pagination button:hover:not(:disabled){background:var(--line-soft); color:var(--ink);}
+.plp-pagination button.active{background:var(--ink); color:#fff;}
+.plp-pagination button:disabled{opacity:.35; cursor:default;}
+.plp-pagination .pg-ellipsis{color:var(--faint); padding:0 4px; font-size:13px;}
 .p-tile{cursor:pointer;}
 .p-image{aspect-ratio:3/4; background:#f6f6f6; border-radius:var(--radius-m); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; transition:box-shadow .25s ease;}
 .p-tile:hover .p-image{box-shadow:0 14px 28px rgba(0,0,0,.1);}
@@ -683,6 +689,7 @@ a{color:inherit;}
         </select>
       </div>
       <div class="plp-grid" id="plpGrid"></div>
+      <div class="plp-pagination" id="plpPagination"></div>
     </div>
 
     <div id="viewMarketPaywall" class="hidden">
@@ -1331,6 +1338,34 @@ function fmt(v, luxe){
   return v.toLocaleString(locale, {minimumFractionDigits: luxe?0:2, maximumFractionDigits: luxe?0:2, numberingSystem:'latn'}) + ' €';
 }
 const NEW_BADGE_DAYS = 30;
+// Ouvrir une marque avec des milliers d'articles lançait le chargement de
+// toutes leurs images d'un coup, ce qui ralentissait fortement l'affichage.
+// On ne rend plus qu'une page de PLP_PAGE_SIZE articles à la fois, avec une
+// pagination numérotée en bas de grille.
+const PLP_PAGE_SIZE = 24;
+function pageNumbers(current, total){
+  // ex: 1 … 4 5 [6] 7 8 … 42 — jamais toute la liste si elle est longue
+  const pages = new Set([1, total, current-1, current, current+1]);
+  return [...pages].filter(p=> p>=1 && p<=total).sort((a,b)=>a-b);
+}
+function renderPagination(containerId, total, current, onGoto){
+  const el = document.getElementById(containerId);
+  if(total<=1){ el.innerHTML=''; return; }
+  const nums = pageNumbers(current, total);
+  let html = `<button data-pg="${current-1}" ${current<=1?'disabled':''} aria-label="Précédent">‹</button>`;
+  let prev = 0;
+  nums.forEach(n=>{
+    if(n - prev > 1) html += `<span class="pg-ellipsis">…</span>`;
+    html += `<button data-pg="${n}" class="${n===current?'active':''}">${n}</button>`;
+    prev = n;
+  });
+  html += `<button data-pg="${current+1}" ${current>=total?'disabled':''} aria-label="Suivant">›</button>`;
+  el.innerHTML = html;
+  el.querySelectorAll('[data-pg]').forEach(btn=> btn.addEventListener('click', ()=>{
+    const n = parseInt(btn.dataset.pg,10);
+    if(!isNaN(n)) onGoto(n);
+  }));
+}
 function isItemNew(it){
   return !!it.addedAt && (Date.now() - it.addedAt) < NEW_BADGE_DAYS*24*60*60*1000;
 }
@@ -1375,7 +1410,7 @@ async function saveMarketplace(){
 /* ================= APP STATE ================= */
 let DATA = { brands: [] };
 let state = {
-  view:'home', universe:'luxe', brandId:null, deptFilter:'all', sort:'price-asc', search:'', gender:'all',
+  view:'home', universe:'luxe', brandId:null, deptFilter:'all', sort:'price-asc', search:'', gender:'all', page:1,
   lang: localStorage.getItem('armoire_lang_v1') || 'fr',
   cart: JSON.parse(localStorage.getItem('armoire_cart_v5')||'[]'),
   wish: JSON.parse(localStorage.getItem('armoire_wish_v5')||'[]'),
@@ -1693,7 +1728,7 @@ function scrollMainIntoViewMobile(){
   if(window.innerWidth>900) return;
   window.scrollTo({top:0, behavior:'auto'});
 }
-function openBrand(id){ state.view='plp'; state.brandId=id; state.deptFilter='all'; state.sort='default'; renderStorefront(); scrollMainIntoViewMobile(); }
+function openBrand(id){ state.view='plp'; state.brandId=id; state.deptFilter='all'; state.sort='default'; state.page=1; renderStorefront(); scrollMainIntoViewMobile(); }
 function renderPLP(){
   const brand = findBrand(state.brandId);
   if(!brand){ state.view='home'; renderStorefront(); return; }
@@ -1714,7 +1749,7 @@ function renderPLP(){
   document.getElementById('deptChips').innerHTML =
     `<button class="dept-chip ${state.deptFilter==='all'?'active':''}" data-dept="all">${t('tout')}</button>` +
     usedDepts.map(d=> `<button class="dept-chip ${state.deptFilter===d?'active':''}" data-dept="${d}">${DEPTS[d]||d}</button>`).join('');
-  document.querySelectorAll('#deptChips .dept-chip').forEach(el=> el.addEventListener('click', ()=>{ state.deptFilter=el.dataset.dept; renderPLP(); }));
+  document.querySelectorAll('#deptChips .dept-chip').forEach(el=> el.addEventListener('click', ()=>{ state.deptFilter=el.dataset.dept; state.page=1; renderPLP(); }));
   if(state.deptFilter!=='all') items = items.filter(i=>i.dept===state.deptFilter);
   if(state.search){
     const term = state.search.toLowerCase();
@@ -1729,11 +1764,17 @@ function renderPLP(){
   // au-dessus (prix, nouveautes...) a l'interieur de chaque groupe.
   items.sort((a,b)=> (b.image?1:0) - (a.image?1:0));
   document.getElementById('sortSelect').value = state.sort;
-  document.getElementById('plpGrid').innerHTML = items.map(it=>{
+
+  const totalPages = Math.max(1, Math.ceil(items.length / PLP_PAGE_SIZE));
+  if(state.page>totalPages) state.page = totalPages;
+  if(state.page<1) state.page = 1;
+  const pageItems = items.slice((state.page-1)*PLP_PAGE_SIZE, state.page*PLP_PAGE_SIZE);
+
+  document.getElementById('plpGrid').innerHTML = pageItems.map(it=>{
     const wished = state.wish.includes(it.id);
     return `<div class="p-tile" data-item="${it.id}">
       <div class="p-image">
-        ${it.image ? `<img src="${it.image}" onerror="imgFallback(this,'${it.dept}')">` : ICONS[DEPT_ICON[it.dept]]||''}
+        ${it.image ? `<img src="${it.image}" loading="lazy" onerror="imgFallback(this,'${it.dept}')">` : ICONS[DEPT_ICON[it.dept]]||''}
         ${isItemNew(it)?`<span class="p-new">${t('nouveauBadge')}</span>`:''}
         <button class="p-heart ${wished?'active':''}" data-heart="${it.id}"><svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-10-9.3C.5 8 2.4 4.5 6 4.5c2.1 0 3.6 1.1 6 3.6 2.4-2.5 3.9-3.6 6-3.6 3.6 0 5.5 3.5 4 7.2C19.5 16.4 12 21 12 21z"/></svg></button>
       </div>
@@ -1742,18 +1783,24 @@ function renderPLP(){
   }).join('') || `<div class="empty">${t('emptyDept')}</div>`;
   document.querySelectorAll('[data-heart]').forEach(el=> el.addEventListener('click', (e)=>{ e.stopPropagation(); toggleWish(el.dataset.heart); }));
   document.querySelectorAll('.p-tile').forEach(el=> el.addEventListener('click', ()=> openDetail(el.dataset.item)));
+  renderPagination('plpPagination', totalPages, state.page, (n)=>{
+    state.page = n;
+    renderPLP();
+    document.getElementById('plpGrid').scrollIntoView({behavior:'smooth', block:'start'});
+  });
 }
 document.getElementById('backBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); scrollMainIntoViewMobile(); });
-document.getElementById('sortSelect').addEventListener('change', (e)=>{ state.sort=e.target.value; renderPLP(); });
+document.getElementById('sortSelect').addEventListener('change', (e)=>{ state.sort=e.target.value; state.page=1; renderPLP(); });
 document.querySelectorAll('.uv-tab').forEach(btn=> btn.addEventListener('click', ()=>{ state.universe=btn.dataset.uv; state.view='home'; renderStorefront(); scrollMainIntoViewMobile(); }));
 document.querySelectorAll('.gender-tab').forEach(btn=> btn.addEventListener('click', ()=>{
   state.gender = btn.dataset.g;
   state.deptFilter = 'all';
+  state.page = 1;
   renderStorefront();
 }));
 document.getElementById('logoBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); });
 document.getElementById('topbarBackBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); window.scrollTo({top:0, behavior:'smooth'}); });
-document.getElementById('searchInput').addEventListener('input', (e)=>{ state.search=e.target.value; renderStorefront(); });
+document.getElementById('searchInput').addEventListener('input', (e)=>{ state.search=e.target.value; state.page=1; renderStorefront(); });
 document.querySelectorAll('.lang-switch button, .lang-switch-mobile button').forEach(btn=> btn.addEventListener('click', ()=>{
   state.lang = btn.dataset.lang;
   localStorage.setItem('armoire_lang_v1', state.lang);
