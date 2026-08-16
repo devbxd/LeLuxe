@@ -17,5 +17,5 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - name: Test Zara scraper (blocked from other IP)
-        run: node -e "require('./scrapers/zara')('','Zara','vetements').then(items=>{console.log('ZARA ITEMS FOUND:',items.length); console.log(JSON.stringify(items.slice(0,2),null,2));}).catch(e=>{console.log('ERROR:',e.message); process.exit(1);})"
+      - name: Rattrapage des marques bloquees depuis l'autre IP
+        run: node catchup-blocked-brands.js
