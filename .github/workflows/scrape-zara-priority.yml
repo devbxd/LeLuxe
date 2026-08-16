@@ -1,0 +1,46 @@
+name: Scrape Zara priority test
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scrape-zara-priority.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scraper-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Zara puis Chanel/Gucci (rapide, sans Lacoste)
+        run: |
+          node -e "
+          const { mergeItemsIntoBrand } = require('./mergeLogic');
+          const { fetchCatalog, saveBrand } = require('./supabaseStore');
+          const SCRAPERS = {
+            Zara: require('./scrapers/zara'),
+            Chanel: require('./scrapers/chanel'),
+            Gucci: require('./scrapers/gucci')
+          };
+          async function main(){
+            for(const name of Object.keys(SCRAPERS)){
+              console.log('---', name, '---');
+              try{
+                const DATA = await fetchCatalog();
+                const brand = DATA.brands.find(b=>b.name.toLowerCase()===name.toLowerCase());
+                if(!brand){ console.log(name,': introuvable'); continue; }
+                const before = brand.items.length;
+                const scraped = await SCRAPERS[name]('', name, 'vetements');
+                const { added, updated } = mergeItemsIntoBrand(brand, scraped||[], 'vetements');
+                const ok = await saveBrand(brand);
+                console.log(name, ': scrapes=', (scraped||[]).length, 'ajoutes=', added, 'maj=', updated, 'total=', before, '->', brand.items.length, 'saved=', ok);
+              }catch(e){ console.log(name, ': ERREUR', e.message); }
+            }
+          }
+          main();
+          "
