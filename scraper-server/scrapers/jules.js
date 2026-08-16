@@ -1,6 +1,9 @@
 const { chromium } = require("playwright");
 
 
+// Liste elargie a partir du vrai menu du site : il manquait costumes,
+// sous-vetements, maillots de bain, chaussettes, manteaux et pas mal
+// d'autres rayons distincts.
 const EXTRA_CATEGORIES = [
     "https://www.jules.com/fr-fr/l/t-shirt/",
     "https://www.jules.com/fr-fr/l/pull/",
@@ -8,10 +11,29 @@ const EXTRA_CATEGORIES = [
     "https://www.jules.com/fr-fr/l/chemise/",
     "https://www.jules.com/fr-fr/l/pantalon/",
     "https://www.jules.com/fr-fr/l/veste-blouson/",
-    "https://www.jules.com/fr-fr/l/pull-soldes/",
+    "https://www.jules.com/fr-fr/l/manteau-blouson/",
     "https://www.jules.com/fr-fr/l/accessoires/",
     "https://www.jules.com/fr-fr/l/chaussures/",
-    "https://www.jules.com/fr-fr/l/polo/"
+    "https://www.jules.com/fr-fr/l/polo/",
+    "https://www.jules.com/fr-fr/l/sweat/",
+    "https://www.jules.com/fr-fr/l/gilet/",
+    "https://www.jules.com/fr-fr/l/costumes/",
+    "https://www.jules.com/fr-fr/l/ensemble-de-costume/",
+    "https://www.jules.com/fr-fr/l/short-bermuda/",
+    "https://www.jules.com/fr-fr/l/denim/",
+    "https://www.jules.com/fr-fr/l/jogging/",
+    "https://www.jules.com/fr-fr/l/salopette/",
+    "https://www.jules.com/fr-fr/l/maillot-de-bain/",
+    "https://www.jules.com/fr-fr/l/pyjama/",
+    "https://www.jules.com/fr-fr/l/sous-vetements/",
+    "https://www.jules.com/fr-fr/l/chaussettes/",
+    "https://www.jules.com/fr-fr/l/ceinture-bretelles/",
+    "https://www.jules.com/fr-fr/l/casquette-chapeau/",
+    "https://www.jules.com/fr-fr/l/echarpe-bonnet-gants/",
+    "https://www.jules.com/fr-fr/l/lunettes/",
+    "https://www.jules.com/fr-fr/l/maroquinerie/",
+    "https://www.jules.com/fr-fr/l/cravate/",
+    "https://www.jules.com/fr-fr/l/surchemise/"
 ];
 
 
@@ -105,7 +127,7 @@ async function scrapeJules(url, brand, category){
 
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(allRaw.length >= 600) break;
+            if(allRaw.length >= 1200) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -147,7 +169,7 @@ async function scrapeJules(url, brand, category){
         });
 
 
-        const capped = withNames.slice(0,600);
+        const capped = withNames.slice(0,1200);
 
 
         console.log("PRODUITS TROUVES:", capped.length);

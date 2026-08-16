@@ -12,11 +12,23 @@ const EXTRA_CATEGORIES = [
     ["https://www.uniqlo.com/fr/fr/men/bottoms", "homme"],
     ["https://www.uniqlo.com/fr/fr/men/outerwear", "homme"],
     ["https://www.uniqlo.com/fr/fr/men/accessories", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/innerwear", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/jumpers", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/heattech", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/airism", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/loungewear-and-homeware", "homme"],
+    ["https://www.uniqlo.com/fr/fr/men/linen", "homme"],
     ["https://www.uniqlo.com/fr/fr/women/tops", "femme"],
     ["https://www.uniqlo.com/fr/fr/women/bottoms", "femme"],
     ["https://www.uniqlo.com/fr/fr/women/outerwear", "femme"],
     ["https://www.uniqlo.com/fr/fr/women/dresses-and-skirts", "femme"],
-    ["https://www.uniqlo.com/fr/fr/women/accessories", "femme"]
+    ["https://www.uniqlo.com/fr/fr/women/accessories", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/innerwear", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/jumpers", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/heattech", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/airism", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/loungewear-and-homeware", "femme"],
+    ["https://www.uniqlo.com/fr/fr/women/linen", "femme"]
 ];
 
 

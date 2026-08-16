@@ -3,15 +3,40 @@ const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
 const CATEGORIES = [
     "https://fr.sandro-paris.com/fr/femme/pret-a-porter/",
+    "https://fr.sandro-paris.com/fr/femme/robes/",
+    "https://fr.sandro-paris.com/fr/femme/manteaux/",
+    "https://fr.sandro-paris.com/fr/femme/blousons-vestes/",
+    "https://fr.sandro-paris.com/fr/femme/pulls-cardigans/",
+    "https://fr.sandro-paris.com/fr/femme/tops-chemises/",
+    "https://fr.sandro-paris.com/fr/femme/t-shirts/",
+    "https://fr.sandro-paris.com/fr/femme/pantalons/",
+    "https://fr.sandro-paris.com/fr/femme/jupes-shorts/",
+    "https://fr.sandro-paris.com/fr/femme/blazers/",
+    "https://fr.sandro-paris.com/fr/femme/ensembles/",
+    "https://fr.sandro-paris.com/fr/femme/tailleurs/",
     "https://fr.sandro-paris.com/fr/femme/sacs/",
+    "https://fr.sandro-paris.com/fr/femme/sacs-cabas/",
+    "https://fr.sandro-paris.com/fr/femme/mini-sacs/",
     "https://fr.sandro-paris.com/fr/femme/chaussures/",
+    "https://fr.sandro-paris.com/fr/femme/baskets/",
+    "https://fr.sandro-paris.com/fr/femme/bottines/",
     "https://fr.sandro-paris.com/fr/femme/accessoires/",
     "https://fr.sandro-paris.com/fr/femme/casquettes-bobs/",
     "https://fr.sandro-paris.com/fr/femme/lunettes-de-soleil/",
     "https://fr.sandro-paris.com/fr/femme/ceintures/",
     "https://fr.sandro-paris.com/fr/homme/pret-a-porter/",
+    "https://fr.sandro-paris.com/fr/homme/chemises/",
+    "https://fr.sandro-paris.com/fr/homme/pulls-cardigans/",
+    "https://fr.sandro-paris.com/fr/homme/sweats/",
+    "https://fr.sandro-paris.com/fr/homme/t-shirts-polos/",
+    "https://fr.sandro-paris.com/fr/homme/blousons-vestes/",
+    "https://fr.sandro-paris.com/fr/homme/pantalons-shorts/",
+    "https://fr.sandro-paris.com/fr/homme/costumes-smokings/",
     "https://fr.sandro-paris.com/fr/homme/chaussures/",
+    "https://fr.sandro-paris.com/fr/homme/sneakers/",
     "https://fr.sandro-paris.com/fr/homme/maroquinerie/",
+    "https://fr.sandro-paris.com/fr/homme/sacs-a-dos/",
+    "https://fr.sandro-paris.com/fr/homme/grands-sacs/",
     "https://fr.sandro-paris.com/fr/homme/accessoires/",
     "https://fr.sandro-paris.com/fr/homme/casquettes-bobs/",
     "https://fr.sandro-paris.com/fr/homme/lunettes-de-soleil/",
@@ -88,7 +113,7 @@ async function scrapeSandro(url, brand, category){
 
         for(const catUrl of [url, ...CATEGORIES]){
 
-            if(collected.size >= 600) break;
+            if(collected.size >= 1200) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -104,7 +129,7 @@ async function scrapeSandro(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,600);
+        const capped = Array.from(collected.values()).slice(0,1200);
 
         console.log("PRODUITS TROUVES:", capped.length);
 

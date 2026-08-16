@@ -1,9 +1,54 @@
 const { chromium } = require("playwright");
 const { classifyDept, genderFromUrl, setCollectedItem } = require("./_shared");
 
+// La page generique "femme/"/"homme/" n'affiche qu'une selection limitee :
+// les sous-categories precises (chaussures/sneakers, vetements/manteaux...)
+// couvrent bien plus de produits.
 const CATEGORIES = [
     "https://www.geox.com/fr-FR/femme/",
-    "https://www.geox.com/fr-FR/homme/"
+    "https://www.geox.com/fr-FR/femme/chaussures/sneakers/",
+    "https://www.geox.com/fr-FR/femme/chaussures/sandales/",
+    "https://www.geox.com/fr-FR/femme/chaussures/ballerines/",
+    "https://www.geox.com/fr-FR/femme/chaussures/mocassins/",
+    "https://www.geox.com/fr-FR/femme/chaussures/escarpins/",
+    "https://www.geox.com/fr-FR/femme/chaussures/chaussures_a_talons/",
+    "https://www.geox.com/fr-FR/femme/chaussures/chaussures_a_semelle_compensee/",
+    "https://www.geox.com/fr-FR/femme/chaussures/slip_on/",
+    "https://www.geox.com/fr-FR/femme/chaussures/bottines/",
+    "https://www.geox.com/fr-FR/femme/chaussures/bottes/",
+    "https://www.geox.com/fr-FR/femme/vetements/vestes/",
+    "https://www.geox.com/fr-FR/femme/vetements/anoraks/",
+    "https://www.geox.com/fr-FR/femme/vetements/vestes_matelassees/",
+    "https://www.geox.com/fr-FR/femme/vetements/manteaux/",
+    "https://www.geox.com/fr-FR/femme/vetements/parkas/",
+    "https://www.geox.com/fr-FR/femme/vetements/vestes_sans_manches/",
+    "https://www.geox.com/fr-FR/femme/vetements/sweat-shirts/",
+    "https://www.geox.com/fr-FR/femme/vetements/maille/",
+    "https://www.geox.com/fr-FR/femme/vetements/t-shirts_et_polos/",
+    "https://www.geox.com/fr-FR/femme/accessoires/sacs/",
+    "https://www.geox.com/fr-FR/femme/accessoires/chaussettes/",
+    "https://www.geox.com/fr-FR/femme/accessoires/ceintures/",
+    "https://www.geox.com/fr-FR/femme/accessoires/portefeuilles/",
+    "https://www.geox.com/fr-FR/homme/",
+    "https://www.geox.com/fr-FR/homme/chaussures/sneakers/",
+    "https://www.geox.com/fr-FR/homme/chaussures/sandales/",
+    "https://www.geox.com/fr-FR/homme/chaussures/mocassins/",
+    "https://www.geox.com/fr-FR/homme/chaussures/slip_on/",
+    "https://www.geox.com/fr-FR/homme/chaussures/espadrilles/",
+    "https://www.geox.com/fr-FR/homme/chaussures/chaussures_habillees/",
+    "https://www.geox.com/fr-FR/homme/chaussures/chaussures_casual/",
+    "https://www.geox.com/fr-FR/homme/chaussures/bottes_et_bottines/",
+    "https://www.geox.com/fr-FR/homme/vetements/vestes/",
+    "https://www.geox.com/fr-FR/homme/vetements/anoraks/",
+    "https://www.geox.com/fr-FR/homme/vetements/vestes_matelassees/",
+    "https://www.geox.com/fr-FR/homme/vetements/vestes_sans_manches/",
+    "https://www.geox.com/fr-FR/homme/vetements/sweat-shirts/",
+    "https://www.geox.com/fr-FR/homme/vetements/maille/",
+    "https://www.geox.com/fr-FR/homme/vetements/t-shirts_et_polos/",
+    "https://www.geox.com/fr-FR/homme/accessoires/sacs/",
+    "https://www.geox.com/fr-FR/homme/accessoires/ceintures/",
+    "https://www.geox.com/fr-FR/homme/accessoires/chaussettes/",
+    "https://www.geox.com/fr-FR/homme/accessoires/portefeuilles/"
 ];
 
 async function scrapeOneCategory(page, url, collected){
@@ -42,7 +87,7 @@ async function scrapeOneCategory(page, url, collected){
             price: p.price,
             image: p.image,
             url: p.url,
-            dept: "chaussures",
+            dept: classifyDept(p.name, "chaussures"),
             gender: genderFromUrl(url)
         });
     });

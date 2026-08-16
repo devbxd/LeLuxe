@@ -19,7 +19,11 @@ const CATEGORIES = [
     "https://fr.claudiepierlot.com/fr/categories/pulls-et-cardigans/",
     "https://fr.claudiepierlot.com/fr/categories/manteaux/",
     "https://fr.claudiepierlot.com/fr/collections/ensembles/",
-    "https://fr.claudiepierlot.com/fr/collections/denim/"
+    "https://fr.claudiepierlot.com/fr/collections/denim/",
+    "https://fr.claudiepierlot.com/fr/collections/tailleurs/",
+    "https://fr.claudiepierlot.com/fr/categories/petite-maroquinerie/",
+    "https://fr.claudiepierlot.com/fr/categories/echarpes--foulards-et-cols/",
+    "https://fr.claudiepierlot.com/fr/categories/bijoux-et-accessoires-cheveux/"
 ];
 
 async function scrapeOneCategory(page, url, collected){

@@ -16,7 +16,25 @@ const CATEGORIES = [
     "https://www.thekooples.com/fr/fr/homme/pret-a-porter/manteaux-blousons.html",
     "https://www.thekooples.com/fr/fr/homme/pret-a-porter/chemises.html",
     "https://www.thekooples.com/fr/fr/homme/pret-a-porter/jeans.html",
-    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/costumes.html"
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/costumes.html",
+    "https://www.thekooples.com/fr/fr/femme/pret-a-porter/chemises-tops.html",
+    "https://www.thekooples.com/fr/fr/femme/pret-a-porter/jupes-shorts.html",
+    "https://www.thekooples.com/fr/fr/femme/pret-a-porter/pantalons.html",
+    "https://www.thekooples.com/fr/fr/femme/pret-a-porter/t-shirts.html",
+    "https://www.thekooples.com/fr/fr/femme/pret-a-porter/tailleurs.html",
+    "https://www.thekooples.com/fr/fr/femme/accessoires/bijoux.html",
+    "https://www.thekooples.com/fr/fr/femme/accessoires/ceintures.html",
+    "https://www.thekooples.com/fr/fr/femme/accessoires/chaussures.html",
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/pantalons.html",
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/pulls-cardigans.html",
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/sweatshirts.html",
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/t-shirts.html",
+    "https://www.thekooples.com/fr/fr/homme/pret-a-porter/vestes-blousons.html",
+    "https://www.thekooples.com/fr/fr/homme/accessoires/casquettes.html",
+    "https://www.thekooples.com/fr/fr/homme/accessoires/ceintures.html",
+    "https://www.thekooples.com/fr/fr/homme/accessoires/chaussures.html",
+    "https://www.thekooples.com/fr/fr/homme/accessoires/maroquinerie.html",
+    "https://www.thekooples.com/fr/fr/homme/accessoires/montres-bijoux.html"
 ];
 
 async function scrapeThekooples(url, brand, category){
@@ -31,7 +49,7 @@ async function scrapeThekooples(url, brand, category){
 
         for(const catUrl of [url, ...CATEGORIES]){
 
-            if(collected.size >= 700) break;
+            if(collected.size >= 1200) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -60,7 +78,7 @@ async function scrapeThekooples(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,700);
+        const capped = Array.from(collected.values()).slice(0,1200);
 
         console.log("PRODUITS TROUVES:", capped.length);
 

@@ -1,18 +1,79 @@
 const { chromium } = require("playwright");
 
 
+// Liste elargie a partir du vrai menu du site (avant : la partie femme
+// n'avait que 4 pages generiques contre 7 detaillees cote homme).
 const EXTRA_CATEGORIES = [
+    "https://fr.burberry.com/l/mens-clothing/",
     "https://fr.burberry.com/l/mens-clothing/knitwear/",
     "https://fr.burberry.com/l/mens-clothing/polos-t-shirts/",
     "https://fr.burberry.com/l/mens-clothing/shirts/",
+    "https://fr.burberry.com/l/mens-clothing/blazers-tailored-trousers/",
+    "https://fr.burberry.com/l/mens-clothing/trousers-shorts/",
+    "https://fr.burberry.com/l/mens-clothing/denim/",
+    "https://fr.burberry.com/l/mens-clothing/hoodies-sweatshirts/",
+    "https://fr.burberry.com/l/mens-clothing/swimwear/",
     "https://fr.burberry.com/l/mens-coats-jackets/",
+    "https://fr.burberry.com/l/mens-coats-jackets/coats/",
+    "https://fr.burberry.com/l/mens-coats-jackets/jackets/",
+    "https://fr.burberry.com/l/mens-coats-jackets/trench-coats/",
+    "https://fr.burberry.com/l/mens-coats-jackets/quilts/",
+    "https://fr.burberry.com/l/mens-coats-jackets/puffers/",
     "https://fr.burberry.com/l/mens-shoes/",
+    "https://fr.burberry.com/l/mens-shoes/boots/",
+    "https://fr.burberry.com/l/mens-shoes/sneakers/",
+    "https://fr.burberry.com/l/mens-shoes/sandals/",
+    "https://fr.burberry.com/l/mens-shoes/loafers-lace-up/",
     "https://fr.burberry.com/l/mens-bags/",
-    "https://fr.burberry.com/l/mens-accessories/",
+    "https://fr.burberry.com/l/mens-bags/tote/",
+    "https://fr.burberry.com/l/mens-bags/crossbody/",
+    "https://fr.burberry.com/l/mens-bags/backpacks/",
+    "https://fr.burberry.com/l/mens-bags/briefcases/",
+    "https://fr.burberry.com/l/mens-bags/belt-bags/",
+    "https://fr.burberry.com/l/mens-accessories/belts/",
+    "https://fr.burberry.com/l/mens-accessories/scarves/",
+    "https://fr.burberry.com/l/mens-accessories/hats-gloves/",
+    "https://fr.burberry.com/l/mens-accessories/jewellery/",
+    "https://fr.burberry.com/l/mens-accessories/sunglasses/",
+    "https://fr.burberry.com/l/mens-accessories/wallets-card-cases/",
     "https://fr.burberry.com/l/womens-clothing/",
+    "https://fr.burberry.com/l/womens-clothing/knitwear/",
+    "https://fr.burberry.com/l/womens-clothing/t-shirts-polos/",
+    "https://fr.burberry.com/l/womens-clothing/shirts-tops/",
+    "https://fr.burberry.com/l/womens-clothing/dresses/",
+    "https://fr.burberry.com/l/womens-clothing/skirts/",
+    "https://fr.burberry.com/l/womens-clothing/sweatshirts/",
+    "https://fr.burberry.com/l/womens-clothing/blazers-tailored-trousers/",
+    "https://fr.burberry.com/l/womens-clothing/trousers-shorts/",
+    "https://fr.burberry.com/l/womens-clothing/leggings-activewear/",
+    "https://fr.burberry.com/l/womens-clothing/denim/",
+    "https://fr.burberry.com/l/womens-clothing/swimwear/",
+    "https://fr.burberry.com/l/womens-clothing/capes-ponchos/",
+    "https://fr.burberry.com/l/womens-coats-jackets/",
+    "https://fr.burberry.com/l/womens-coats-jackets/coats/",
+    "https://fr.burberry.com/l/womens-coats-jackets/jackets/",
+    "https://fr.burberry.com/l/womens-coats-jackets/trench-coats/",
+    "https://fr.burberry.com/l/womens-coats-jackets/quilts/",
+    "https://fr.burberry.com/l/womens-coats-jackets/puffers/",
     "https://fr.burberry.com/l/womens-shoes/",
+    "https://fr.burberry.com/l/womens-shoes/boots/",
+    "https://fr.burberry.com/l/womens-shoes/sneakers/",
+    "https://fr.burberry.com/l/womens-shoes/sandals/",
+    "https://fr.burberry.com/l/womens-shoes/pumps/",
+    "https://fr.burberry.com/l/womens-shoes/loafers-ballerinas/",
     "https://fr.burberry.com/l/womens-bags/",
-    "https://fr.burberry.com/l/womens-accessories/"
+    "https://fr.burberry.com/l/womens-bags/tote/",
+    "https://fr.burberry.com/l/womens-bags/shoulder/",
+    "https://fr.burberry.com/l/womens-bags/crossbody/",
+    "https://fr.burberry.com/l/womens-bags/mini/",
+    "https://fr.burberry.com/l/womens-bags/top-handle/",
+    "https://fr.burberry.com/l/womens-bags/backpacks/",
+    "https://fr.burberry.com/l/womens-accessories/belts/",
+    "https://fr.burberry.com/l/womens-accessories/scarves/",
+    "https://fr.burberry.com/l/womens-accessories/hats-gloves/",
+    "https://fr.burberry.com/l/womens-accessories/jewellery/",
+    "https://fr.burberry.com/l/womens-accessories/sunglasses/",
+    "https://fr.burberry.com/l/womens-accessories/wallets/"
 ];
 
 
@@ -113,7 +174,7 @@ async function scrapeBurberry(url, brand, category){
 
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(allRaw.length >= 600) break;
+            if(allRaw.length >= 1500) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -157,7 +218,7 @@ async function scrapeBurberry(url, brand, category){
         });
 
 
-        const capped = withNames.slice(0,600);
+        const capped = withNames.slice(0,1500);
 
 
         console.log("PRODUITS TROUVES:", capped.length);

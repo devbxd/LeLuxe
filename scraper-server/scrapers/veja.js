@@ -6,32 +6,55 @@ const { setCollectedItem } = require("./_shared");
 // héritent du bon genre (le site ne l'expose pas au niveau de la tuile).
 // Listes équilibrées et intercalées pour ne pas laisser un genre en dernier
 // si un plafond venait à interrompre le scraping.
+// La liste femme etait bien plus courte que la liste homme (4 pages vs 20)
+// alors que Veja decline quasiment tous ses modeles dans les deux genres :
+// on aligne les deux listes modele par modele.
 const EXTRA_CATEGORIES = [
     ["https://www.veja-store.com/fr_fr/homme-campo", "homme"],
     ["https://www.veja-store.com/fr_fr/femme-campo", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-v-90", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-v-90", "femme"],
     ["https://www.veja-store.com/fr_fr/femme", "femme"],
+    ["https://www.veja-store.com/fr_fr/femme-nouveautes", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-gt", "homme"],
     ["https://www.veja-store.com/fr_fr/femme-gt", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-cateyes", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-cateyes", "femme"],
     ["https://www.veja-store.com/fr_fr/femme-best-sellers", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-rio-branco", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-rio-branco", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-belem", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-belem", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-volley", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-volley", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-v-10", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-v-10", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-esplar", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-esplar", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-panenka", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-panenka", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-jitsu", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-jitsu", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-arpoador", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-arpoador", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-etna", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-etna", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-v-12", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-v-12", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-urca", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-urca", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-condor-3-advanced", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-condor-3-advanced", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-recife", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-recife", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-v-82", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-v-82", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-salar", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-salar", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-venturi", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-venturi", "femme"],
     ["https://www.veja-store.com/fr_fr/homme-retro-running", "homme"],
+    ["https://www.veja-store.com/fr_fr/femme-retro-running", "femme"],
     ["https://www.veja-store.com/fr_fr/sandales", null]
 ];
 

@@ -2,27 +2,48 @@ const { chromium } = require("playwright");
 const { classifyDept } = require("./_shared");
 
 // ba&sh (marque femme uniquement)
+// L'ancienne liste utilisait "ba-sh.com/fr-fr/femme/..." (tiret + segment
+// "femme") : ce sont des URLs perimees qui ne remontent presque rien. La
+// vraie structure du site (verifiee dans le menu de navigation reel) est
+// "ba-sh.com/fr/fr/<categorie>/", sans segment "femme".
 const CATEGORIES = [
-    "https://www.ba-sh.com/fr-fr/femme/vetements/",
-    "https://www.ba-sh.com/fr-fr/femme/chaussures/",
-    "https://www.ba-sh.com/fr-fr/femme/sacs/",
-    "https://www.ba-sh.com/fr-fr/femme/accessoires/",
-    "https://www.ba-sh.com/fr-fr/femme/robes/",
-    "https://www.ba-sh.com/fr-fr/femme/pulls/",
-    "https://www.ba-sh.com/fr-fr/femme/manteaux-et-vestes/",
-    "https://www.ba-sh.com/fr-fr/femme/tops-et-chemises/",
-    "https://www.ba-sh.com/fr-fr/femme/t-shirts/",
-    "https://www.ba-sh.com/fr-fr/femme/pantalons/",
-    "https://www.ba-sh.com/fr-fr/femme/jupes-et-shorts/",
-    "https://www.ba-sh.com/fr-fr/femme/jeans/",
-    "https://www.ba-sh.com/fr-fr/femme/bijoux/",
-    "https://www.ba-sh.com/fr-fr/nouveautes/"
+    "https://ba-sh.com/fr/fr/new-arrivals/",
+    "https://ba-sh.com/fr/fr/robes/",
+    "https://ba-sh.com/fr/fr/vestes-manteaux/",
+    "https://ba-sh.com/fr/fr/tops-chemises/",
+    "https://ba-sh.com/fr/fr/pulls-cardigans/",
+    "https://ba-sh.com/fr/fr/denim/",
+    "https://ba-sh.com/fr/fr/jupes-shorts/",
+    "https://ba-sh.com/fr/fr/pantalons-jeans/",
+    "https://ba-sh.com/fr/fr/combinaisons/",
+    "https://ba-sh.com/fr/fr/t-shirts/",
+    "https://ba-sh.com/fr/fr/sweatshirts/",
+    "https://ba-sh.com/fr/fr/pret-a-porter/ensembles/",
+    "https://ba-sh.com/fr/fr/accessoires/sacs/",
+    "https://ba-sh.com/fr/fr/accessoires/chaussures/",
+    "https://ba-sh.com/fr/fr/accessoires/lunettes-de-soleil/",
+    "https://ba-sh.com/fr/fr/accessoires/ceintures/",
+    "https://ba-sh.com/fr/fr/accessoires/bijoux-montres/",
+    "https://ba-sh.com/fr/fr/accessoires/chapeaux-casquettes/",
+    "https://ba-sh.com/fr/fr/accessoires/accessoires-cheveux-foulards/"
 ];
 
 async function scrapeOneCategory(page, url, collected){
 
     await page.goto(url, { waitUntil:"load", timeout:40000 });
     await page.waitForTimeout(7000);
+
+    // Sans defilement, seule la premiere fournee de produits (chargement
+    // paresseux) est presente dans le DOM : on descend la page jusqu'a ce
+    // que le nombre de tuiles se stabilise, comme les autres scrapers.
+    let stable=0, last=0;
+    for(let i=0;i<30 && stable<6;i++){
+        await page.mouse.wheel(0,1200);
+        await page.waitForTimeout(700);
+        const c = await page.evaluate(()=>document.querySelectorAll(".ProductTile").length);
+        if(c===last) stable++; else stable=0;
+        last=c;
+    }
 
     const products = await page.evaluate(()=>{
         let data=[];

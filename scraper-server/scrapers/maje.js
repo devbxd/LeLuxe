@@ -9,6 +9,7 @@ const EXTRA_CATEGORIES = [
     "https://fr.maje.com/fr/pret-a-porter/collection/pantalons-et-jeans/",
     "https://fr.maje.com/fr/pret-a-porter/collection/pulls-et-cardigans/",
     "https://fr.maje.com/fr/pret-a-porter/collection/manteaux/",
+    "https://fr.maje.com/fr/pret-a-porter/collection/robes/",
     "https://fr.maje.com/fr/sacs/collection/tous-les-sacs/",
     "https://fr.maje.com/fr/accessoires/collection/tous-les-accessoires/",
     "https://fr.maje.com/fr/accessoires/collection/bijoux/",
