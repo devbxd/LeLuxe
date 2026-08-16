@@ -1388,6 +1388,19 @@ async function fetchCatalog(){
   const rows = await res.json();
   return { brands: rows.map(r=>r.data) };
 }
+// Petite ligne (quelques octets) avancée à chaque écriture du catalogue
+// (voir bumpVersion côté dashboard/scrapers). Le polling ci-dessous ne
+// vérifie que cette valeur en continu, au lieu de retélécharger tout le
+// catalogue toutes les 15s pour chaque visiteur — c'est ce qui a fait
+// dépasser le quota gratuit de bande passante de la base de données.
+async function fetchCatalogVersion(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.catalog_version&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error('Erreur de lecture version catalogue');
+  const rows = await res.json();
+  return rows[0] ? rows[0].data.v : null;
+}
 async function fetchMarketplace(){
   const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.marketplace&select=data`, {
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
@@ -1405,6 +1418,28 @@ async function saveMarketplace(){
     },
     body: JSON.stringify({ id:'marketplace', data:{ listings: state.market } })
   });
+  await bumpMarketplaceVersion();
+}
+// Les annonces vide-dressing embarquent jusqu'à 4 photos chacune (en base64,
+// donc potentiellement lourdes) : même logique de version que le catalogue,
+// pour ne pas les retélécharger en entier toutes les 15s sans raison.
+async function fetchMarketplaceVersion(){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.marketplace_version&select=data`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error('Erreur de lecture version vide-dressing');
+  const rows = await res.json();
+  return rows[0] ? rows[0].data.v : null;
+}
+async function bumpMarketplaceVersion(){
+  await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method:'POST',
+    headers:{
+      apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`,
+      'Content-Type':'application/json', 'Prefer':'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({ id:'marketplace_version', data:{ v: Date.now() } })
+  }).catch(()=>{});
 }
 
 /* ================= APP STATE ================= */
@@ -1431,7 +1466,8 @@ function findItem(id){
 }
 
 /* ================= INIT / SYNC ================= */
-let lastSnapshot = '';
+let lastKnownVersion = null;
+let lastKnownMarketVersion = null;
 async function initCatalog(){
   if(!supaConfigured()){
     document.getElementById('setupBanner').classList.remove('hidden');
@@ -1441,12 +1477,15 @@ async function initCatalog(){
   try{
     const data = await fetchCatalog();
     DATA = data || { brands: [] };
-    lastSnapshot = JSON.stringify(DATA);
+    lastKnownVersion = await fetchCatalogVersion().catch(()=>null);
   }catch(e){
     document.getElementById('setupBanner').classList.remove('hidden');
     document.getElementById('setupBanner').textContent = "⚠️ Impossible de joindre la base de données. Vérifiez les identifiants collés en haut de boutique.html.";
   }
-  try{ state.market = await fetchMarketplace(); }catch(e){ state.market = []; }
+  try{
+    state.market = await fetchMarketplace();
+    lastKnownMarketVersion = await fetchMarketplaceVersion().catch(()=>null);
+  }catch(e){ state.market = []; }
   publishPendingListingIfPaid();
   document.getElementById('loadingScreen').classList.add('hidden');
   computePromoSlides();
@@ -1470,24 +1509,29 @@ function renderHeroBanner(){
   el.classList.remove('hidden');
   el.style.backgroundImage = `url("${img}")`;
 }
-// Rafraîchit le catalogue toutes les 15s pour refléter les changements faits depuis le dashboard, sans recharger la page.
+// Rafraîchit le catalogue toutes les 15s pour refléter les changements faits
+// depuis le dashboard, sans recharger la page — mais ne retélécharge le
+// catalogue complet (~1,7 Mo compressés) que si "catalog_version" a
+// vraiment changé depuis la dernière vérification (elle-même quelques
+// octets), au lieu de le faire à chaque cycle pour chaque visiteur.
 async function pollCatalog(){
   if(!supaConfigured()) return;
   try{
-    const data = await fetchCatalog();
-    const snap = JSON.stringify(data);
-    if(snap !== lastSnapshot){
+    const v = await fetchCatalogVersion();
+    if(v !== lastKnownVersion){
+      lastKnownVersion = v;
+      const data = await fetchCatalog();
       DATA = data || { brands: [] };
-      lastSnapshot = snap;
       computePromoSlides();
       renderPromo();
       renderStorefront();
     }
   }catch(e){ /* silencieux : on retentera au prochain cycle */ }
   try{
-    const listings = await fetchMarketplace();
-    if(JSON.stringify(listings) !== JSON.stringify(state.market)){
-      state.market = listings;
+    const mv = await fetchMarketplaceVersion();
+    if(mv !== lastKnownMarketVersion){
+      lastKnownMarketVersion = mv;
+      state.market = await fetchMarketplace();
       if(state.view==='market') renderMarket();
     }
   }catch(e){ /* silencieux */ }

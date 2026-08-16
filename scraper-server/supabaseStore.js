@@ -34,6 +34,20 @@ async function fetchCatalog(){
   return { brands: rows.map(r => r.data) };
 }
 
+// Le site (boutique.html) revérifiait le catalogue complet toutes les 15s
+// pour CHAQUE visiteur, même quand rien n'avait changé : ça a fait dépasser
+// le quota gratuit de bande passante Supabase. "catalog_version" est une
+// ligne minuscule (un timestamp) qu'on avance à chaque écriture ; le site
+// ne compare plus que cette petite valeur en continu, et ne retélécharge
+// le catalogue complet que quand elle a changé.
+async function bumpVersion(){
+  await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method: 'POST',
+    headers: headers({ 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ id: 'catalog_version', data: { v: Date.now() } })
+  }).catch(()=>{});
+}
+
 // Sauvegarde UNE marque (id, data complets) : n'ecrit qu'une seule ligne,
 // jamais tout le catalogue.
 async function saveBrand(brand){
@@ -43,6 +57,7 @@ async function saveBrand(brand){
     body: JSON.stringify({ id: 'brand:' + brand.id, data: brand })
   });
   if(!res.ok) console.error('Echec de sauvegarde de la marque', brand.id, ':', res.status, await res.text());
+  else await bumpVersion();
   return res.ok;
 }
 
@@ -51,7 +66,8 @@ async function deleteBrand(brandId){
     method: 'DELETE',
     headers: headers({ Prefer: 'return=minimal' })
   });
+  if(res.ok) await bumpVersion();
   return res.ok;
 }
 
-module.exports = { SUPABASE_URL, SUPABASE_KEY, fetchCatalog, saveBrand, deleteBrand };
+module.exports = { SUPABASE_URL, SUPABASE_KEY, fetchCatalog, saveBrand, deleteBrand, bumpVersion };

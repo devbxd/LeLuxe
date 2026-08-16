@@ -69,7 +69,7 @@ async function scrapeBash(url, brand, category){
 
         // un navigateur neuf par catégorie (pas juste un contexte) : le site
         // semble bloquer après la première navigation d'un même processus
-        const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
+        const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false'] });
         const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
         try{

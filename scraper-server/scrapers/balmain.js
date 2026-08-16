@@ -51,7 +51,7 @@ async function scrapeOneCategory(page, url, collected){
 
 async function scrapeBalmain(url, brand, category){
 
-    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
+    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false'] });
 
     try{
 

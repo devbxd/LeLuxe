@@ -107,7 +107,7 @@ async function scrapeTiffany(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
     });
 
 

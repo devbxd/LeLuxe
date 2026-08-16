@@ -245,7 +245,16 @@ async function deleteBrandRow(brandId){
     method:'DELETE',
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, Prefer:'return=minimal' }
   });
+  if(res.ok) await bumpVersion();
   return res.ok;
+}
+// boutique.html revérifiait tout le catalogue (~1,7 Mo compressés) toutes
+// les 15s pour chaque visiteur, même sans changement — ça a fait dépasser
+// le quota gratuit de bande passante Supabase. "catalog_version" est une
+// ligne minuscule qu'on avance à chaque écriture ; le site ne surveille
+// plus que cette petite valeur en continu (voir pollCatalog côté boutique).
+async function bumpVersion(){
+  await saveRow('catalog_version', { v: Date.now() }).catch(()=>{});
 }
 let saveTimer = null;
 function flashSaved(ok){
@@ -255,8 +264,19 @@ function flashSaved(ok){
   clearTimeout(saveTimer);
   saveTimer = setTimeout(()=> pill.classList.remove('show'), 1300);
 }
-async function saveCatalog(brand){ flashSaved(await saveRow('brand:'+brand.id, brand)); }
-async function saveMarket(){ flashSaved(await saveRow('marketplace', { listings: MARKET })); }
+async function saveCatalog(brand){
+  const ok = await saveRow('brand:'+brand.id, brand);
+  if(ok) await bumpVersion();
+  flashSaved(ok);
+}
+async function bumpMarketplaceVersion(){
+  await saveRow('marketplace_version', { v: Date.now() }).catch(()=>{});
+}
+async function saveMarket(){
+  const ok = await saveRow('marketplace', { listings: MARKET });
+  if(ok) await bumpMarketplaceVersion();
+  flashSaved(ok);
+}
 
 // Repousse l'envoi de 700ms après la dernière frappe (par marque), pour ne
 // pas renvoyer la marque en cours d'édition à chaque caractère tapé.
