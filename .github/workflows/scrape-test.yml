@@ -1,0 +1,21 @@
+name: Scrape test (IP check)
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/scrape-test.yml'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scraper-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npx playwright install --with-deps chromium
+      - name: Test Zara scraper (blocked from other IP)
+        run: node -e "require('./scrapers/zara')('','Zara','vetements').then(items=>{console.log('ZARA ITEMS FOUND:',items.length); console.log(JSON.stringify(items.slice(0,2),null,2));}).catch(e=>{console.log('ERROR:',e.message); process.exit(1);})"
