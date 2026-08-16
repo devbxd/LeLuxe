@@ -59,7 +59,7 @@ async function scrapeOneCategory(page, url, collected){
 
 async function scrapeEtam(url, brand, category){
 
-    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false'] });
+    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
 
     try{
 
@@ -69,7 +69,7 @@ async function scrapeEtam(url, brand, category){
 
         for(const catUrl of [url, ...CATEGORIES]){
 
-            if(collected.size >= 300) break;
+            if(collected.size >= 600) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -85,7 +85,7 @@ async function scrapeEtam(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,300);
+        const capped = Array.from(collected.values()).slice(0,600);
 
         console.log("PRODUITS TROUVES:", capped.length);
 

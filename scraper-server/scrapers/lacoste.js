@@ -27,7 +27,7 @@ async function scrapeOneCategory(page, url, gender, collected){
 
     for(let i=0;i<10;i++){
         let count = await page.evaluate(()=>document.querySelectorAll("[data-pid]").length);
-        if(count >= 300) break;
+        if(count >= 600) break;
         let clicked = await page.evaluate(()=>{
             let btn = document.querySelector(".js-plp-next-btn, a[rel='next'], .js-fetch-append-btn");
             if(!btn) return false;
@@ -71,7 +71,7 @@ async function scrapeOneCategory(page, url, gender, collected){
 
 async function scrapeLacoste(url, brand, category){
 
-    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false'] });
+    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
 
     try{
 

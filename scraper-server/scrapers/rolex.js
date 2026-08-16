@@ -72,7 +72,7 @@ async function scrapeRolex(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -86,7 +86,7 @@ async function scrapeRolex(url, brand, category){
 
         for(const famUrl of [url, ...FAMILY_PAGES]){
 
-            if(allRaw.length >= 300) break;
+            if(allRaw.length >= 600) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -136,7 +136,7 @@ async function scrapeRolex(url, brand, category){
         });
 
 
-        const capped = withPrice.slice(0,300);
+        const capped = withPrice.slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", capped.length);

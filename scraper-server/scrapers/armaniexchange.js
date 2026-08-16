@@ -5,7 +5,7 @@ async function scrapeArmaniExchange(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -125,7 +125,7 @@ async function scrapeArmaniExchange(url, brand, category){
         }
 
 
-        const capped = Array.from(collected.values()).slice(0,300);
+        const capped = Array.from(collected.values()).slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", capped.length);

@@ -99,7 +99,7 @@ async function scrapeLaHalle(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -116,7 +116,7 @@ async function scrapeLaHalle(url, brand, category){
         // réinitialise pas complètement le composant de listing)
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(collected.size >= 300) break;
+            if(collected.size >= 600) break;
 
             const before = collected.size;
 
@@ -139,7 +139,7 @@ async function scrapeLaHalle(url, brand, category){
 
             return { name, price, image:p.image, url:p.url };
 
-        }).slice(0,300);
+        }).slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", withNames.length);

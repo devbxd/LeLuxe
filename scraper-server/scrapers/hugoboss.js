@@ -34,7 +34,7 @@ async function scrapeHugoBoss(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -141,7 +141,7 @@ async function scrapeHugoBoss(url, brand, category){
 
             return { name, price, image:p.image, url:p.url };
 
-        }).slice(0,300);
+        }).slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", withNames.length);

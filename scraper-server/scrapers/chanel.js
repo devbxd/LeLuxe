@@ -103,7 +103,7 @@ async function scrapeChanel(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -135,7 +135,7 @@ async function scrapeChanel(url, brand, category){
         // bloquer si on continue à naviguer dedans, donc chaque fiche est
         // visitée dans un contexte tout neuf (cookies vierges), ce qui
         // contourne fiablement le blocage.
-        const capped = products.slice(0,300);
+        const capped = products.slice(0,600);
 
         const results = [];
 

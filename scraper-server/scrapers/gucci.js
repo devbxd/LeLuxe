@@ -104,7 +104,7 @@ async function scrapeOneCategory(page, url, collected){
 
         const gained = collected.size - before;
         if(total && gained >= total) break;
-        if(gained >= 300) break;
+        if(gained >= 600) break;
         if(pageNum > 20) break;
 
         pageNum++;
@@ -131,7 +131,7 @@ async function scrapeGucci(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 

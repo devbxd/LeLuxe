@@ -21,7 +21,7 @@ const CATEGORIES = [
 
 async function scrapeThekooples(url, brand, category){
 
-    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false'] });
+    const browser = await chromium.launch({ headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox'] });
 
     try{
 
@@ -31,7 +31,7 @@ async function scrapeThekooples(url, brand, category){
 
         for(const catUrl of [url, ...CATEGORIES]){
 
-            if(collected.size >= 400) break;
+            if(collected.size >= 700) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -60,7 +60,7 @@ async function scrapeThekooples(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,400);
+        const capped = Array.from(collected.values()).slice(0,700);
 
         console.log("PRODUITS TROUVES:", capped.length);
 

@@ -98,7 +98,7 @@ async function scrapeGivenchy(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -112,7 +112,7 @@ async function scrapeGivenchy(url, brand, category){
 
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(allRaw.length >= 300) break;
+            if(allRaw.length >= 600) break;
 
             const page = await browser.newPage({ viewport:{ width:1440, height:900 } });
 
@@ -156,7 +156,7 @@ async function scrapeGivenchy(url, brand, category){
         });
 
 
-        const capped = withNames.slice(0,300);
+        const capped = withNames.slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", capped.length);

@@ -84,7 +84,7 @@ async function scrapeMaje(url, brand, category){
 
 
     const browser = await chromium.launch({
-        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox','--blink-settings=imagesEnabled=false']
+        headless: process.env.PLAYWRIGHT_HEADED !== '1', args:['--no-sandbox','--disable-setuid-sandbox']
     });
 
 
@@ -97,7 +97,7 @@ async function scrapeMaje(url, brand, category){
 
         for(const catUrl of [url, ...EXTRA_CATEGORIES]){
 
-            if(collected.size >= 300) break;
+            if(collected.size >= 600) break;
 
             const before = collected.size;
 
@@ -114,7 +114,7 @@ async function scrapeMaje(url, brand, category){
 
         }
 
-        const capped = Array.from(collected.values()).slice(0,300);
+        const capped = Array.from(collected.values()).slice(0,600);
 
 
         console.log("PRODUITS TROUVES:", capped.length);
