@@ -1,5 +1,6 @@
 const { chromium } = require("playwright");
 const { classifyDept, setCollectedItem } = require("./_shared");
+const scrapeZaraWaybackFemme = require("./zara-wayback-femme");
 
 // Zara ne rend pas le nom/prix dans le DOM final (widget React côté client),
 // mais la page appelle sa propre API interne pour peupler la grille :
@@ -121,6 +122,27 @@ async function scrapeZara(url, brand, category){
                 await page.close();
             }
 
+        }
+
+        // zara.com bloque cette IP (Akamai) : la boucle ci-dessus ne capture
+        // quasiment rien en direct. On complete avec les fiches femme
+        // recuperees via Wayback Machine (voir zara-wayback-femme.js) tant
+        // que le blocage n'est pas leve ; setCollectedItem ne les ajoute que
+        // si l'URL n'a pas deja ete vue en direct.
+        try{
+            const waybackItems = await scrapeZaraWaybackFemme();
+            waybackItems.forEach(p=>{
+                setCollectedItem(collected, p.url, {
+                    name: p.name,
+                    price: p.price,
+                    image: p.image,
+                    url: p.url,
+                    dept: classifyDept(p.name, "access"),
+                    gender: p.gender
+                });
+            });
+        }catch(e){
+            console.log("Erreur Wayback femme:", e.message);
         }
 
         const capped = Array.from(collected.values());
