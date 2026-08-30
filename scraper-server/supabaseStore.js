@@ -49,15 +49,19 @@ async function bumpVersion(){
 }
 
 // Sauvegarde UNE marque (id, data complets) : n'ecrit qu'une seule ligne,
-// jamais tout le catalogue.
-async function saveBrand(brand){
+// jamais tout le catalogue. bumpVersion() force tous les visiteurs actifs a
+// retelecharger le catalogue complet (plusieurs Mo) dans les 15s (voir
+// pollCatalog cote boutique.html) : quand on sauvegarde plusieurs marques
+// d'affilee (rafraichissement par lot), skipVersionBump evite de le faire a
+// chaque marque et laisse l'appelant bumper une seule fois a la fin du lot.
+async function saveBrand(brand, { skipVersionBump = false } = {}){
   const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
     method: 'POST',
     headers: headers({ 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
     body: JSON.stringify({ id: 'brand:' + brand.id, data: brand })
   });
   if(!res.ok) console.error('Echec de sauvegarde de la marque', brand.id, ':', res.status, await res.text());
-  else await bumpVersion();
+  else if(!skipVersionBump) await bumpVersion();
   return res.ok;
 }
 

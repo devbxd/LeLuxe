@@ -1389,6 +1389,49 @@ async function fetchCatalog(){
   const rows = await res.json();
   return { brands: rows.map(r=>r.data) };
 }
+// Cache du catalogue complet (30 000+ articles, plusieurs Mo de JSON) dans
+// IndexedDB (localStorage est trop petit pour ça, ~5-10 Mo de quota selon
+// les navigateurs). Tague par catalog_version : tant qu'elle n'a pas changé,
+// on réutilise la copie locale au lieu de retélécharger + reparser tout le
+// catalogue à chaque visite ou à chaque cycle de polling (15s).
+const CATALOG_CACHE_DB = 'armoire_cache', CATALOG_CACHE_STORE = 'catalog';
+function idbOpen(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(CATALOG_CACHE_DB, 1);
+    req.onupgradeneeded = ()=> req.result.createObjectStore(CATALOG_CACHE_STORE);
+    req.onsuccess = ()=> resolve(req.result);
+    req.onerror = ()=> reject(req.error);
+  });
+}
+async function idbGet(key){
+  try{
+    const db = await idbOpen();
+    return await new Promise((resolve,reject)=>{
+      const tx = db.transaction(CATALOG_CACHE_STORE,'readonly');
+      const req = tx.objectStore(CATALOG_CACHE_STORE).get(key);
+      req.onsuccess = ()=> resolve(req.result);
+      req.onerror = ()=> reject(req.error);
+    });
+  }catch(e){ return undefined; }
+}
+async function idbSet(key, value){
+  try{
+    const db = await idbOpen();
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction(CATALOG_CACHE_STORE,'readwrite');
+      tx.objectStore(CATALOG_CACHE_STORE).put(value, key);
+      tx.oncomplete = resolve;
+      tx.onerror = ()=> reject(tx.error);
+    });
+  }catch(e){ /* cache best-effort (navigation privée, quota...) : on continue sans */ }
+}
+async function loadCatalog(version){
+  const cached = await idbGet('main');
+  if(cached && version!=null && cached.version===version && cached.data) return cached.data;
+  const data = await fetchCatalog();
+  idbSet('main', { version, data });
+  return data;
+}
 // Petite ligne (quelques octets) avancée à chaque écriture du catalogue
 // (voir bumpVersion côté dashboard/scrapers). Le polling ci-dessous ne
 // vérifie que cette valeur en continu, au lieu de retélécharger tout le
@@ -1476,9 +1519,9 @@ async function initCatalog(){
     return;
   }
   try{
-    const data = await fetchCatalog();
-    DATA = data || { brands: [] };
     lastKnownVersion = await fetchCatalogVersion().catch(()=>null);
+    const data = await loadCatalog(lastKnownVersion);
+    DATA = data || { brands: [] };
   }catch(e){
     document.getElementById('setupBanner').classList.remove('hidden');
     document.getElementById('setupBanner').textContent = "⚠️ Impossible de joindre la base de données. Vérifiez les identifiants collés en haut de boutique.html.";
@@ -1521,7 +1564,7 @@ async function pollCatalog(){
     const v = await fetchCatalogVersion();
     if(v !== lastKnownVersion){
       lastKnownVersion = v;
-      const data = await fetchCatalog();
+      const data = await loadCatalog(v);
       DATA = data || { brands: [] };
       computePromoSlides();
       renderPromo();

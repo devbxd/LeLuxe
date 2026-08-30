@@ -6,7 +6,7 @@
 // GitHub Actions (.github/workflows/scrape-scheduled.yml).
 
 const { mergeItemsIntoBrand } = require('./mergeLogic');
-const { SUPABASE_URL, SUPABASE_KEY, fetchCatalog, saveBrand } = require('./supabaseStore');
+const { SUPABASE_URL, SUPABASE_KEY, fetchCatalog, saveBrand, bumpVersion } = require('./supabaseStore');
 
 const SCRAPERS = {
   Lacoste: () => require('./scrapers/lacoste'),
@@ -105,7 +105,7 @@ async function main(){
       const before = brand.items.length;
       const scraped = await scraperFn('', brandName, 'refresh');
       const { added, updated } = mergeItemsIntoBrand(brand, scraped || [], 'vetements');
-      const ok = await saveBrand(brand);
+      const ok = await saveBrand(brand, { skipVersionBump: true });
       log(`  -> scrapes:${(scraped || []).length} | ajoutes:${added} | mis a jour:${updated} | total:${before}->${brand.items.length} | sauvegarde:${ok}`);
       report.push({ brand: brandName, scraped: (scraped || []).length, added, updated, total: brand.items.length, saved: ok });
     }catch(e){
@@ -113,6 +113,10 @@ async function main(){
       report.push({ brand: brandName, error: e.message });
     }
   }
+
+  // Une seule notification aux visiteurs pour tout le lot, au lieu d'une
+  // par marque (voir le commentaire sur skipVersionBump dans saveBrand).
+  await bumpVersion().catch(()=>{});
 
   log('=== RAPPORT DU LOT ===');
   console.log(JSON.stringify(report, null, 2));
