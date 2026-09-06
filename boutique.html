@@ -330,6 +330,13 @@ a{color:inherit;}
 .paywall-pay-btn{width:100%; display:flex; align-items:center; justify-content:center; gap:10px; background:#ffc439; color:#111; padding:16px; border-radius:30px; font-size:13.5px; font-weight:700; letter-spacing:.02em; transition:transform .18s ease, box-shadow .18s ease;}
 .paywall-pay-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.14);}
 .paywall-secure{margin-top:16px; font-size:11px; color:var(--faint); letter-spacing:.02em;}
+.hermes-gate-form{display:flex; gap:10px; margin-bottom:8px;}
+.hermes-gate-input{flex:1; min-width:0; border:1px solid var(--line); border-radius:30px; padding:14px 18px; font-size:13.5px; font-family:inherit; color:var(--ink); background:#fff;}
+.hermes-gate-input:focus{outline:none; border-color:var(--gold-soft);}
+.hermes-gate-btn{flex-shrink:0; background:var(--ink); color:#fff; padding:14px 22px; border-radius:30px; font-size:13px; font-weight:700; letter-spacing:.02em; transition:transform .18s ease, box-shadow .18s ease;}
+.hermes-gate-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.14);}
+.hermes-gate-error{color:#c0392b; font-size:12px; margin:-4px 0 14px;}
+@media (max-width:480px){ .hermes-gate-form{flex-direction:column;} }
 @media (max-width:900px){
   .paywall-card{padding:38px 26px;}
   .paywall-title{font-size:26px;}
@@ -670,6 +677,22 @@ a{color:inherit;}
         <button class="back-link" id="hermesBackBtn" data-i18n="allBrandsBack">← Toutes les marques</button>
       </div>
       <div id="hermesGroups"></div>
+    </div>
+
+    <div id="viewHermesGate" class="hidden">
+      <div class="paywall-wrap">
+        <div class="paywall-card">
+          <div class="paywall-eyebrow" data-i18n="hermesGateEyebrow"></div>
+          <h1 class="paywall-title" data-i18n="hermesGateTitle"></h1>
+          <p class="paywall-text" data-i18n="hermesGateText"></p>
+          <form id="hermesGateForm" class="hermes-gate-form">
+            <input type="email" id="hermesGateEmail" class="hermes-gate-input" required data-i18n-placeholder="hermesGateEmailPlaceholder">
+            <button type="submit" class="hermes-gate-btn" data-i18n="hermesGateSubmit"></button>
+          </form>
+          <p class="hermes-gate-error hidden" id="hermesGateError" data-i18n="hermesGateInvalid"></p>
+          <p class="paywall-secure" data-i18n="hermesGateSecure"></p>
+        </div>
+      </div>
     </div>
 
     <div id="viewPLP" class="hidden">
@@ -1022,6 +1045,11 @@ const LANG = {
     featuredWallLabel:"À la une", allWallLabel:"Toutes les adresses",
     emptyBrands:"Aucune marque pour l'instant.",
     hermesEmpty:"Aucun sac pour l'instant — la prochaine sélection arrive très bientôt.",
+    hermesGateEyebrow:"Sacs Hermès", hermesGateTitle:"Accédez à la sélection Hermès",
+    hermesGateText:"Laissez votre email pour découvrir la sélection et être averti(e) en avant-première à chaque nouvelle arrivée.",
+    hermesGateEmailPlaceholder:"Votre adresse email", hermesGateSubmit:"Voir la sélection",
+    hermesGateInvalid:"Merci d'indiquer une adresse email valide.",
+    hermesGateSecure:"Votre email sert uniquement à vous prévenir des nouvelles arrivées Hermès.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
     sortDefault:"Trier : Sélection", sortNew:"Nouveautés", sortPriceAsc:"Prix croissant", sortPriceDesc:"Prix décroissant",
     emptyDept:"Aucun article dans ce rayon.", nouveauBadge:"Nouveau",
@@ -1123,6 +1151,11 @@ const LANG = {
     featuredWallLabel:"Highlights", allWallLabel:"All addresses",
     emptyBrands:"No brand yet.",
     hermesEmpty:"No bags yet — the next selection is coming very soon.",
+    hermesGateEyebrow:"Hermès bags", hermesGateTitle:"Unlock the Hermès selection",
+    hermesGateText:"Leave your email to browse the selection and be the first to know whenever a new bag arrives.",
+    hermesGateEmailPlaceholder:"Your email address", hermesGateSubmit:"See the selection",
+    hermesGateInvalid:"Please enter a valid email address.",
+    hermesGateSecure:"Your email is only used to notify you about new Hermès arrivals.",
     allBrandsBack:"← All brands", resultats:"results",
     sortDefault:"Sort: Featured", sortNew:"New arrivals", sortPriceAsc:"Price: low to high", sortPriceDesc:"Price: high to low",
     emptyDept:"No item in this category.", nouveauBadge:"New",
@@ -1212,6 +1245,11 @@ const LANG = {
     featuredWallLabel:"الأبرز", allWallLabel:"كل العناوين",
     emptyBrands:"لا توجد ماركات حالياً.",
     hermesEmpty:"لا توجد حقائب بعد — التشكيلة القادمة قريباً جداً.",
+    hermesGateEyebrow:"حقائب هيرمس", hermesGateTitle:"افتح تشكيلة هيرمس",
+    hermesGateText:"اترك بريدك الإلكتروني لتصفح التشكيلة وتكون أول من يعلم عند وصول حقيبة جديدة.",
+    hermesGateEmailPlaceholder:"بريدك الإلكتروني", hermesGateSubmit:"عرض التشكيلة",
+    hermesGateInvalid:"يرجى إدخال بريد إلكتروني صالح.",
+    hermesGateSecure:"يُستخدم بريدك الإلكتروني فقط لإعلامك بوصول قطع هيرمس الجديدة.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
     sortDefault:"الترتيب: مختارة", sortNew:"وصل حديثاً", sortPriceAsc:"السعر: من الأقل للأعلى", sortPriceDesc:"السعر: من الأعلى للأقل",
     emptyDept:"لا توجد منتجات في هذا القسم.", nouveauBadge:"جديد",
@@ -1642,23 +1680,29 @@ function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinne
 function hasMarketAccess(){
   return localStorage.getItem('armoire_market_paid_v1') === '1';
 }
+function hasHermesAccess(){
+  return localStorage.getItem('hermes_access_v1') === '1';
+}
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
   document.querySelectorAll('.gender-tab').forEach(t=> t.classList.toggle('active', t.dataset.g===state.gender));
   const marketUnlocked = state.view==='market' && hasMarketAccess();
   const marketLocked = state.view==='market' && !hasMarketAccess();
+  const hermesUnlocked = state.view==='hermes' && hasHermesAccess();
+  const hermesLocked = state.view==='hermes' && !hasHermesAccess();
   document.getElementById('viewHome').classList.toggle('hidden', state.view!=='home');
   document.getElementById('viewPLP').classList.toggle('hidden', state.view!=='plp');
   document.getElementById('viewMarket').classList.toggle('hidden', !marketUnlocked);
   document.getElementById('viewMarketPaywall').classList.toggle('hidden', !marketLocked);
-  document.getElementById('viewHermes').classList.toggle('hidden', state.view!=='hermes');
+  document.getElementById('viewHermes').classList.toggle('hidden', !hermesUnlocked);
+  document.getElementById('viewHermesGate').classList.toggle('hidden', !hermesLocked);
   document.querySelector('.sidebar').classList.toggle('hidden', state.view==='market' || state.view==='hermes');
   document.querySelector('.main').classList.toggle('main-full', state.view==='market' || state.view==='hermes');
   renderBrandNav();
   if(state.view==='home') renderHome();
   else if(state.view==='plp') renderPLP();
   else if(marketUnlocked) renderMarket();
-  else if(state.view==='hermes') renderHermes();
+  else if(hermesUnlocked) renderHermes();
   renderCounts();
   document.getElementById('topbarBackBtn').style.display = (state.view!=='home' && window.innerWidth<=900) ? 'flex' : 'none';
 }
@@ -2014,9 +2058,25 @@ document.getElementById('heroBannerCta').addEventListener('click', ()=>{
   document.getElementById('homeGrid').scrollIntoView({behavior:'smooth', block:'start'});
 });
 document.getElementById('hermesBanner').addEventListener('click', ()=>{
-  state.view='hermes'; renderStorefront(); scrollMainIntoViewMobile();
+  state.view='hermes'; renderStorefront(); window.scrollTo({top:0, behavior:'auto'});
 });
 document.getElementById('hermesBackBtn').addEventListener('click', ()=>{ state.view='home'; renderStorefront(); scrollMainIntoViewMobile(); });
+document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const email = document.getElementById('hermesGateEmail').value.trim();
+  const errorEl = document.getElementById('hermesGateError');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errorEl.classList.remove('hidden'); return; }
+  errorEl.classList.add('hidden');
+  localStorage.setItem('hermes_access_v1', '1');
+  localStorage.setItem('hermes_subscriber_email', email);
+  renderStorefront();
+  window.scrollTo({top:0, behavior:'auto'});
+  fetch(`${SUPABASE_URL}/rest/v1/hermes_subscribers?on_conflict=email`, {
+    method:'POST',
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ email, lang: state.lang })
+  }).catch(err=> console.error('Échec enregistrement email Hermès:', err));
+});
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);
 document.getElementById('postScrim').addEventListener('click', closePostModal);

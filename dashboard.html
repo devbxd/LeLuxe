@@ -424,7 +424,7 @@ function renderBrandBody(b, DEPTS){
   return html;
 }
 
-function handleAddItem(bId){
+async function handleAddItem(bId){
   const name = document.getElementById('newname-'+bId).value.trim();
   const price = parseFloat(document.getElementById('newprice-'+bId).value);
   const dept = document.getElementById('newdept-'+bId).value;
@@ -447,7 +447,20 @@ function handleAddItem(bId){
   document.getElementById('newname-'+bId).value = '';
   document.getElementById('newprice-'+bId).value = '';
   zone.innerHTML = 'Coller image<br>(Ctrl+V)';
-  saveCatalog(brand); renderStats(); renderAdmin();
+  await saveCatalog(brand); renderStats(); renderAdmin();
+  if(bId==='hermesbags') notifyHermesSubscribers(newItem);
+}
+
+// Prévient les abonnés Hermès (email laissé sur la boutique) qu'un nouveau
+// sac vient d'être ajouté, via la fonction Netlify qui envoie les mails
+// (voir netlify/functions/notify-hermes.js). Best-effort : un souci réseau
+// ici ne doit jamais bloquer ni annuler l'ajout de l'article.
+function notifyHermesSubscribers(item){
+  fetch('/.netlify/functions/notify-hermes', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify({ name:item.name, price:item.price, image:item.image })
+  }).catch(err=> console.error('Échec notification abonnés Hermès:', err));
 }
 
 function renderHermesAdmin(){
