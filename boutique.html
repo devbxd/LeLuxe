@@ -1117,7 +1117,7 @@ const LANG = {
     paywallPerk1:"Payez 3,99 $ une seule fois",
     paywallPerk2:"Vendez ensuite autant d'articles que vous voulez, sans aucune commission",
     paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
-    paywallPayBtn:"Payer avec PayPal",
+    paywallPayBtn:"Payer",
     paywallSecure:"Paiement sécurisé par PayPal — carte bancaire ou compte PayPal acceptés.",
     marketHeroText:"Vendez vos pièces de luxe directement entre particuliers. Déposez une annonce en une minute, sans commission.",
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
@@ -1213,7 +1213,7 @@ const LANG = {
     paywallPerk1:"Pay $3.99, just once",
     paywallPerk2:"Then sell as many items as you want, commission-free",
     paywallPerk3:"Instant access, valid for life on this device",
-    paywallPayBtn:"Pay with PayPal",
+    paywallPayBtn:"Pay",
     paywallSecure:"Secure payment via PayPal — card or PayPal balance accepted.",
     marketHeroText:"Sell your luxury pieces directly to other members. List an item in a minute, no commission.",
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
@@ -1309,7 +1309,7 @@ const LANG = {
     paywallPerk1:"ادفع 3.99$ مرة واحدة فقط",
     paywallPerk2:"ثم بع بقدر ما تريد من القطع، بدون أي عمولة",
     paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
-    paywallPayBtn:"الدفع عبر PayPal",
+    paywallPayBtn:"ادفع",
     paywallSecure:"دفع آمن عبر PayPal — بطاقة مصرفية أو رصيد PayPal.",
     marketHeroText:"بيع قطعك الفاخرة مباشرة لأفراد آخرين. انشر إعلانك في دقيقة واحدة، بدون عمولة.",
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
@@ -1697,7 +1697,7 @@ function hasMarketAccess(){
   return localStorage.getItem('armoire_market_paid_v1') === '1';
 }
 function hasHermesAccess(){
-  return localStorage.getItem('hermes_access_v1') === '1';
+  return localStorage.getItem('hermes_access_v2') === '1';
 }
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
@@ -2083,7 +2083,7 @@ document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
   const errorEl = document.getElementById('hermesGateError');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errorEl.classList.remove('hidden'); return; }
   errorEl.classList.add('hidden');
-  localStorage.setItem('hermes_access_v1', '1');
+  localStorage.setItem('hermes_access_v2', '1');
   localStorage.setItem('hermes_subscriber_email', email);
   document.getElementById('hermesGatePre').classList.add('hidden');
   document.getElementById('hermesGateSuccess').classList.remove('hidden');
