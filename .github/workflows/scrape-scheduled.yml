@@ -1,7 +1,7 @@
 name: Scrape automatique (cron)
 on:
   schedule:
-    - cron: '0 */3 * * *'
+    - cron: '0 3 * * 0'
   workflow_dispatch:
 jobs:
   refresh-batch:
@@ -16,5 +16,7 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npx playwright install --with-deps chromium
-      - name: Rafraichit un lot de marques (curseur persiste dans Supabase)
+      - name: Rafraichit tout le catalogue (une fois par semaine, le dimanche)
+        env:
+          BATCH_SIZE: '50'
         run: node refresh-cursor-batch.js
