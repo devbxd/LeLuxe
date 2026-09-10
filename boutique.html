@@ -336,6 +336,8 @@ a{color:inherit;}
 .hermes-gate-btn{flex-shrink:0; background:var(--ink); color:#fff; padding:14px 22px; border-radius:30px; font-size:13px; font-weight:700; letter-spacing:.02em; transition:transform .18s ease, box-shadow .18s ease;}
 .hermes-gate-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.14);}
 .hermes-gate-error{color:#c0392b; font-size:12px; margin:-4px 0 14px;}
+.hermes-gate-check{width:48px; height:48px; border-radius:50%; background:var(--gold-mist); color:var(--gold); display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 18px;}
+#hermesGateSuccess .hermes-gate-btn{display:inline-flex;}
 @media (max-width:480px){ .hermes-gate-form{flex-direction:column;} }
 @media (max-width:900px){
   .paywall-card{padding:38px 26px;}
@@ -682,15 +684,23 @@ a{color:inherit;}
     <div id="viewHermesGate" class="hidden">
       <div class="paywall-wrap">
         <div class="paywall-card">
-          <div class="paywall-eyebrow" data-i18n="hermesGateEyebrow"></div>
-          <h1 class="paywall-title" data-i18n="hermesGateTitle"></h1>
-          <p class="paywall-text" data-i18n="hermesGateText"></p>
-          <form id="hermesGateForm" class="hermes-gate-form">
-            <input type="email" id="hermesGateEmail" class="hermes-gate-input" required data-i18n-placeholder="hermesGateEmailPlaceholder">
-            <button type="submit" class="hermes-gate-btn" data-i18n="hermesGateSubmit"></button>
-          </form>
-          <p class="hermes-gate-error hidden" id="hermesGateError" data-i18n="hermesGateInvalid"></p>
-          <p class="paywall-secure" data-i18n="hermesGateSecure"></p>
+          <div id="hermesGatePre">
+            <div class="paywall-eyebrow" data-i18n="hermesGateEyebrow"></div>
+            <h1 class="paywall-title" data-i18n="hermesGateTitle"></h1>
+            <p class="paywall-text" data-i18n="hermesGateText"></p>
+            <form id="hermesGateForm" class="hermes-gate-form">
+              <input type="email" id="hermesGateEmail" class="hermes-gate-input" required data-i18n-placeholder="hermesGateEmailPlaceholder">
+              <button type="submit" class="hermes-gate-btn" data-i18n="hermesGateSubmit"></button>
+            </form>
+            <p class="hermes-gate-error hidden" id="hermesGateError" data-i18n="hermesGateInvalid"></p>
+            <p class="paywall-secure" data-i18n="hermesGateSecure"></p>
+          </div>
+          <div id="hermesGateSuccess" class="hidden">
+            <div class="hermes-gate-check">✓</div>
+            <h1 class="paywall-title" data-i18n="hermesGateSuccessTitle"></h1>
+            <p class="paywall-text" data-i18n="hermesGateSuccessText"></p>
+            <button type="button" id="hermesGateContinueBtn" class="hermes-gate-btn" data-i18n="hermesGateSuccessCta"></button>
+          </div>
         </div>
       </div>
     </div>
@@ -1050,6 +1060,8 @@ const LANG = {
     hermesGateEmailPlaceholder:"Votre adresse email", hermesGateSubmit:"Voir la sélection",
     hermesGateInvalid:"Merci d'indiquer une adresse email valide.",
     hermesGateSecure:"Votre email sert uniquement à vous prévenir des nouvelles arrivées Hermès.",
+    hermesGateSuccessTitle:"Email confirmé", hermesGateSuccessText:"Votre email a été validé — vous recevrez un message dès qu'un nouveau sac sera ajouté.",
+    hermesGateSuccessCta:"Voir les sacs Hermès →",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
     sortDefault:"Trier : Sélection", sortNew:"Nouveautés", sortPriceAsc:"Prix croissant", sortPriceDesc:"Prix décroissant",
     emptyDept:"Aucun article dans ce rayon.", nouveauBadge:"Nouveau",
@@ -1156,6 +1168,8 @@ const LANG = {
     hermesGateEmailPlaceholder:"Your email address", hermesGateSubmit:"See the selection",
     hermesGateInvalid:"Please enter a valid email address.",
     hermesGateSecure:"Your email is only used to notify you about new Hermès arrivals.",
+    hermesGateSuccessTitle:"Email confirmed", hermesGateSuccessText:"Your email has been validated — you'll get a message as soon as a new bag is added.",
+    hermesGateSuccessCta:"Go to Hermès bags →",
     allBrandsBack:"← All brands", resultats:"results",
     sortDefault:"Sort: Featured", sortNew:"New arrivals", sortPriceAsc:"Price: low to high", sortPriceDesc:"Price: high to low",
     emptyDept:"No item in this category.", nouveauBadge:"New",
@@ -1250,6 +1264,8 @@ const LANG = {
     hermesGateEmailPlaceholder:"بريدك الإلكتروني", hermesGateSubmit:"عرض التشكيلة",
     hermesGateInvalid:"يرجى إدخال بريد إلكتروني صالح.",
     hermesGateSecure:"يُستخدم بريدك الإلكتروني فقط لإعلامك بوصول قطع هيرمس الجديدة.",
+    hermesGateSuccessTitle:"تم تأكيد البريد الإلكتروني", hermesGateSuccessText:"تم تأكيد بريدك الإلكتروني — ستصلك رسالة فور إضافة حقيبة جديدة.",
+    hermesGateSuccessCta:"→ عرض حقائب هيرمس",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
     sortDefault:"الترتيب: مختارة", sortNew:"وصل حديثاً", sortPriceAsc:"السعر: من الأقل للأعلى", sortPriceDesc:"السعر: من الأعلى للأقل",
     emptyDept:"لا توجد منتجات في هذا القسم.", nouveauBadge:"جديد",
@@ -2069,13 +2085,17 @@ document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
   errorEl.classList.add('hidden');
   localStorage.setItem('hermes_access_v1', '1');
   localStorage.setItem('hermes_subscriber_email', email);
-  renderStorefront();
-  window.scrollTo({top:0, behavior:'auto'});
+  document.getElementById('hermesGatePre').classList.add('hidden');
+  document.getElementById('hermesGateSuccess').classList.remove('hidden');
   fetch(`${SUPABASE_URL}/rest/v1/hermes_subscribers?on_conflict=email`, {
     method:'POST',
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({ email, lang: state.lang })
   }).catch(err=> console.error('Échec enregistrement email Hermès:', err));
+});
+document.getElementById('hermesGateContinueBtn').addEventListener('click', ()=>{
+  renderStorefront();
+  window.scrollTo({top:0, behavior:'auto'});
 });
 document.getElementById('postItemBtn').addEventListener('click', openPostModal);
 document.getElementById('postClose').addEventListener('click', closePostModal);

@@ -25,6 +25,7 @@ input,select{font:inherit;}
 #adminRoot{max-width:1080px; margin:0 auto; padding:32px 24px 100px;}
 .status-pill{position:fixed; top:16px; right:16px; background:#161513; color:#fff; font-size:11px; padding:8px 14px; border-radius:20px; opacity:0; transition:opacity .3s ease; z-index:50; box-shadow:0 6px 18px rgba(0,0,0,.15);}
 .status-pill.show{opacity:1;}
+.status-pill.error{background:#b3261e;}
 .admin-head{position:sticky; top:0; background:#f4f3f1; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:22px 0 18px; flex-wrap:wrap; gap:10px; border-bottom:1px solid #e5e2dc;}
 .admin-head h1{font-size:21px; font-weight:700;}
 .admin-head a{font-size:12px; letter-spacing:.05em; text-transform:uppercase; text-decoration:none; border-bottom:1px solid #161513; color:#161513; padding-bottom:1px;}
@@ -121,6 +122,11 @@ input,select{font:inherit;}
   <div class="admin-head">
     <h1>Tableau de bord — Le Luxe</h1>
     <a href="boutique.html" target="_blank">Voir la boutique ↗</a>
+  </div>
+
+  <div id="catalogLoadError" class="hidden" style="background:#fdecea;border:1px solid #f3b4ac;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:12.5px;color:#8a2a20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <span>⚠️ Le reste du catalogue (toutes les marques sauf Hermès) n'a pas pu charger — Hermès reste utilisable normalement.</span>
+    <button class="btn" onclick="loadFullCatalog()">Réessayer</button>
   </div>
 
   <div class="section-title">Hermès Bags (section manuelle)</div>
@@ -258,11 +264,12 @@ async function bumpVersion(){
 }
 let saveTimer = null;
 function flashSaved(ok){
-  if(!ok) return;
   const pill = document.getElementById('statusPill');
+  pill.textContent = ok ? '✓ Enregistré' : '✕ Échec de la sauvegarde — réessaie';
+  pill.classList.toggle('error', !ok);
   pill.classList.add('show');
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=> pill.classList.remove('show'), 1300);
+  saveTimer = setTimeout(()=> pill.classList.remove('show'), ok ? 1300 : 4000);
 }
 async function saveCatalog(brand){
   const ok = await saveRow('brand:'+brand.id, brand);
@@ -310,29 +317,46 @@ function nextRef(brand){
 
 /* ================= HELPERS UI ================= */
 function setupPasteZone(zone, onImage){
+  const handleFile = (blob)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      compressImage(reader.result, (dataUrl)=>{ zone.innerHTML = `<img src="${dataUrl}">`; onImage(dataUrl); });
+    };
+    reader.readAsDataURL(blob);
+  };
   zone.addEventListener('paste', (e)=>{
     e.preventDefault();
     const items = (e.clipboardData || window.clipboardData).items;
     for(const it of items){
-      if(it.type && it.type.indexOf('image') !== -1){
-        const blob = it.getAsFile();
-        const reader = new FileReader();
-        reader.onload = ()=>{ zone.innerHTML = `<img src="${reader.result}">`; onImage(reader.result); };
-        reader.readAsDataURL(blob);
-      }
+      if(it.type && it.type.indexOf('image') !== -1) handleFile(it.getAsFile());
     }
   });
   zone.addEventListener('click', ()=>{
     const input = document.createElement('input');
     input.type='file'; input.accept='image/*';
-    input.onchange = ()=>{
-      if(!input.files[0]) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{ zone.innerHTML = `<img src="${reader.result}">`; onImage(reader.result); };
-      reader.readAsDataURL(input.files[0]);
-    };
+    input.onchange = ()=>{ if(input.files[0]) handleFile(input.files[0]); };
     input.click();
   });
+}
+// Une photo collée depuis un téléphone ou une capture d'écran peut peser
+// plusieurs Mo une fois en base64 : stockée telle quelle, elle alourdit la
+// ligne Supabase de la marque au point de la faire échouer ou mettre très
+// longtemps à s'enregistrer. On la redimensionne et compresse côté
+// navigateur avant de l'enregistrer.
+function compressImage(dataUrl, cb){
+  const img = new Image();
+  img.onload = ()=>{
+    const maxSide = 1000;
+    const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+    const w = Math.round(img.width * scale) || 1;
+    const h = Math.round(img.height * scale) || 1;
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+    cb(canvas.toDataURL('image/jpeg', 0.82));
+  };
+  img.onerror = ()=> cb(dataUrl);
+  img.src = dataUrl;
 }
 function uvLabel(uv){ return uv==='luxe' ? 'Luxe' : uv==='magasins' ? 'Grands magasins' : 'Pas luxe'; }
 
@@ -433,6 +457,7 @@ async function handleAddItem(bId){
   const dropDate = dateEl ? (dateEl.value || null) : null;
   if(!name){ alert("Merci de donner un nom à l'article."); return; }
   const brand = findBrand(bId);
+  if(!brand){ alert("Le catalogue n'a pas encore fini de charger, réessaie dans quelques secondes."); return; }
   const newItem = {id:genId(), ref:nextRef(brand), name, price:isNaN(price)?null:price, dept, gender, dropDate, image:null, addedAt:Date.now()};
   const zone = document.getElementById('newzone-'+bId);
   const img = zone.querySelector('img');
@@ -621,25 +646,42 @@ document.getElementById('addBrandBtn').addEventListener('click', ()=>{
 });
 
 /* ================= INIT ================= */
+// La section Hermès (ajout manuel de sacs) charge en premier et
+// indépendamment du reste : c'est une ligne minuscule dans Supabase,
+// alors que le catalogue complet (~28 000 articles scrapés) pèse
+// plusieurs Mo et met plusieurs secondes à charger, au point d'échouer
+// par intermittence. Avant, un échec de ce chargement complet bloquait
+// tout le dashboard (Hermès compris) derrière un écran d'erreur — c'était
+// la cause des ajouts de sacs qui plantaient au hasard.
 async function init(){
   if(!supaConfigured()){
     document.getElementById('setupScreen').classList.remove('hidden');
     return;
   }
   try{
-    const brands = await fetchAllBrands();
-    DATA = { brands };
-    const marketData = await fetchRow('marketplace');
-    MARKET = (marketData && marketData.listings) || [];
+    const hermesBrand = await fetchRow('brand:hermesbags');
+    if(hermesBrand) DATA.brands = [hermesBrand];
   }catch(e){
-    document.getElementById('setupScreen').classList.remove('hidden');
-    document.getElementById('setupScreen').querySelector('h1').textContent = "⚠️ Connexion à la base de données impossible";
-    return;
+    console.error('Chargement de la section Hermès impossible:', e);
   }
   document.getElementById('adminRoot').classList.remove('hidden');
   renderStats();
   renderAdmin();
-  renderMarket();
+  await loadFullCatalog();
+}
+async function loadFullCatalog(){
+  try{
+    const [brands, marketData] = await Promise.all([fetchAllBrands(), fetchRow('marketplace')]);
+    DATA = { brands };
+    MARKET = (marketData && marketData.listings) || [];
+    document.getElementById('catalogLoadError').classList.add('hidden');
+    renderStats();
+    renderAdmin();
+    renderMarket();
+  }catch(e){
+    console.error('Chargement du catalogue complet impossible:', e);
+    document.getElementById('catalogLoadError').classList.remove('hidden');
+  }
 }
 init();
 </script>
