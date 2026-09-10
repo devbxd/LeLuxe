@@ -1557,6 +1557,18 @@ function saveCartWish(){
   localStorage.setItem('armoire_cart_v5', JSON.stringify(state.cart));
   localStorage.setItem('armoire_wish_v5', JSON.stringify(state.wish));
 }
+// Certains sites scrapés chargent leurs photos en "lazy-load" : le scraper
+// récupère parfois le mini GIF transparent de remplacement (affiché le temps
+// que la vraie photo arrive) au lieu de la vraie image. Une vraie photo
+// produit n'est jamais un GIF encodé en base64 — on neutralise ces valeurs
+// pour retomber sur l'icône de rayon plutôt que d'afficher un espace vide.
+function scrubPlaceholderImages(data){
+  if(!data || !data.brands) return data;
+  data.brands.forEach(b=> (b.items||[]).forEach(it=>{
+    if(it.image && it.image.startsWith('data:image/gif')) it.image = null;
+  }));
+  return data;
+}
 function findBrand(id){ return DATA.brands.find(b=>b.id===id); }
 function findItem(id){
   for(const b of DATA.brands){ const it = b.items.find(i=>i.id===id); if(it) return {item:it, brand:b}; }
@@ -1575,7 +1587,7 @@ async function initCatalog(){
   try{
     lastKnownVersion = await fetchCatalogVersion().catch(()=>null);
     const data = await loadCatalog(lastKnownVersion);
-    DATA = data || { brands: [] };
+    DATA = scrubPlaceholderImages(data || { brands: [] });
   }catch(e){
     document.getElementById('setupBanner').classList.remove('hidden');
     document.getElementById('setupBanner').textContent = "⚠️ Impossible de joindre la base de données. Vérifiez les identifiants collés en haut de boutique.html.";
@@ -1619,7 +1631,7 @@ async function pollCatalog(){
     if(v !== lastKnownVersion){
       lastKnownVersion = v;
       const data = await loadCatalog(v);
-      DATA = data || { brands: [] };
+      DATA = scrubPlaceholderImages(data || { brands: [] });
       computePromoSlides();
       renderPromo();
       renderStorefront();

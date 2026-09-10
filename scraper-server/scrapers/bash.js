@@ -45,6 +45,22 @@ async function scrapeOneCategory(page, url, collected){
         last=c;
     }
 
+    // Le site charge ses images en lazy-load (mini GIF transparent tant que
+    // la vraie photo n'a pas ete declenchee) : un simple defilement en bloc
+    // de la page peut passer trop vite sur certaines tuiles pour que le
+    // chargement ait le temps de se declencher, laissant le GIF de
+    // remplacement dans src/currentSrc. On force chaque image dans le
+    // viewport juste avant de lire sa source, avec un repli sur les
+    // attributs data-src/data-srcset si le GIF est quand meme encore la.
+    await page.evaluate(async ()=>{
+        const imgs = Array.from(document.querySelectorAll(".ProductTile img"));
+        for(const img of imgs){
+            img.scrollIntoView({block:"center"});
+            await new Promise(r=>setTimeout(r, 15));
+        }
+        await new Promise(r=>setTimeout(r, 1200));
+    });
+
     const products = await page.evaluate(()=>{
         let data=[];
         document.querySelectorAll(".ProductTile").forEach(tile=>{
@@ -52,9 +68,12 @@ async function scrapeOneCategory(page, url, collected){
             if(!a) return;
             const name = a.getAttribute("data-gtm-productname") || a.getAttribute("title") || "";
             const price = a.getAttribute("data-gtm-productprice");
-            const img = tile.querySelector("img");
-            const image = img ? (img.currentSrc || img.src) : "";
-            if(!name || !image) return;
+            const img = tile.querySelector(".ProductTile-image") || tile.querySelector("img");
+            let image = img ? (img.currentSrc || img.src) : "";
+            if(img && image.startsWith("data:")){
+                image = img.getAttribute("data-src") || img.getAttribute("data-srcset") || image;
+            }
+            if(!name || !image || image.startsWith("data:")) return;
             data.push({
                 name,
                 price: price ? `${price} €` : "Prix inconnu",
