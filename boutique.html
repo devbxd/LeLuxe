@@ -15,8 +15,12 @@
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
 // Adresse email du compte PayPal Business qui recoit les 3,99$ d'acces au vide-dressing
+// et les 20$ d'acces a la selection Hermes (meme compte PayPal pour les deux)
 const PAYPAL_BUSINESS_EMAIL = "amandawettstrom@live.se";
 const MARKET_ACCESS_PRICE = "3.99";
+const HERMES_ACCESS_PRICE = "20.00";
+// Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
+const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
 </script>
 <style>
 :root{
@@ -695,6 +699,30 @@ a{color:inherit;}
             <p class="hermes-gate-error hidden" id="hermesGateError" data-i18n="hermesGateInvalid"></p>
             <p class="paywall-secure" data-i18n="hermesGateSecure"></p>
           </div>
+          <div id="hermesGatePayment" class="hidden">
+            <div class="paywall-eyebrow" data-i18n="hermesGateEyebrow"></div>
+            <h1 class="paywall-title" data-i18n="hermesPaywallTitle"></h1>
+            <p class="paywall-text" data-i18n="hermesPaywallText"></p>
+            <div class="paywall-price">
+              <span class="paywall-amount">20&nbsp;$</span>
+              <span class="paywall-once" data-i18n="paywallOnce"></span>
+            </div>
+            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalHermesForm">
+              <input type="hidden" name="cmd" value="_xclick">
+              <input type="hidden" name="business" id="paypalHermesBusiness" value="">
+              <input type="hidden" name="item_name" value="Acces selection Hermes - Le Luxe">
+              <input type="hidden" name="amount" id="paypalHermesAmount" value="">
+              <input type="hidden" name="currency_code" value="USD">
+              <input type="hidden" name="no_shipping" value="1">
+              <input type="hidden" name="return" id="paypalHermesReturn" value="">
+              <input type="hidden" name="cancel_return" id="paypalHermesCancel" value="">
+              <button type="submit" class="paywall-pay-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span data-i18n="hermesPaywallPayBtn"></span>
+              </button>
+            </form>
+            <p class="paywall-secure" data-i18n="hermesPaywallSecure"></p>
+          </div>
           <div id="hermesGateSuccess" class="hidden">
             <div class="hermes-gate-check">✓</div>
             <h1 class="paywall-title" data-i18n="hermesGateSuccessTitle"></h1>
@@ -749,6 +777,7 @@ a{color:inherit;}
             <input type="hidden" name="no_shipping" value="1">
             <input type="hidden" name="return" id="paypalReturn" value="">
             <input type="hidden" name="cancel_return" id="paypalCancel" value="">
+            <input type="email" id="marketPaywallEmail" class="hermes-gate-input" required data-i18n-placeholder="marketPaywallEmailPlaceholder" style="margin-bottom:12px;">
             <button type="submit" class="paywall-pay-btn">
               <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7.5 21H4l2.6-16.5h6.9c3 0 5 1.7 4.5 4.6-.6 3.6-3.3 5.4-6.6 5.4H9.2L7.5 21zm10.2-13c.2 3-1.9 5.3-5.3 5.3H9.8l-1 6.2h2.9l.8-5h2c3.7 0 6.6-2 7.3-5.9.4-2.1-.2-3.8-1.3-4.8.1.7.1 1.4-.1 2.2z"/></svg>
               <span data-i18n="paywallPayBtn"></span>
@@ -1062,6 +1091,9 @@ const LANG = {
     hermesGateSecure:"Votre email sert uniquement à vous prévenir des nouvelles arrivées Hermès.",
     hermesGateSuccessTitle:"Email confirmé", hermesGateSuccessText:"Votre email a été validé — vous recevrez un message dès qu'un nouveau sac sera ajouté.",
     hermesGateSuccessCta:"Voir les sacs Hermès →",
+    hermesPaywallTitle:"Débloquez la sélection Hermès", hermesPaywallText:"Un accès unique de 20 $ pour consulter en illimité toute la sélection de sacs Hermès et être averti(e) à chaque nouvelle arrivée.",
+    hermesPaywallPayBtn:"Payer par carte",
+    hermesPaywallSecure:"Paiement sécurisé par carte bancaire.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
     sortDefault:"Trier : Sélection", sortNew:"Nouveautés", sortPriceAsc:"Prix croissant", sortPriceDesc:"Prix décroissant",
     emptyDept:"Aucun article dans ce rayon.", nouveauBadge:"Nouveau",
@@ -1119,6 +1151,7 @@ const LANG = {
     paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
     paywallPayBtn:"Payer",
     paywallSecure:"Paiement sécurisé par PayPal — carte bancaire ou compte PayPal acceptés.",
+    marketPaywallEmailPlaceholder:"Votre adresse email",
     marketHeroText:"Vendez vos pièces de luxe directement entre particuliers. Déposez une annonce en une minute, sans commission.",
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
@@ -1170,6 +1203,9 @@ const LANG = {
     hermesGateSecure:"Your email is only used to notify you about new Hermès arrivals.",
     hermesGateSuccessTitle:"Email confirmed", hermesGateSuccessText:"Your email has been validated — you'll get a message as soon as a new bag is added.",
     hermesGateSuccessCta:"Go to Hermès bags →",
+    hermesPaywallTitle:"Unlock the Hermès selection", hermesPaywallText:"A one-time $20 access to browse the full Hermès bag selection and be notified of every new arrival.",
+    hermesPaywallPayBtn:"Pay by card",
+    hermesPaywallSecure:"Secure payment by card.",
     allBrandsBack:"← All brands", resultats:"results",
     sortDefault:"Sort: Featured", sortNew:"New arrivals", sortPriceAsc:"Price: low to high", sortPriceDesc:"Price: high to low",
     emptyDept:"No item in this category.", nouveauBadge:"New",
@@ -1215,6 +1251,7 @@ const LANG = {
     paywallPerk3:"Instant access, valid for life on this device",
     paywallPayBtn:"Pay",
     paywallSecure:"Secure payment via PayPal — card or PayPal balance accepted.",
+    marketPaywallEmailPlaceholder:"Your email address",
     marketHeroText:"Sell your luxury pieces directly to other members. List an item in a minute, no commission.",
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
@@ -1266,6 +1303,9 @@ const LANG = {
     hermesGateSecure:"يُستخدم بريدك الإلكتروني فقط لإعلامك بوصول قطع هيرمس الجديدة.",
     hermesGateSuccessTitle:"تم تأكيد البريد الإلكتروني", hermesGateSuccessText:"تم تأكيد بريدك الإلكتروني — ستصلك رسالة فور إضافة حقيبة جديدة.",
     hermesGateSuccessCta:"→ عرض حقائب هيرمس",
+    hermesPaywallTitle:"افتح تشكيلة هيرمس", hermesPaywallText:"وصول لمرة واحدة بـ 20 $ لتصفح كامل تشكيلة حقائب هيرمس والحصول على إشعار عند كل وصول جديد.",
+    hermesPaywallPayBtn:"ادفع بالبطاقة",
+    hermesPaywallSecure:"دفع آمن بالبطاقة المصرفية.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
     sortDefault:"الترتيب: مختارة", sortNew:"وصل حديثاً", sortPriceAsc:"السعر: من الأقل للأعلى", sortPriceDesc:"السعر: من الأعلى للأقل",
     emptyDept:"لا توجد منتجات في هذا القسم.", nouveauBadge:"جديد",
@@ -1311,6 +1351,7 @@ const LANG = {
     paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
     paywallPayBtn:"ادفع",
     paywallSecure:"دفع آمن عبر PayPal — بطاقة مصرفية أو رصيد PayPal.",
+    marketPaywallEmailPlaceholder:"بريدك الإلكتروني",
     marketHeroText:"بيع قطعك الفاخرة مباشرة لأفراد آخرين. انشر إعلانك في دقيقة واحدة، بدون عمولة.",
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
@@ -1709,7 +1750,7 @@ function hasMarketAccess(){
   return localStorage.getItem('armoire_market_paid_v1') === '1';
 }
 function hasHermesAccess(){
-  return localStorage.getItem('hermes_access_v2') === '1';
+  return localStorage.getItem('hermes_access_v3') === '1';
 }
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
@@ -2095,15 +2136,21 @@ document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
   const errorEl = document.getElementById('hermesGateError');
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ errorEl.classList.remove('hidden'); return; }
   errorEl.classList.add('hidden');
-  localStorage.setItem('hermes_access_v2', '1');
   localStorage.setItem('hermes_subscriber_email', email);
   document.getElementById('hermesGatePre').classList.add('hidden');
-  document.getElementById('hermesGateSuccess').classList.remove('hidden');
   fetch(`${SUPABASE_URL}/rest/v1/hermes_subscribers?on_conflict=email`, {
     method:'POST',
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({ email, lang: state.lang })
   }).catch(err=> console.error('Échec enregistrement email Hermès:', err));
+  // Le patron n'a pas besoin de payer pour acceder a sa propre selection Hermes
+  if(email.toLowerCase() === HERMES_ADMIN_EMAIL){
+    localStorage.setItem('hermes_access_v3', '1');
+    document.getElementById('hermesGateSuccess').classList.remove('hidden');
+  } else {
+    setupHermesPaywall();
+    document.getElementById('hermesGatePayment').classList.remove('hidden');
+  }
 });
 document.getElementById('hermesGateContinueBtn').addEventListener('click', ()=>{
   renderStorefront();
@@ -2369,6 +2416,16 @@ function consumeUrlFlag(name){
   history.replaceState(null, '', clean);
   return true;
 }
+// Enregistre un paiement confirme (retour PayPal) dans Supabase, pour que le
+// dashboard puisse afficher qui a paye le vide-dressing / la selection Hermes.
+function recordPurchase(email, product){
+  if(!email) return;
+  fetch(`${SUPABASE_URL}/rest/v1/purchases?on_conflict=email,product`, {
+    method:'POST',
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ email, product })
+  }).catch(err=> console.error('Échec enregistrement paiement:', err));
+}
 function setupMarketPaywall(){
   // le retour de PayPal ajoute ?vd_paid=1 a l'URL : on memorise l'acces sur
   // cet appareil (localStorage) puis on nettoie l'URL, pour que le client
@@ -2376,12 +2433,35 @@ function setupMarketPaywall(){
   if(consumeUrlFlag('vd_paid')){
     localStorage.setItem('armoire_market_paid_v1', '1');
     state.view = 'market';
+    const paidEmail = localStorage.getItem('market_pending_email');
+    localStorage.removeItem('market_pending_email');
+    recordPurchase(paidEmail, 'vide_dressing');
   }
   const base = currentPageUrl();
   document.getElementById('paypalBusiness').value = PAYPAL_BUSINESS_EMAIL;
   document.getElementById('paypalAmount').value = MARKET_ACCESS_PRICE;
   document.getElementById('paypalReturn').value = base + '?vd_paid=1';
   document.getElementById('paypalCancel').value = base;
+}
+document.getElementById('paypalForm').addEventListener('submit', ()=>{
+  const email = document.getElementById('marketPaywallEmail').value.trim();
+  if(email) localStorage.setItem('market_pending_email', email);
+});
+/* ================= PAYWALL HERMES (meme PayPal, affiche comme "carte") ================= */
+function setupHermesPaywall(){
+  // le retour de PayPal ajoute ?hermes_paid=1 a l'URL : on memorise l'acces
+  // sur cet appareil (localStorage) puis on nettoie l'URL, pour que le
+  // client ne repaye jamais une deuxieme fois sur ce meme navigateur
+  if(consumeUrlFlag('hermes_paid')){
+    localStorage.setItem('hermes_access_v3', '1');
+    state.view = 'hermes';
+    recordPurchase(localStorage.getItem('hermes_subscriber_email'), 'hermes');
+  }
+  const base = currentPageUrl();
+  document.getElementById('paypalHermesBusiness').value = PAYPAL_BUSINESS_EMAIL;
+  document.getElementById('paypalHermesAmount').value = HERMES_ACCESS_PRICE;
+  document.getElementById('paypalHermesReturn').value = base + '?hermes_paid=1';
+  document.getElementById('paypalHermesCancel').value = base;
 }
 // Le brouillon d'annonce (voir postForm submit) n'est publie qu'ici, au
 // retour du paiement du frais de publication (5% du prix) - appele apres
@@ -2404,6 +2484,7 @@ function publishPendingListingIfPaid(){
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 applyStaticI18n();
 setupMarketPaywall();
+setupHermesPaywall();
 initCatalog();
 window.addEventListener('scroll', ()=>{
   document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 8);
