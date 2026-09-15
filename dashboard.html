@@ -47,6 +47,15 @@ input,select{font:inherit;}
 .hint code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:11.5px;}
 
 .hermes-admin-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:8px;}
+.purchases-cols{display:flex; gap:28px; flex-wrap:wrap;}
+.purchases-cols > div{flex:1; min-width:220px;}
+.purchases-col-title{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:#8a8478; margin-bottom:10px; font-weight:700;}
+.purchase-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid #f0eee9; font-size:13px;}
+.purchase-row:last-child{border-bottom:none;}
+.purchase-email{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0;}
+.purchase-meta{display:flex; align-items:center; gap:8px; flex-shrink:0;}
+.purchase-date{font-size:10.5px; color:#a39d8f; white-space:nowrap;}
+.tag-paid{background:#e3f3e6; color:#2e7d43;}
 .refresh-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px;}
 .add-brand-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:18px; display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
 .add-brand-card input, .add-brand-card select{border:1px solid #ddd8cf; border-radius:8px; padding:10px 12px; font-size:13px;}
@@ -144,6 +153,21 @@ input,select{font:inherit;}
       <button class="btn" data-additem="hermesbags">Ajouter</button>
     </div>
     <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing, regroupée par date de descente ("Nouveautés du...").</p>
+  </div>
+
+  <div class="section-title">Paiements confirmés</div>
+  <div class="hermes-admin-card">
+    <div class="purchases-cols">
+      <div>
+        <h3 class="purchases-col-title">Vide-dressing (3,99&nbsp;$)</h3>
+        <div id="purchasesMarketList"><p class="hint">Chargement…</p></div>
+      </div>
+      <div>
+        <h3 class="purchases-col-title">Sacs Hermès (20&nbsp;$)</h3>
+        <div id="purchasesHermesList"><p class="hint">Chargement…</p></div>
+      </div>
+    </div>
+    <p class="hint">Le patron (accès Hermès gratuit) n'apparaît pas ici — seuls les paiements réellement confirmés par PayPal sont listés.</p>
   </div>
 
   <div class="stat-row">
@@ -667,7 +691,33 @@ async function init(){
   document.getElementById('adminRoot').classList.remove('hidden');
   renderStats();
   renderAdmin();
+  renderPurchases();
   await loadFullCatalog();
+}
+// Liste des paiements confirmes (retour PayPal cote boutique.html, voir
+// recordPurchase()) - table "purchases" (email, product, created_at).
+// Chargement independant du reste : un souci ici ne doit pas bloquer le
+// dashboard, meme logique que la section Hermès.
+async function renderPurchases(){
+  const marketEl = document.getElementById('purchasesMarketList');
+  const hermesEl = document.getElementById('purchasesHermesList');
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/purchases?select=email,product,created_at&order=created_at.desc`, {
+      headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const rows = await res.json();
+    const rowHtml = r => `<div class="purchase-row"><span class="purchase-email">${(r.email||'').replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</span><span class="purchase-meta"><span class="purchase-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</span><span class="tag tag-paid">Payé ✓</span></span></div>`;
+    const market = rows.filter(r=> r.product==='vide_dressing');
+    const hermes = rows.filter(r=> r.product==='hermes');
+    marketEl.innerHTML = market.length ? market.map(rowHtml).join('') : '<p class="hint">Aucun paiement pour l\'instant.</p>';
+    hermesEl.innerHTML = hermes.length ? hermes.map(rowHtml).join('') : '<p class="hint">Aucun paiement pour l\'instant.</p>';
+  }catch(e){
+    console.error('Chargement des paiements impossible:', e);
+    const errHtml = '<p class="hint">⚠️ Impossible de charger les paiements (la table "purchases" existe-t-elle sur Supabase ?).</p>';
+    marketEl.innerHTML = errHtml;
+    hermesEl.innerHTML = errHtml;
+  }
 }
 async function loadFullCatalog(){
   try{

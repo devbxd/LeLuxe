@@ -19,6 +19,7 @@ const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
 const PAYPAL_BUSINESS_EMAIL = "amandawettstrom@live.se";
 const MARKET_ACCESS_PRICE = "3.99";
 const HERMES_ACCESS_PRICE = "20.00";
+const HERMES_ACCESS_DURATION_MS = 365 * 24 * 60 * 60 * 1000; // acces valable 1 an
 // Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
 const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
 </script>
@@ -705,7 +706,7 @@ a{color:inherit;}
             <p class="paywall-text" data-i18n="hermesPaywallText"></p>
             <div class="paywall-price">
               <span class="paywall-amount">20&nbsp;$</span>
-              <span class="paywall-once" data-i18n="paywallOnce"></span>
+              <span class="paywall-once" data-i18n="hermesPaywallOnce"></span>
             </div>
             <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalHermesForm">
               <input type="hidden" name="cmd" value="_xclick">
@@ -1091,7 +1092,8 @@ const LANG = {
     hermesGateSecure:"Votre email sert uniquement à vous prévenir des nouvelles arrivées Hermès.",
     hermesGateSuccessTitle:"Email confirmé", hermesGateSuccessText:"Votre email a été validé — vous recevrez un message dès qu'un nouveau sac sera ajouté.",
     hermesGateSuccessCta:"Voir les sacs Hermès →",
-    hermesPaywallTitle:"Débloquez la sélection Hermès", hermesPaywallText:"Un accès unique de 20 $ pour consulter en illimité toute la sélection de sacs Hermès et être averti(e) à chaque nouvelle arrivée.",
+    hermesPaywallTitle:"Débloquez la sélection Hermès", hermesPaywallText:"Un accès de 20 $ par an pour consulter en illimité toute la sélection de sacs Hermès et être averti(e) à chaque nouvelle arrivée.",
+    hermesPaywallOnce:"par an",
     hermesPaywallPayBtn:"Payer par carte",
     hermesPaywallSecure:"Paiement sécurisé par carte bancaire.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
@@ -1203,7 +1205,8 @@ const LANG = {
     hermesGateSecure:"Your email is only used to notify you about new Hermès arrivals.",
     hermesGateSuccessTitle:"Email confirmed", hermesGateSuccessText:"Your email has been validated — you'll get a message as soon as a new bag is added.",
     hermesGateSuccessCta:"Go to Hermès bags →",
-    hermesPaywallTitle:"Unlock the Hermès selection", hermesPaywallText:"A one-time $20 access to browse the full Hermès bag selection and be notified of every new arrival.",
+    hermesPaywallTitle:"Unlock the Hermès selection", hermesPaywallText:"A $20 per year access to browse the full Hermès bag selection and be notified of every new arrival.",
+    hermesPaywallOnce:"per year",
     hermesPaywallPayBtn:"Pay by card",
     hermesPaywallSecure:"Secure payment by card.",
     allBrandsBack:"← All brands", resultats:"results",
@@ -1303,7 +1306,8 @@ const LANG = {
     hermesGateSecure:"يُستخدم بريدك الإلكتروني فقط لإعلامك بوصول قطع هيرمس الجديدة.",
     hermesGateSuccessTitle:"تم تأكيد البريد الإلكتروني", hermesGateSuccessText:"تم تأكيد بريدك الإلكتروني — ستصلك رسالة فور إضافة حقيبة جديدة.",
     hermesGateSuccessCta:"→ عرض حقائب هيرمس",
-    hermesPaywallTitle:"افتح تشكيلة هيرمس", hermesPaywallText:"وصول لمرة واحدة بـ 20 $ لتصفح كامل تشكيلة حقائب هيرمس والحصول على إشعار عند كل وصول جديد.",
+    hermesPaywallTitle:"افتح تشكيلة هيرمس", hermesPaywallText:"اشتراك سنوي بـ 20 $ لتصفح كامل تشكيلة حقائب هيرمس والحصول على إشعار عند كل وصول جديد.",
+    hermesPaywallOnce:"في السنة",
     hermesPaywallPayBtn:"ادفع بالبطاقة",
     hermesPaywallSecure:"دفع آمن بالبطاقة المصرفية.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
@@ -1750,7 +1754,11 @@ function hasMarketAccess(){
   return localStorage.getItem('armoire_market_paid_v1') === '1';
 }
 function hasHermesAccess(){
-  return localStorage.getItem('hermes_access_v3') === '1';
+  const until = Number(localStorage.getItem('hermes_access_until') || 0);
+  return until > Date.now();
+}
+function grantHermesAccess(durationMs){
+  localStorage.setItem('hermes_access_until', String(Date.now() + durationMs));
 }
 function renderStorefront(){
   document.querySelectorAll('.uv-tab').forEach(t=> t.classList.toggle('active', t.dataset.uv===state.universe));
@@ -2145,7 +2153,7 @@ document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
   }).catch(err=> console.error('Échec enregistrement email Hermès:', err));
   // Le patron n'a pas besoin de payer pour acceder a sa propre selection Hermes
   if(email.toLowerCase() === HERMES_ADMIN_EMAIL){
-    localStorage.setItem('hermes_access_v3', '1');
+    grantHermesAccess(HERMES_ACCESS_DURATION_MS * 50); // le patron : acces tres longue duree, sans payer
     document.getElementById('hermesGateSuccess').classList.remove('hidden');
   } else {
     setupHermesPaywall();
@@ -2450,10 +2458,9 @@ document.getElementById('paypalForm').addEventListener('submit', ()=>{
 /* ================= PAYWALL HERMES (meme PayPal, affiche comme "carte") ================= */
 function setupHermesPaywall(){
   // le retour de PayPal ajoute ?hermes_paid=1 a l'URL : on memorise l'acces
-  // sur cet appareil (localStorage) puis on nettoie l'URL, pour que le
-  // client ne repaye jamais une deuxieme fois sur ce meme navigateur
+  // sur cet appareil (localStorage), valable 1 an, puis on nettoie l'URL
   if(consumeUrlFlag('hermes_paid')){
-    localStorage.setItem('hermes_access_v3', '1');
+    grantHermesAccess(HERMES_ACCESS_DURATION_MS);
     state.view = 'hermes';
     recordPurchase(localStorage.getItem('hermes_subscriber_email'), 'hermes');
   }
