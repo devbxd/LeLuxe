@@ -14,14 +14,13 @@
 <script>
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
-// Adresse email du compte PayPal Business qui recoit les 3,99$ d'acces au vide-dressing
-// et les 20$ d'acces a la selection Hermes (meme compte PayPal pour les deux)
-const PAYPAL_BUSINESS_EMAIL = "amandawettstrom@live.se";
 const MARKET_ACCESS_PRICE = "3.99";
 const HERMES_ACCESS_PRICE = "20.00";
 const HERMES_ACCESS_DURATION_MS = 365 * 24 * 60 * 60 * 1000; // acces valable 1 an
 // Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
 const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
+// Lien de paiement Revolut (paiement par carte, sans login requis)
+const REVOLUT_LINK = "https://revolut.me/amandawettstrom";
 </script>
 <style>
 :root{
@@ -335,6 +334,10 @@ a{color:inherit;}
 .paywall-pay-btn{width:100%; display:flex; align-items:center; justify-content:center; gap:10px; background:#ffc439; color:#111; padding:16px; border-radius:30px; font-size:13.5px; font-weight:700; letter-spacing:.02em; transition:transform .18s ease, box-shadow .18s ease;}
 .paywall-pay-btn:hover{transform:translateY(-2px); box-shadow:0 14px 28px rgba(0,0,0,.14);}
 .paywall-secure{margin-top:16px; font-size:11px; color:var(--faint); letter-spacing:.02em;}
+.paywall-or{text-align:center; font-size:11px; color:var(--faint); letter-spacing:.04em; text-transform:uppercase; margin:14px 0; position:relative;}
+a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
+.hermes-gate-btn.hidden{display:none;}
+#revolutMarketConfirm, #revolutHermesConfirm{width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;}
 .hermes-gate-form{display:flex; gap:10px; margin-bottom:8px;}
 .hermes-gate-input{flex:1; min-width:0; border:1px solid var(--line); border-radius:30px; padding:14px 18px; font-size:13.5px; font-family:inherit; color:var(--ink); background:#fff;}
 .hermes-gate-input:focus{outline:none; border-color:var(--gold-soft);}
@@ -708,20 +711,12 @@ a{color:inherit;}
               <span class="paywall-amount">20&nbsp;$</span>
               <span class="paywall-once" data-i18n="hermesPaywallOnce"></span>
             </div>
-            <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalHermesForm">
-              <input type="hidden" name="cmd" value="_xclick">
-              <input type="hidden" name="business" id="paypalHermesBusiness" value="">
-              <input type="hidden" name="item_name" value="Acces selection Hermes - Le Luxe">
-              <input type="hidden" name="amount" id="paypalHermesAmount" value="">
-              <input type="hidden" name="currency_code" value="USD">
-              <input type="hidden" name="no_shipping" value="1">
-              <input type="hidden" name="return" id="paypalHermesReturn" value="">
-              <input type="hidden" name="cancel_return" id="paypalHermesCancel" value="">
-              <button type="submit" class="paywall-pay-btn">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                <span data-i18n="hermesPaywallPayBtn"></span>
-              </button>
-            </form>
+            <a id="revolutHermesLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              <span data-i18n="hermesRevolutPayBtn"></span>
+            </a>
+            <button type="button" id="revolutHermesConfirm" class="hermes-gate-btn hidden" data-i18n="hermesRevolutConfirmBtn"></button>
+            <p class="paywall-secure hidden" id="revolutHermesHint" data-i18n="hermesRevolutConfirmHint"></p>
             <p class="paywall-secure" data-i18n="hermesPaywallSecure"></p>
           </div>
           <div id="hermesGateSuccess" class="hidden">
@@ -769,21 +764,13 @@ a{color:inherit;}
             <li data-i18n="paywallPerk2"></li>
             <li data-i18n="paywallPerk3"></li>
           </ul>
-          <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalForm">
-            <input type="hidden" name="cmd" value="_xclick">
-            <input type="hidden" name="business" id="paypalBusiness" value="">
-            <input type="hidden" name="item_name" value="Acces Vide-dressing - Le Luxe">
-            <input type="hidden" name="amount" id="paypalAmount" value="">
-            <input type="hidden" name="currency_code" value="USD">
-            <input type="hidden" name="no_shipping" value="1">
-            <input type="hidden" name="return" id="paypalReturn" value="">
-            <input type="hidden" name="cancel_return" id="paypalCancel" value="">
-            <input type="email" id="marketPaywallEmail" class="hermes-gate-input" required data-i18n-placeholder="marketPaywallEmailPlaceholder" style="margin-bottom:12px;">
-            <button type="submit" class="paywall-pay-btn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M7.5 21H4l2.6-16.5h6.9c3 0 5 1.7 4.5 4.6-.6 3.6-3.3 5.4-6.6 5.4H9.2L7.5 21zm10.2-13c.2 3-1.9 5.3-5.3 5.3H9.8l-1 6.2h2.9l.8-5h2c3.7 0 6.6-2 7.3-5.9.4-2.1-.2-3.8-1.3-4.8.1.7.1 1.4-.1 2.2z"/></svg>
-              <span data-i18n="paywallPayBtn"></span>
-            </button>
-          </form>
+          <input type="email" id="marketPaywallEmail" class="hermes-gate-input" required data-i18n-placeholder="marketPaywallEmailPlaceholder" style="margin-bottom:12px; width:100%;">
+          <a id="revolutMarketLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+            <span data-i18n="marketRevolutPayBtn"></span>
+          </a>
+          <button type="button" id="revolutMarketConfirm" class="hermes-gate-btn hidden" data-i18n="marketRevolutConfirmBtn"></button>
+          <p class="paywall-secure hidden" id="revolutMarketHint" data-i18n="marketRevolutConfirmHint"></p>
           <p class="paywall-secure" data-i18n="paywallSecure"></p>
         </div>
       </div>
@@ -927,19 +914,18 @@ a{color:inherit;}
       <div class="fee-hint" id="feeHint"></div>
       <button type="submit" class="add-bag-btn" id="postSubmitBtn" data-i18n="formSubmit">Publier l'annonce</button>
     </form>
+    <div id="postPaymentStep" class="hidden">
+      <p class="paywall-text" data-i18n="postPaymentText"></p>
+      <div class="paywall-price"><span class="paywall-amount" id="postPaymentAmount"></span></div>
+      <a id="revolutItemLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        <span data-i18n="marketRevolutPayBtn"></span>
+      </a>
+      <button type="button" id="revolutItemConfirm" class="hermes-gate-btn hidden" data-i18n="postPaymentConfirmBtn"></button>
+      <p class="paywall-secure hidden" id="revolutItemHint" data-i18n="postPaymentHint"></p>
+    </div>
   </div>
 </div>
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" id="paypalItemForm" class="hidden">
-  <input type="hidden" name="cmd" value="_xclick">
-  <input type="hidden" name="business" id="paypalItemBusiness" value="">
-  <input type="hidden" name="item_name" id="paypalItemName" value="">
-  <input type="hidden" name="amount" id="paypalItemAmount" value="">
-  <input type="hidden" name="currency_code" value="EUR">
-  <input type="hidden" name="no_shipping" value="1">
-  <input type="hidden" name="return" id="paypalItemReturn" value="">
-  <input type="hidden" name="cancel_return" id="paypalItemCancel" value="">
-</form>
 
 <div class="drawer-scrim" id="cartScrim"></div>
 <div class="drawer" id="cartDrawer">
@@ -1096,6 +1082,9 @@ const LANG = {
     hermesPaywallOnce:"par an",
     hermesPaywallPayBtn:"Payer par carte",
     hermesPaywallSecure:"Paiement sécurisé par carte bancaire.",
+    hermesRevolutOr:"ou", hermesRevolutPayBtn:"Payer par carte (Revolut)",
+    hermesRevolutConfirmBtn:"J'ai terminé le paiement",
+    hermesRevolutConfirmHint:"Indiquez le montant ci-dessus (20 $) sur Revolut, puis cliquez ici une fois le paiement effectué pour débloquer l'accès.",
     allBrandsBack:"← Toutes les marques", resultats:"résultats",
     sortDefault:"Trier : Sélection", sortNew:"Nouveautés", sortPriceAsc:"Prix croissant", sortPriceDesc:"Prix décroissant",
     emptyDept:"Aucun article dans ce rayon.", nouveauBadge:"Nouveau",
@@ -1152,13 +1141,19 @@ const LANG = {
     paywallPerk2:"Vendez ensuite autant d'articles que vous voulez, sans aucune commission",
     paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
     paywallPayBtn:"Payer",
-    paywallSecure:"Paiement sécurisé par PayPal — carte bancaire ou compte PayPal acceptés.",
+    paywallSecure:"Paiement sécurisé par carte bancaire via Revolut.",
+    marketRevolutOr:"ou", marketRevolutPayBtn:"Payer par carte (Revolut)",
+    marketRevolutConfirmBtn:"J'ai terminé le paiement",
+    marketRevolutConfirmHint:"Indiquez le montant ci-dessus (3,99 $) sur Revolut, puis cliquez ici une fois le paiement effectué pour débloquer l'accès.",
     marketPaywallEmailPlaceholder:"Votre adresse email",
     marketHeroText:"Vendez vos pièces de luxe directement entre particuliers. Déposez une annonce en une minute, sans commission.",
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
     formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
-    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par PayPal pour publier l'annonce.",
+    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par carte via Revolut pour publier l'annonce.",
+    postPaymentText:"Réglez les frais de publication ci-dessous par carte via Revolut pour publier votre annonce.",
+    postPaymentConfirmBtn:"J'ai terminé le paiement",
+    postPaymentHint:"Indiquez le montant ci-dessus sur Revolut, puis cliquez ici une fois le paiement effectué pour publier l'annonce.",
     postSubmitPay:"Payer {fee} € et publier",
     formPhoto:"Photo", formPhotoHint:"Ajouter une photo",
     formPhoto4:"4 photos obligatoires", formPhoto4Hint:"{n} / 4 photos ajoutées — les 4 sont nécessaires pour publier.", formPhoto4Missing:"Merci d'ajouter 4 photos pour publier votre annonce.",
@@ -1209,6 +1204,9 @@ const LANG = {
     hermesPaywallOnce:"per year",
     hermesPaywallPayBtn:"Pay by card",
     hermesPaywallSecure:"Secure payment by card.",
+    hermesRevolutOr:"or", hermesRevolutPayBtn:"Pay by card (Revolut)",
+    hermesRevolutConfirmBtn:"I've completed the payment",
+    hermesRevolutConfirmHint:"Enter the amount above ($20) on Revolut, then click here once paid to unlock access.",
     allBrandsBack:"← All brands", resultats:"results",
     sortDefault:"Sort: Featured", sortNew:"New arrivals", sortPriceAsc:"Price: low to high", sortPriceDesc:"Price: high to low",
     emptyDept:"No item in this category.", nouveauBadge:"New",
@@ -1253,13 +1251,19 @@ const LANG = {
     paywallPerk2:"Then sell as many items as you want, commission-free",
     paywallPerk3:"Instant access, valid for life on this device",
     paywallPayBtn:"Pay",
-    paywallSecure:"Secure payment via PayPal — card or PayPal balance accepted.",
+    paywallSecure:"Secure card payment via Revolut.",
+    marketRevolutOr:"or", marketRevolutPayBtn:"Pay by card (Revolut)",
+    marketRevolutConfirmBtn:"I've completed the payment",
+    marketRevolutConfirmHint:"Enter the amount above ($3.99) on Revolut, then click here once paid to unlock access.",
     marketPaywallEmailPlaceholder:"Your email address",
     marketHeroText:"Sell your luxury pieces directly to other members. List an item in a minute, no commission.",
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
     formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
-    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable via PayPal to publish your listing.",
+    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable by card via Revolut to publish your listing.",
+    postPaymentText:"Pay the listing fee below by card via Revolut to publish your listing.",
+    postPaymentConfirmBtn:"I've completed the payment",
+    postPaymentHint:"Enter the amount above on Revolut, then click here once paid to publish your listing.",
     postSubmitPay:"Pay {fee} € and publish",
     formPhoto:"Photo", formPhotoHint:"Add a photo",
     formPhoto4:"4 photos required", formPhoto4Hint:"{n} / 4 photos added — all 4 are required to publish.", formPhoto4Missing:"Please add 4 photos to publish your listing.",
@@ -1310,6 +1314,9 @@ const LANG = {
     hermesPaywallOnce:"في السنة",
     hermesPaywallPayBtn:"ادفع بالبطاقة",
     hermesPaywallSecure:"دفع آمن بالبطاقة المصرفية.",
+    hermesRevolutOr:"أو", hermesRevolutPayBtn:"ادفع بالبطاقة (Revolut)",
+    hermesRevolutConfirmBtn:"لقد أتممت الدفع",
+    hermesRevolutConfirmHint:"أدخل المبلغ أعلاه (20$) على Revolut، ثم اضغط هنا بعد إتمام الدفع لفتح الوصول.",
     allBrandsBack:"→ كل الماركات", resultats:"نتيجة",
     sortDefault:"الترتيب: مختارة", sortNew:"وصل حديثاً", sortPriceAsc:"السعر: من الأقل للأعلى", sortPriceDesc:"السعر: من الأعلى للأقل",
     emptyDept:"لا توجد منتجات في هذا القسم.", nouveauBadge:"جديد",
@@ -1354,13 +1361,19 @@ const LANG = {
     paywallPerk2:"ثم بع بقدر ما تريد من القطع، بدون أي عمولة",
     paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
     paywallPayBtn:"ادفع",
-    paywallSecure:"دفع آمن عبر PayPal — بطاقة مصرفية أو رصيد PayPal.",
+    paywallSecure:"دفع آمن بالبطاقة عبر Revolut.",
+    marketRevolutOr:"أو", marketRevolutPayBtn:"ادفع بالبطاقة (Revolut)",
+    marketRevolutConfirmBtn:"لقد أتممت الدفع",
+    marketRevolutConfirmHint:"أدخل المبلغ أعلاه (3.99$) على Revolut، ثم اضغط هنا بعد إتمام الدفع لفتح الوصول.",
     marketPaywallEmailPlaceholder:"بريدك الإلكتروني",
     marketHeroText:"بيع قطعك الفاخرة مباشرة لأفراد آخرين. انشر إعلانك في دقيقة واحدة، بدون عمولة.",
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
     formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
-    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع عبر PayPal لنشر الإعلان.",
+    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع بالبطاقة عبر Revolut لنشر الإعلان.",
+    postPaymentText:"ادفع رسوم النشر أدناه بالبطاقة عبر Revolut لنشر إعلانك.",
+    postPaymentConfirmBtn:"لقد أتممت الدفع",
+    postPaymentHint:"أدخل المبلغ أعلاه على Revolut، ثم اضغط هنا بعد إتمام الدفع لنشر الإعلان.",
     postSubmitPay:"ادفع {fee} € وانشر",
     formPhoto:"صورة", formPhotoHint:"أضف صورة",
     formPhoto4:"4 صور مطلوبة", formPhoto4Hint:"{n} / 4 صور مضافة — الصور الأربع مطلوبة للنشر.", formPhoto4Missing:"يرجى إضافة 4 صور لنشر إعلانك.",
@@ -2116,6 +2129,10 @@ function updateFeeHint(){
 function openPostModal(){
   document.getElementById('postModal').classList.add('open');
   document.getElementById('postScrim').classList.add('open');
+  document.getElementById('postForm').classList.remove('hidden');
+  document.getElementById('postPaymentStep').classList.add('hidden');
+  document.getElementById('postForm').reset();
+  pendingListingDraft = null;
   updateFeeHint();
   pendingListingImages = [null, null, null, null];
   document.querySelectorAll('#photoDropGrid .photo-drop').forEach(zone=>{
@@ -2184,17 +2201,36 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   const listing = { id: genId(), name, category, price, phone, location, images: pendingListingImages.slice(), createdAt: Date.now() };
   const fee = listingFeeFor(price);
 
-  // Le brouillon d'annonce doit survivre l'aller-retour vers PayPal (qui
-  // recharge completement la page) : on le garde dans localStorage, et on
-  // ne le publie reellement qu'au retour, une fois le paiement confirme.
-  localStorage.setItem('armoire_pending_listing', JSON.stringify(listing));
-  const base = currentPageUrl();
-  document.getElementById('paypalItemBusiness').value = PAYPAL_BUSINESS_EMAIL;
-  document.getElementById('paypalItemName').value = `Frais de publication - ${name}`.slice(0,127);
-  document.getElementById('paypalItemAmount').value = fee.toFixed(2);
-  document.getElementById('paypalItemReturn').value = base + '?item_paid=1';
-  document.getElementById('paypalItemCancel').value = base;
-  document.getElementById('paypalItemForm').submit();
+  if(fee <= 0){
+    publishListing(listing);
+    closePostModal();
+    return;
+  }
+  // Frais de publication (5%) : paiement par Revolut, confirme manuellement
+  // par le vendeur (pas de retour automatique comme avec un vrai callback).
+  pendingListingDraft = listing;
+  document.getElementById('postForm').classList.add('hidden');
+  document.getElementById('postPaymentAmount').textContent = fee.toFixed(2) + ' €';
+  document.getElementById('revolutItemLink').href = REVOLUT_LINK;
+  document.getElementById('revolutItemConfirm').classList.add('hidden');
+  document.getElementById('revolutItemHint').classList.add('hidden');
+  document.getElementById('postPaymentStep').classList.remove('hidden');
+});
+let pendingListingDraft = null;
+function publishListing(listing){
+  state.market.unshift(listing);
+  lastPostedId = listing.id;
+  saveMarketplace();
+  state.view = 'market';
+  renderStorefront();
+}
+document.getElementById('revolutItemLink').addEventListener('click', ()=>{
+  document.getElementById('revolutItemConfirm').classList.remove('hidden');
+  document.getElementById('revolutItemHint').classList.remove('hidden');
+});
+document.getElementById('revolutItemConfirm').addEventListener('click', ()=>{
+  if(pendingListingDraft){ publishListing(pendingListingDraft); pendingListingDraft = null; }
+  closePostModal();
 });
 
 /* ---------- MODAL ---------- */
@@ -2412,7 +2448,7 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
   setTimeout(()=>{ renderCartBody(); document.getElementById('confirmMsg').classList.remove('show'); closeDrawer('cart'); }, 1800);
 });
 
-/* ================= PAYWALL VIDE-DRESSING (PayPal) ================= */
+/* ================= PAYWALL VIDE-DRESSING ================= */
 function currentPageUrl(){
   return window.location.origin + window.location.pathname;
 }
@@ -2424,7 +2460,7 @@ function consumeUrlFlag(name){
   history.replaceState(null, '', clean);
   return true;
 }
-// Enregistre un paiement confirme (retour PayPal) dans Supabase, pour que le
+// Enregistre un paiement confirme dans Supabase, pour que le
 // dashboard puisse afficher qui a paye le vide-dressing / la selection Hermes.
 function recordPurchase(email, product){
   if(!email) return;
@@ -2435,8 +2471,9 @@ function recordPurchase(email, product){
   }).catch(err=> console.error('Échec enregistrement paiement:', err));
 }
 function setupMarketPaywall(){
-  // le retour de PayPal ajoute ?vd_paid=1 a l'URL : on memorise l'acces sur
-  // cet appareil (localStorage) puis on nettoie l'URL, pour que le client
+  // ancien retour PayPal (?vd_paid=1), garde par compatibilite si un lien
+  // deja partage traine encore : on memorise l'acces sur cet appareil
+  // (localStorage) puis on nettoie l'URL, pour que le client
   // ne repaye jamais une deuxieme fois sur ce meme navigateur
   if(consumeUrlFlag('vd_paid')){
     localStorage.setItem('armoire_market_paid_v1', '1');
@@ -2445,31 +2482,47 @@ function setupMarketPaywall(){
     localStorage.removeItem('market_pending_email');
     recordPurchase(paidEmail, 'vide_dressing');
   }
-  const base = currentPageUrl();
-  document.getElementById('paypalBusiness').value = PAYPAL_BUSINESS_EMAIL;
-  document.getElementById('paypalAmount').value = MARKET_ACCESS_PRICE;
-  document.getElementById('paypalReturn').value = base + '?vd_paid=1';
-  document.getElementById('paypalCancel').value = base;
+  document.getElementById('revolutMarketLink').href = REVOLUT_LINK;
 }
-document.getElementById('paypalForm').addEventListener('submit', ()=>{
+/* ================= PAIEMENT (Revolut, carte sans login requis) =================
+   Revolut n'a pas de retour automatique vers le site : le client paie dans un
+   nouvel onglet puis confirme manuellement ici pour debloquer l'acces. */
+document.getElementById('revolutMarketLink').addEventListener('click', ()=>{
   const email = document.getElementById('marketPaywallEmail').value.trim();
-  if(email) localStorage.setItem('market_pending_email', email);
+  if(!email){ document.getElementById('marketPaywallEmail').focus(); return; }
+  localStorage.setItem('market_pending_email', email);
+  document.getElementById('revolutMarketConfirm').classList.remove('hidden');
+  document.getElementById('revolutMarketHint').classList.remove('hidden');
 });
-/* ================= PAYWALL HERMES (meme PayPal, affiche comme "carte") ================= */
+document.getElementById('revolutMarketConfirm').addEventListener('click', ()=>{
+  localStorage.setItem('armoire_market_paid_v1', '1');
+  const paidEmail = localStorage.getItem('market_pending_email');
+  localStorage.removeItem('market_pending_email');
+  recordPurchase(paidEmail, 'vide_dressing');
+  state.view = 'market';
+  renderStorefront();
+});
+/* ================= PAYWALL HERMES ================= */
 function setupHermesPaywall(){
-  // le retour de PayPal ajoute ?hermes_paid=1 a l'URL : on memorise l'acces
-  // sur cet appareil (localStorage), valable 1 an, puis on nettoie l'URL
+  // ancien retour PayPal (?hermes_paid=1), garde par compatibilite : on
+  // memorise l'acces sur cet appareil (localStorage), valable 1 an, puis on nettoie l'URL
   if(consumeUrlFlag('hermes_paid')){
     grantHermesAccess(HERMES_ACCESS_DURATION_MS);
     state.view = 'hermes';
     recordPurchase(localStorage.getItem('hermes_subscriber_email'), 'hermes');
   }
-  const base = currentPageUrl();
-  document.getElementById('paypalHermesBusiness').value = PAYPAL_BUSINESS_EMAIL;
-  document.getElementById('paypalHermesAmount').value = HERMES_ACCESS_PRICE;
-  document.getElementById('paypalHermesReturn').value = base + '?hermes_paid=1';
-  document.getElementById('paypalHermesCancel').value = base;
+  document.getElementById('revolutHermesLink').href = REVOLUT_LINK;
 }
+document.getElementById('revolutHermesLink').addEventListener('click', ()=>{
+  document.getElementById('revolutHermesConfirm').classList.remove('hidden');
+  document.getElementById('revolutHermesHint').classList.remove('hidden');
+});
+document.getElementById('revolutHermesConfirm').addEventListener('click', ()=>{
+  grantHermesAccess(HERMES_ACCESS_DURATION_MS);
+  recordPurchase(localStorage.getItem('hermes_subscriber_email'), 'hermes');
+  state.view = 'hermes';
+  renderStorefront();
+});
 // Le brouillon d'annonce (voir postForm submit) n'est publie qu'ici, au
 // retour du paiement du frais de publication (5% du prix) - appele apres
 // le chargement de state.market pour pouvoir l'inserer directement dedans.
