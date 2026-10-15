@@ -22,9 +22,9 @@ const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
 // Lien de paiement Revolut (paiement par carte, sans login requis)
 const REVOLUT_LINK = "https://revolut.me/amandawettstrom";
 // Client ID PayPal (app "LE LUXE SITE", Live) - pour le SDK Smart Buttons (paiement carte direct, verifie automatiquement)
-const PAYPAL_CLIENT_ID = "BAAAtQg8zF2uCs4v6M0jjVRGcpsa46remn4uq3QrXWokXKGZX3862YX8DlPRpzVH25vKQGVYufTjR6j_-k";
+const PAYPAL_CLIENT_ID = "BAAwO9JyuugDSb2-xaJ6_zkIF4_F-K7ahuG8BbO1kVYoZLzotzj0QC-U7zPpGbKkoA-MM-7JouuALIZ418";
 </script>
-<script src="https://www.paypal.com/sdk/js?client-id=BAAAtQg8zF2uCs4v6M0jjVRGcpsa46remn4uq3QrXWokXKGZX3862YX8DlPRpzVH25vKQGVYufTjR6j_-k&currency=USD&intent=capture&components=buttons&enable-funding=card"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=BAAwO9JyuugDSb2-xaJ6_zkIF4_F-K7ahuG8BbO1kVYoZLzotzj0QC-U7zPpGbKkoA-MM-7JouuALIZ418&currency=USD&intent=capture&components=buttons&enable-funding=card&disable-funding=paylater,credit"></script>
 <style>
 :root{
   --ink:#111; --paper:#fff; --muted:#8a8a8a; --faint:#a3a3a3; --line:#ececec; --line-soft:#f2f2f2;
@@ -1129,7 +1129,7 @@ const LANG = {
     paywallPerk2:"Vendez ensuite autant d'articles que vous voulez, sans aucune commission",
     paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
     paywallPayBtn:"Payer",
-    paywallSecure:"Paiement sécurisé par carte bancaire via Revolut.",
+    paywallSecure:"Paiement sécurisé par carte bancaire via PayPal.",
     marketRevolutOr:"ou", marketRevolutPayBtn:"Payer par carte (Revolut)",
     marketRevolutConfirmBtn:"J'ai terminé le paiement",
     marketRevolutConfirmHint:"Indiquez le montant ci-dessus (3,99 $) sur Revolut, puis cliquez ici une fois le paiement effectué pour débloquer l'accès.",
@@ -1138,8 +1138,8 @@ const LANG = {
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
     formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
-    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par carte via Revolut pour publier l'annonce.",
-    postPaymentText:"Réglez les frais de publication ci-dessous par carte via Revolut pour publier votre annonce.",
+    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par carte via PayPal pour publier l'annonce.",
+    postPaymentText:"Réglez les frais de publication ci-dessous par carte via PayPal pour publier votre annonce.",
     postPaymentConfirmBtn:"J'ai terminé le paiement",
     postPaymentHint:"Indiquez le montant ci-dessus sur Revolut, puis cliquez ici une fois le paiement effectué pour publier l'annonce.",
     paymentErrorGeneric:"Une erreur est survenue pendant le paiement. Merci de réessayer.",
@@ -1240,7 +1240,7 @@ const LANG = {
     paywallPerk2:"Then sell as many items as you want, commission-free",
     paywallPerk3:"Instant access, valid for life on this device",
     paywallPayBtn:"Pay",
-    paywallSecure:"Secure card payment via Revolut.",
+    paywallSecure:"Secure card payment via PayPal.",
     marketRevolutOr:"or", marketRevolutPayBtn:"Pay by card (Revolut)",
     marketRevolutConfirmBtn:"I've completed the payment",
     marketRevolutConfirmHint:"Enter the amount above ($3.99) on Revolut, then click here once paid to unlock access.",
@@ -1249,8 +1249,8 @@ const LANG = {
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
     formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
-    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable by card via Revolut to publish your listing.",
-    postPaymentText:"Pay the listing fee below by card via Revolut to publish your listing.",
+    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable by card via PayPal to publish your listing.",
+    postPaymentText:"Pay the listing fee below by card via PayPal to publish your listing.",
     postPaymentConfirmBtn:"I've completed the payment",
     postPaymentHint:"Enter the amount above on Revolut, then click here once paid to publish your listing.",
     paymentErrorGeneric:"Something went wrong during payment. Please try again.",
@@ -1351,7 +1351,7 @@ const LANG = {
     paywallPerk2:"ثم بع بقدر ما تريد من القطع، بدون أي عمولة",
     paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
     paywallPayBtn:"ادفع",
-    paywallSecure:"دفع آمن بالبطاقة عبر Revolut.",
+    paywallSecure:"دفع آمن بالبطاقة عبر PayPal.",
     marketRevolutOr:"أو", marketRevolutPayBtn:"ادفع بالبطاقة (Revolut)",
     marketRevolutConfirmBtn:"لقد أتممت الدفع",
     marketRevolutConfirmHint:"أدخل المبلغ أعلاه (3.99$) على Revolut، ثم اضغط هنا بعد إتمام الدفع لفتح الوصول.",
@@ -1360,8 +1360,8 @@ const LANG = {
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
     formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
-    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع بالبطاقة عبر Revolut لنشر الإعلان.",
-    postPaymentText:"ادفع رسوم النشر أدناه بالبطاقة عبر Revolut لنشر إعلانك.",
+    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع بالبطاقة عبر PayPal لنشر الإعلان.",
+    postPaymentText:"ادفع رسوم النشر أدناه بالبطاقة عبر PayPal لنشر إعلانك.",
     postPaymentConfirmBtn:"لقد أتممت الدفع",
     postPaymentHint:"أدخل المبلغ أعلاه على Revolut، ثم اضغط هنا بعد إتمام الدفع لنشر الإعلان.",
     paymentErrorGeneric:"حدث خطأ أثناء الدفع. يرجى المحاولة مرة أخرى.",
