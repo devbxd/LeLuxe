@@ -89,12 +89,16 @@ async function main(){
 
   log(`Lot de ${batch.length}/${BRAND_NAMES.length} marques (index ${start} -> ${nextIndex}) : ${batch.join(', ')}`);
 
+  // Catalogue lu UNE seule fois pour tout le lot (plusieurs Mo par lecture) :
+  // le relire a chaque marque dans la boucle gaspillait jusqu'a 50x la bande
+  // passante necessaire sur une seule execution hebdomadaire.
+  const DATA = await fetchCatalog();
+
   const report = [];
   for(let i = 0; i < batch.length; i++){
     const brandName = batch[i];
     log(`(${i + 1}/${batch.length}) ${brandName}...`);
     try{
-      const DATA = await fetchCatalog();
       const brand = DATA.brands.find(b => b.name.toLowerCase() === brandName.toLowerCase());
       if(!brand){
         log(`  -> marque introuvable dans le catalogue, ignoree.`);
