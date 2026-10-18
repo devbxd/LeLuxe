@@ -44,6 +44,16 @@ input,select{font:inherit;}
 .btn:disabled{opacity:.45; cursor:not-allowed;}
 
 .section-title{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8a8478; margin:30px 0 12px; font-weight:700;}
+.tab-nav{display:flex; gap:6px; border-bottom:1px solid #e5e2dc; margin:8px 0 24px; overflow-x:auto;}
+.tab-btn{background:none; border:none; padding:12px 16px; font-size:13px; font-weight:600; color:#a39d8f; border-bottom:2px solid transparent; white-space:nowrap;}
+.tab-btn.active{color:#161513; border-bottom-color:#161513;}
+.tab-btn:hover{color:#161513;}
+.payment-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:16px 18px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap;}
+.payment-card .pname{font-weight:700; font-size:14px;}
+.payment-card .pmeta{font-size:12px; color:#8a8478; margin-top:2px;}
+.payment-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
+.tag-pending{background:#fdf2d9; color:#8a6d1f;}
+.tag-rejected{background:#fdecea; color:#8a2a20;}
 .hint code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:11.5px;}
 
 .hermes-admin-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:8px;}
@@ -133,91 +143,99 @@ input,select{font:inherit;}
     <a href="boutique.html" target="_blank">Voir la boutique ↗</a>
   </div>
 
-  <div id="catalogLoadError" class="hidden" style="background:#fdecea;border:1px solid #f3b4ac;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:12.5px;color:#8a2a20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-    <span>⚠️ Le reste du catalogue (toutes les marques sauf Hermès) n'a pas pu charger — Hermès reste utilisable normalement.</span>
-    <button class="btn" onclick="loadFullCatalog()">Réessayer</button>
-  </div>
-
-  <div class="section-title">Hermès Bags (section manuelle)</div>
-  <div class="hermes-admin-card">
-    <div id="hermesItemsList"></div>
-    <div class="add-item-row">
-      <div class="paste-zone" tabindex="0" id="newzone-hermesbags">Coller image<br>(Ctrl+V)</div>
-      <input type="text" placeholder="Nom du sac" id="newname-hermesbags" style="flex:2;min-width:160px;border:1px solid #e5e2dc;border-radius:6px;padding:8px 10px;font-size:12.5px;">
-      <input type="number" step="0.01" placeholder="Prix" id="newprice-hermesbags" style="width:90px;border:1px solid #e5e2dc;border-radius:6px;padding:8px;font-size:12.5px;">
-      <label style="display:flex; flex-direction:column; font-size:9.5px; color:#a39d8f; text-transform:uppercase; letter-spacing:.04em;">Date de la descente
-        <input type="date" id="newdate-hermesbags" style="border:1px solid #e5e2dc;border-radius:6px;padding:7px 8px;font-size:12.5px;margin-top:2px;">
-      </label>
-      <input type="hidden" id="newdept-hermesbags" value="sacs">
-      <input type="hidden" id="newgender-hermesbags" value="">
-      <button class="btn" data-additem="hermesbags">Ajouter</button>
-    </div>
-    <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing, regroupée par date de descente ("Nouveautés du...").</p>
-  </div>
-
-  <div class="section-title">Paiements confirmés</div>
-  <div class="hermes-admin-card">
-    <div class="purchases-cols">
-      <div>
-        <h3 class="purchases-col-title">Vide-dressing (3,99&nbsp;$)</h3>
-        <div id="purchasesMarketList"><p class="hint">Chargement…</p></div>
-      </div>
-      <div>
-        <h3 class="purchases-col-title">Sacs Hermès (20&nbsp;$)</h3>
-        <div id="purchasesHermesList"><p class="hint">Chargement…</p></div>
-      </div>
-    </div>
-    <p class="hint">Le patron (accès Hermès gratuit) n'apparaît pas ici — seuls les paiements réellement confirmés par PayPal sont listés.</p>
-  </div>
-
   <div class="stat-row">
     <div class="stat-chip"><b id="statBrands">0</b><span>Marques</span></div>
     <div class="stat-chip"><b id="statItems">0</b><span>Articles</span></div>
     <div class="stat-chip"><b id="statExternal">0</b><span>Marques vitrine</span></div>
     <div class="stat-chip"><b id="statMarket">0</b><span>Annonces vide-dressing</span></div>
+    <div class="stat-chip"><b id="statPending">0</b><span>Paiements en attente</span></div>
   </div>
 
-  <div class="section-title">Rafraîchissement des nouveautés</div>
-  <div class="refresh-card">
-    <p class="hint" style="margin-top:0;">Automatique — pas d'action à faire ici. Un serveur en ligne repasse sur une marque toutes les 15 minutes et ajoute ses nouveaux articles, ce qui fait un cycle complet des 39 marques toutes les ~10 heures (environ une fois par jour).</p>
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="payments">Paiements</button>
+    <button class="tab-btn" data-tab="hermes">Hermès</button>
+    <button class="tab-btn" data-tab="catalog">Catalogue</button>
+    <button class="tab-btn" data-tab="market">Vide-dressing</button>
   </div>
 
-  <div class="section-title">Ajouter une marque</div>
-  <div class="add-brand-card">
-    <input type="text" id="newBrandName" placeholder="Nom de la marque">
-    <select id="newBrandUv">
-      <option value="luxe">Luxe</option>
-      <option value="pasluxe">Pas luxe</option>
-      <option value="magasins">Grands magasins</option>
-    </select>
-    <label style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:#555;">
-      <input type="checkbox" id="newBrandExternal" style="width:auto;"> Vitrine (lien externe, sans catalogue)
-    </label>
-    <input type="text" id="newBrandLink" placeholder="https://... (site officiel, si vitrine)">
-    <button class="btn" id="addBrandBtn">Ajouter</button>
+  <div class="tab-panel" data-panel="payments">
+    <div class="section-title">Demandes de paiement en attente</div>
+    <div id="paymentsPendingList"><p class="hint">Chargement…</p></div>
+    <p class="hint">Vérifiez d'abord dans votre compte Revolut que l'argent est bien arrivé, puis cliquez "Valider" — ça débloque l'accès du client (ou publie son annonce) automatiquement. "Refuser" si le paiement n'arrive jamais.</p>
+
+    <div class="section-title">Historique</div>
+    <div id="paymentsHistoryList"><p class="hint">Chargement…</p></div>
   </div>
 
-  <div class="section-title">Marques & articles</div>
-  <div class="toolbar">
-    <input type="text" id="searchBrand" placeholder="Rechercher une marque…">
-    <select id="filterUv">
-      <option value="all">Tous les univers</option>
-      <option value="luxe">Luxe</option>
-      <option value="pasluxe">Pas luxe</option>
-      <option value="magasins">Grands magasins</option>
-    </select>
-    <select id="filterType">
-      <option value="all">Tout type</option>
-      <option value="catalog">Avec catalogue</option>
-      <option value="external">Vitrine (lien)</option>
-    </select>
+  <div class="tab-panel hidden" data-panel="hermes">
+    <div class="section-title">Hermès Bags (section manuelle)</div>
+    <div class="hermes-admin-card">
+      <div id="hermesItemsList"></div>
+      <div class="add-item-row">
+        <div class="paste-zone" tabindex="0" id="newzone-hermesbags">Coller image<br>(Ctrl+V)</div>
+        <input type="text" placeholder="Nom du sac" id="newname-hermesbags" style="flex:2;min-width:160px;border:1px solid #e5e2dc;border-radius:6px;padding:8px 10px;font-size:12.5px;">
+        <input type="number" step="0.01" placeholder="Prix" id="newprice-hermesbags" style="width:90px;border:1px solid #e5e2dc;border-radius:6px;padding:8px;font-size:12.5px;">
+        <label style="display:flex; flex-direction:column; font-size:9.5px; color:#a39d8f; text-transform:uppercase; letter-spacing:.04em;">Date de la descente
+          <input type="date" id="newdate-hermesbags" style="border:1px solid #e5e2dc;border-radius:6px;padding:7px 8px;font-size:12.5px;margin-top:2px;">
+        </label>
+        <input type="hidden" id="newdept-hermesbags" value="sacs">
+        <input type="hidden" id="newgender-hermesbags" value="">
+        <button class="btn" data-additem="hermesbags">Ajouter</button>
+      </div>
+      <p class="hint">Cette section n'est jamais touchée par le rafraîchissement automatique ni par les scrapers — uniquement ce que vous ajoutez ici manuellement. Elle apparaît sur le site juste en dessous du vide-dressing, regroupée par date de descente ("Nouveautés du...").</p>
+    </div>
   </div>
-  <div id="adminBrandList"></div>
-  <p class="hint">Cliquez une marque pour la déplier. Pour une image d'article : cliquez la case en pointillés puis Ctrl+V juste après avoir copié une image, ou cliquez pour choisir un fichier. Chaque modification part directement dans la base partagée et apparaît sur le site en quelques secondes (rafraîchissement automatique toutes les 15s) — pas de bouton "enregistrer" à chercher.</p>
 
-  <div class="section-title">Annonces vide-dressing (particuliers)</div>
-  <div id="marketList"></div>
-  <p class="hint">Ce sont les annonces postées par les visiteurs depuis la section "Vide-dressing" du site. Vous pouvez en supprimer une si besoin (spam, contenu inapproprié...).</p>
+  <div class="tab-panel hidden" data-panel="catalog">
+    <div id="catalogLoadError" class="hidden" style="background:#fdecea;border:1px solid #f3b4ac;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:12.5px;color:#8a2a20;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <span>⚠️ Le reste du catalogue (toutes les marques sauf Hermès) n'a pas pu charger — Hermès reste utilisable normalement.</span>
+      <button class="btn" onclick="loadFullCatalog()">Réessayer</button>
+    </div>
+
+    <div class="section-title">Rafraîchissement des nouveautés</div>
+    <div class="refresh-card">
+      <p class="hint" style="margin-top:0;">Automatique — pas d'action à faire ici. Un script repasse sur tout le catalogue une fois par semaine (le dimanche) et ajoute les nouveaux articles.</p>
+    </div>
+
+    <div class="section-title">Ajouter une marque</div>
+    <div class="add-brand-card">
+      <input type="text" id="newBrandName" placeholder="Nom de la marque">
+      <select id="newBrandUv">
+        <option value="luxe">Luxe</option>
+        <option value="pasluxe">Pas luxe</option>
+        <option value="magasins">Grands magasins</option>
+      </select>
+      <label style="display:flex; align-items:center; gap:6px; font-size:12.5px; color:#555;">
+        <input type="checkbox" id="newBrandExternal" style="width:auto;"> Vitrine (lien externe, sans catalogue)
+      </label>
+      <input type="text" id="newBrandLink" placeholder="https://... (site officiel, si vitrine)">
+      <button class="btn" id="addBrandBtn">Ajouter</button>
+    </div>
+
+    <div class="section-title">Marques & articles</div>
+    <div class="toolbar">
+      <input type="text" id="searchBrand" placeholder="Rechercher une marque…">
+      <select id="filterUv">
+        <option value="all">Tous les univers</option>
+        <option value="luxe">Luxe</option>
+        <option value="pasluxe">Pas luxe</option>
+        <option value="magasins">Grands magasins</option>
+      </select>
+      <select id="filterType">
+        <option value="all">Tout type</option>
+        <option value="catalog">Avec catalogue</option>
+        <option value="external">Vitrine (lien)</option>
+      </select>
+    </div>
+    <div id="adminBrandList"></div>
+    <p class="hint">Cliquez une marque pour la déplier. Pour une image d'article : cliquez la case en pointillés puis Ctrl+V juste après avoir copié une image, ou cliquez pour choisir un fichier. Chaque modification part directement dans la base partagée et apparaît sur le site en quelques secondes (rafraîchissement automatique toutes les 15s) — pas de bouton "enregistrer" à chercher.</p>
+  </div>
+
+  <div class="tab-panel hidden" data-panel="market">
+    <div class="section-title">Annonces vide-dressing (particuliers)</div>
+    <div id="marketList"></div>
+    <p class="hint">Ce sont les annonces déjà publiées (visibles sur le site). Les nouvelles annonces payantes n'apparaissent ici qu'après validation du paiement dans l'onglet "Paiements". Vous pouvez supprimer une annonce si besoin (spam, contenu inapproprié...).</p>
+  </div>
 </div>
 
 <script>
@@ -691,32 +709,99 @@ async function init(){
   document.getElementById('adminRoot').classList.remove('hidden');
   renderStats();
   renderAdmin();
-  renderPurchases();
+  renderPayments();
   await loadFullCatalog();
 }
-// Liste des paiements confirmes (retour PayPal cote boutique.html, voir
-// recordPurchase()) - table "purchases" (email, product, created_at).
-// Chargement independant du reste : un souci ici ne doit pas bloquer le
-// dashboard, meme logique que la section Hermès.
-async function renderPurchases(){
-  const marketEl = document.getElementById('purchasesMarketList');
-  const hermesEl = document.getElementById('purchasesHermesList');
+/* ================= ONGLETS ================= */
+document.querySelectorAll('.tab-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+  document.querySelectorAll('.tab-btn').forEach(b=> b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=> p.classList.add('hidden'));
+  btn.classList.add('active');
+  document.querySelector(`.tab-panel[data-panel="${btn.dataset.tab}"]`).classList.remove('hidden');
+}));
+
+/* ================= PAIEMENTS (Revolut + validation manuelle) =================
+   Le client paie sur Revolut, confirme par WhatsApp, et cree une ligne dans
+   "payment_requests" (voir boutique.html). Ici, on verifie que l'argent est
+   bien arrive sur Revolut, puis on valide : ca debloque l'acces du client
+   (vide-dressing/Hermes) ou publie son annonce (frais de publication),
+   selon le produit concerne. */
+function escapeHtml(s){ return (s==null?'':String(s)).replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+const PAYMENT_PRODUCT_LABELS = { vide_dressing:'Vide-dressing (3,99 $)', hermes:'Sélection Hermès (20 $)', item_listing:'Frais de publication annonce' };
+async function fetchPaymentRequests(status){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/payment_requests?status=eq.${status}&select=*&order=created_at.desc`, {
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+  });
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  return res.json();
+}
+async function updatePaymentStatus(id, status){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/payment_requests?id=eq.${encodeURIComponent(id)}`, {
+    method:'PATCH',
+    headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, 'Content-Type':'application/json', Prefer:'return=minimal' },
+    body: JSON.stringify({ status })
+  });
+  return res.ok;
+}
+function paymentCardHtml(r){
+  const waLink = r.phone ? `https://wa.me/${String(r.phone).replace(/[^0-9]/g,'')}` : null;
+  const itemLabel = (r.product==='item_listing' && r.draft) ? ` — "${escapeHtml(r.draft.name)}"` : '';
+  const statusTag = r.status==='pending' ? '' :
+    r.status==='approved' ? '<span class="tag tag-paid">Validé ✓</span>' : '<span class="tag tag-rejected">Refusé</span>';
+  return `<div class="payment-card">
+    <div>
+      <div class="pname">${escapeHtml(r.name)}${itemLabel}</div>
+      <div class="pmeta">${escapeHtml(r.email)}${r.phone?' · '+escapeHtml(r.phone):''}</div>
+      <div class="pmeta">${PAYMENT_PRODUCT_LABELS[r.product]||r.product} · ${r.amount} $ · ${new Date(r.created_at).toLocaleString('fr-FR')}</div>
+    </div>
+    <div class="payment-actions">
+      ${waLink?`<a class="btn btn-outline" href="${waLink}" target="_blank">WhatsApp</a>`:''}
+      ${r.status==='pending' ? `
+        <button class="btn" data-approve="${r.id}">✓ Valider</button>
+        <button class="btn btn-danger" data-reject="${r.id}">✕ Refuser</button>
+      ` : statusTag}
+    </div>
+  </div>`;
+}
+async function approvePayment(r){
+  const ok = await updatePaymentStatus(r.id, 'approved');
+  if(!ok){ flashSaved(false); return; }
+  if(r.product === 'item_listing' && r.draft){
+    MARKET.unshift(r.draft);
+    await saveMarket();
+    renderMarket();
+  }
+  flashSaved(true);
+  renderStats();
+  renderPayments();
+}
+async function rejectPayment(r){
+  if(!confirm('Refuser cette demande de paiement ?')) return;
+  await updatePaymentStatus(r.id, 'rejected');
+  renderPayments();
+}
+async function renderPayments(){
+  const pendingEl = document.getElementById('paymentsPendingList');
+  const historyEl = document.getElementById('paymentsHistoryList');
   try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/purchases?select=email,product,created_at&order=created_at.desc`, {
-      headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
-    });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const rows = await res.json();
-    const rowHtml = r => `<div class="purchase-row"><span class="purchase-email">${(r.email||'').replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))}</span><span class="purchase-meta"><span class="purchase-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</span><span class="tag tag-paid">Payé ✓</span></span></div>`;
-    const market = rows.filter(r=> r.product==='vide_dressing');
-    const hermes = rows.filter(r=> r.product==='hermes');
-    marketEl.innerHTML = market.length ? market.map(rowHtml).join('') : '<p class="hint">Aucun paiement pour l\'instant.</p>';
-    hermesEl.innerHTML = hermes.length ? hermes.map(rowHtml).join('') : '<p class="hint">Aucun paiement pour l\'instant.</p>';
+    const [pending, approved, rejected] = await Promise.all([
+      fetchPaymentRequests('pending'), fetchPaymentRequests('approved'), fetchPaymentRequests('rejected')
+    ]);
+    document.getElementById('statPending').textContent = pending.length;
+    pendingEl.innerHTML = pending.length ? pending.map(paymentCardHtml).join('') : '<p class="hint">Aucune demande en attente.</p>';
+    const history = [...approved, ...rejected].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at)).slice(0,30);
+    historyEl.innerHTML = history.length ? history.map(paymentCardHtml).join('') : '<p class="hint">Aucun historique pour l\'instant.</p>';
+    document.querySelectorAll('[data-approve]').forEach(btn=> btn.addEventListener('click', ()=>{
+      const r = pending.find(p=>p.id===btn.dataset.approve); if(r) approvePayment(r);
+    }));
+    document.querySelectorAll('[data-reject]').forEach(btn=> btn.addEventListener('click', ()=>{
+      const r = pending.find(p=>p.id===btn.dataset.reject); if(r) rejectPayment(r);
+    }));
   }catch(e){
     console.error('Chargement des paiements impossible:', e);
-    const errHtml = '<p class="hint">⚠️ Impossible de charger les paiements (la table "purchases" existe-t-elle sur Supabase ?).</p>';
-    marketEl.innerHTML = errHtml;
-    hermesEl.innerHTML = errHtml;
+    const errHtml = '<p class="hint">⚠️ Impossible de charger les paiements (la table "payment_requests" existe-t-elle sur Supabase ?).</p>';
+    pendingEl.innerHTML = errHtml;
+    historyEl.innerHTML = '';
   }
 }
 async function loadFullCatalog(){
