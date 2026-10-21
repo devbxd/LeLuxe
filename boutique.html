@@ -19,8 +19,8 @@ const HERMES_ACCESS_PRICE = "20.00";
 const HERMES_ACCESS_DURATION_MS = 365 * 24 * 60 * 60 * 1000; // acces valable 1 an
 // Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
 const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
-// Lien de paiement Revolut (paiement par carte, sans login requis)
-const REVOLUT_LINK = "https://revolut.me/amandawettstrom";
+// Lien de paiement (PayPal.me d'Amanda) - paiement manuel, confirme ensuite par WhatsApp
+const REVOLUT_LINK = "https://paypal.me/amme15w";
 // Numero WhatsApp du patron (format international SANS le +, ex: 9613xxxxxx)
 // pour que le client envoie la confirmation de paiement avec un message pre-rempli.
 const PATRON_WHATSAPP = "96181666035";
@@ -1105,8 +1105,8 @@ const LANG = {
     hermesPaywallTitle:"Débloquez la sélection Hermès", hermesPaywallText:"Un accès de 20 $ par an pour consulter en illimité toute la sélection de sacs Hermès et être averti(e) à chaque nouvelle arrivée.",
     hermesPaywallOnce:"par an",
     hermesPaywallPayBtn:"Payer par carte",
-    hermesPaywallSecure:"Paiement sécurisé par carte bancaire via Revolut.",
-    payBtnRevolut:"Payer par carte (Revolut)",
+    hermesPaywallSecure:"Paiement sécurisé par carte bancaire.",
+    payBtnRevolut:"Payer par carte bancaire",
     confirmNamePlaceholder:"Votre nom",
     confirmPhonePlaceholder:"Votre téléphone (WhatsApp)",
     confirmEmailPlaceholder:"Votre adresse email",
@@ -1175,7 +1175,7 @@ const LANG = {
     paywallPerk2:"Vendez ensuite autant d'articles que vous voulez, sans aucune commission",
     paywallPerk3:"Accès immédiat, valable à vie sur cet appareil",
     paywallPayBtn:"Payer",
-    paywallSecure:"Paiement sécurisé par carte bancaire via Revolut.",
+    paywallSecure:"Paiement sécurisé par carte bancaire.",
     marketRevolutOr:"ou", marketRevolutPayBtn:"Payer par carte (Revolut)",
     marketRevolutConfirmBtn:"J'ai terminé le paiement",
     marketRevolutConfirmHint:"Indiquez le montant ci-dessus (3,99 $) sur Revolut, puis cliquez ici une fois le paiement effectué pour débloquer l'accès.",
@@ -1184,8 +1184,8 @@ const LANG = {
     postItemBtn:"Déposer un article", marketEmpty:"Aucune annonce pour l'instant. Soyez le premier à publier !",
     formItemName:"Nom de l'article", formCategory:"Catégorie", formPrice:"Prix (€)",
     formPhone:"Téléphone", formLocation:"Localisation", formSubmit:"Publier l'annonce", formCancel:"Annuler",
-    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par carte via Revolut pour publier l'annonce.",
-    postPaymentText:"Réglez les frais de publication ci-dessous par carte via Revolut pour publier votre annonce.",
+    postFeeHint:"Frais de publication : {fee} € (5% du prix de vente), à régler par carte pour publier l'annonce.",
+    postPaymentText:"Réglez les frais de publication ci-dessous par carte pour publier votre annonce.",
     postPaymentConfirmBtn:"J'ai terminé le paiement",
     postPaymentHint:"Indiquez le montant ci-dessus sur Revolut, puis cliquez ici une fois le paiement effectué pour publier l'annonce.",
     paymentErrorGeneric:"Une erreur est survenue pendant le paiement. Merci de réessayer.",
@@ -1238,8 +1238,8 @@ const LANG = {
     hermesPaywallTitle:"Unlock the Hermès selection", hermesPaywallText:"A $20 per year access to browse the full Hermès bag selection and be notified of every new arrival.",
     hermesPaywallOnce:"per year",
     hermesPaywallPayBtn:"Pay by card",
-    hermesPaywallSecure:"Secure payment by card via Revolut.",
-    payBtnRevolut:"Pay by card (Revolut)",
+    hermesPaywallSecure:"Secure payment by card.",
+    payBtnRevolut:"Pay by card",
     confirmNamePlaceholder:"Your name",
     confirmPhonePlaceholder:"Your phone (WhatsApp)",
     confirmEmailPlaceholder:"Your email address",
@@ -1296,7 +1296,7 @@ const LANG = {
     paywallPerk2:"Then sell as many items as you want, commission-free",
     paywallPerk3:"Instant access, valid for life on this device",
     paywallPayBtn:"Pay",
-    paywallSecure:"Secure card payment via Revolut.",
+    paywallSecure:"Secure card payment.",
     marketRevolutOr:"or", marketRevolutPayBtn:"Pay by card (Revolut)",
     marketRevolutConfirmBtn:"I've completed the payment",
     marketRevolutConfirmHint:"Enter the amount above ($3.99) on Revolut, then click here once paid to unlock access.",
@@ -1305,8 +1305,8 @@ const LANG = {
     postItemBtn:"Post an item", marketEmpty:"No listings yet. Be the first to post!",
     formItemName:"Item name", formCategory:"Category", formPrice:"Price (€)",
     formPhone:"Phone", formLocation:"Location", formSubmit:"Publish listing", formCancel:"Cancel",
-    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable by card via Revolut to publish your listing.",
-    postPaymentText:"Pay the listing fee below by card via Revolut to publish your listing.",
+    postFeeHint:"Listing fee: {fee} € (5% of the sale price), payable by card to publish your listing.",
+    postPaymentText:"Pay the listing fee below by card to publish your listing.",
     postPaymentConfirmBtn:"I've completed the payment",
     postPaymentHint:"Enter the amount above on Revolut, then click here once paid to publish your listing.",
     paymentErrorGeneric:"Something went wrong during payment. Please try again.",
@@ -1359,8 +1359,8 @@ const LANG = {
     hermesPaywallTitle:"افتح تشكيلة هيرمس", hermesPaywallText:"اشتراك سنوي بـ 20 $ لتصفح كامل تشكيلة حقائب هيرمس والحصول على إشعار عند كل وصول جديد.",
     hermesPaywallOnce:"في السنة",
     hermesPaywallPayBtn:"ادفع بالبطاقة",
-    hermesPaywallSecure:"دفع آمن بالبطاقة عبر Revolut.",
-    payBtnRevolut:"ادفع بالبطاقة (Revolut)",
+    hermesPaywallSecure:"دفع آمن بالبطاقة المصرفية.",
+    payBtnRevolut:"ادفع بالبطاقة المصرفية",
     confirmNamePlaceholder:"اسمك",
     confirmPhonePlaceholder:"رقم هاتفك (واتساب)",
     confirmEmailPlaceholder:"بريدك الإلكتروني",
@@ -1417,7 +1417,7 @@ const LANG = {
     paywallPerk2:"ثم بع بقدر ما تريد من القطع، بدون أي عمولة",
     paywallPerk3:"وصول فوري، صالح مدى الحياة على هذا الجهاز",
     paywallPayBtn:"ادفع",
-    paywallSecure:"دفع آمن بالبطاقة عبر Revolut.",
+    paywallSecure:"دفع آمن بالبطاقة المصرفية.",
     marketRevolutOr:"أو", marketRevolutPayBtn:"ادفع بالبطاقة (Revolut)",
     marketRevolutConfirmBtn:"لقد أتممت الدفع",
     marketRevolutConfirmHint:"أدخل المبلغ أعلاه (3.99$) على Revolut، ثم اضغط هنا بعد إتمام الدفع لفتح الوصول.",
@@ -1426,8 +1426,8 @@ const LANG = {
     postItemBtn:"أضف إعلاناً", marketEmpty:"لا توجد إعلانات بعد. كن أول من ينشر!",
     formItemName:"اسم المنتج", formCategory:"الفئة", formPrice:"السعر (€)",
     formPhone:"رقم الهاتف", formLocation:"الموقع", formSubmit:"نشر الإعلان", formCancel:"إلغاء",
-    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع بالبطاقة عبر Revolut لنشر الإعلان.",
-    postPaymentText:"ادفع رسوم النشر أدناه بالبطاقة عبر Revolut لنشر إعلانك.",
+    postFeeHint:"رسوم النشر: {fee} € (5% من سعر البيع)، تُدفع بالبطاقة لنشر الإعلان.",
+    postPaymentText:"ادفع رسوم النشر أدناه بالبطاقة لنشر إعلانك.",
     postPaymentConfirmBtn:"لقد أتممت الدفع",
     postPaymentHint:"أدخل المبلغ أعلاه على Revolut، ثم اضغط هنا بعد إتمام الدفع لنشر الإعلان.",
     paymentErrorGeneric:"حدث خطأ أثناء الدفع. يرجى المحاولة مرة أخرى.",
@@ -2263,7 +2263,7 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
     closePostModal();
     return;
   }
-  // Frais de publication (5%) : paiement par carte via Revolut, confirme par
+  // Frais de publication (5%) : paiement par carte, confirme par
   // WhatsApp. L'annonce n'est publiee qu'au moment ou le patron valide la
   // demande depuis le dashboard (le brouillon est stocke avec la demande de
   // paiement sur Supabase, pas seulement en local chez le vendeur).
@@ -2529,8 +2529,8 @@ function consumeUrlFlag(name){
 function setupMarketPaywall(){
   document.getElementById('revolutMarketLink').href = REVOLUT_LINK;
 }
-/* ================= PAIEMENT (Revolut + confirmation WhatsApp + validation manuelle) =================
-   Pas d'API de paiement : le client paie sur Revolut, confirme par WhatsApp
+/* ================= PAIEMENT (lien manuel + confirmation WhatsApp + validation) =================
+   Pas d'API de paiement : le client paie via le lien, confirme par WhatsApp
    avec un message pre-rempli, puis le patron verifie avoir recu l'argent et
    valide la demande depuis le dashboard. Le client clique ensuite "Verifier
    mon acces" (ou ca se verifie tout seul au prochain chargement de la page). */
