@@ -19,8 +19,13 @@ const HERMES_ACCESS_PRICE = "20.00";
 const HERMES_ACCESS_DURATION_MS = 365 * 24 * 60 * 60 * 1000; // acces valable 1 an
 // Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
 const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
-// Lien de paiement (PayPal.me d'Amanda) - paiement manuel, confirme ensuite par WhatsApp
-const REVOLUT_LINK = "https://paypal.me/amme15w";
+// Liens de paiement Revolut Business (montant fixe, carte sans login requis)
+// - paiement manuel, confirme ensuite par WhatsApp puis valide dans le dashboard.
+const MARKET_PAYMENT_LINK = "https://checkout.revolut.com/pay/254a6c43-7e19-47d5-b8b1-ab240432a5a1";
+const HERMES_PAYMENT_LINK = "https://checkout.revolut.com/pay/254a6c43-7e19-47d5-b8b1-ab240432a5a1"; // TODO: remplacer par le lien 20$ une fois recu
+// Pas de lien a montant fixe pour les frais de publication (montant variable, 5%) :
+// on reutilise le lien PayPal.me en solution de repli, le client ajuste le montant lui-meme.
+const ITEM_PAYMENT_LINK = "https://paypal.me/amme15w";
 // Numero WhatsApp du patron (format international SANS le +, ex: 9613xxxxxx)
 // pour que le client envoie la confirmation de paiement avec un message pre-rempli.
 const PATRON_WHATSAPP = "96181666035";
@@ -2271,7 +2276,7 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
   pendingListingFee = fee;
   document.getElementById('postForm').classList.add('hidden');
   document.getElementById('postPaymentAmount').textContent = fee.toFixed(2) + ' $';
-  document.getElementById('revolutItemLink').href = REVOLUT_LINK;
+  document.getElementById('revolutItemLink').href = ITEM_PAYMENT_LINK;
   document.getElementById('itemConfirmForm').classList.remove('hidden');
   document.getElementById('itemPending').classList.add('hidden');
   document.getElementById('postPaymentStep').classList.remove('hidden');
@@ -2527,7 +2532,7 @@ function consumeUrlFlag(name){
   return true;
 }
 function setupMarketPaywall(){
-  document.getElementById('revolutMarketLink').href = REVOLUT_LINK;
+  document.getElementById('revolutMarketLink').href = MARKET_PAYMENT_LINK;
 }
 /* ================= PAIEMENT (lien manuel + confirmation WhatsApp + validation) =================
    Pas d'API de paiement : le client paie via le lien, confirme par WhatsApp
@@ -2579,7 +2584,7 @@ document.getElementById('marketCheckBtn').addEventListener('click', async ()=>{
 });
 /* ================= PAYWALL HERMES ================= */
 function setupHermesPaywall(){
-  document.getElementById('revolutHermesLink').href = REVOLUT_LINK;
+  document.getElementById('revolutHermesLink').href = HERMES_PAYMENT_LINK;
 }
 document.getElementById('hermesConfirmBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('hermesConfirmName').value.trim();
