@@ -280,8 +280,11 @@ async function saveRow(id, data){
 // maximum autorisé par la base de données et échouait silencieusement —
 // c'était la cause des sacs Hermès qui n'apparaissaient pas après ajout.
 // Chaque sauvegarde ne touche maintenant que la marque modifiée.
+// "hermesbags" est exclu ici : ses images (base64 inline) pesaient a elles
+// seules ~7 Mo sur ~21 Mo de catalogue total. Elle est deja chargee a part
+// au debut de init() et reinjectee dans loadFullCatalog() ci-dessous.
 async function fetchAllBrands(){
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&select=data`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&id=neq.brand:hermesbags&select=data`, {
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
   });
   if(!res.ok) throw new Error('read failed');
@@ -664,7 +667,12 @@ function renderMarket(){
 document.querySelector('button[data-additem="hermesbags"]').addEventListener('click', ()=> handleAddItem('hermesbags'));
 setupPasteZone(document.getElementById('newzone-hermesbags'), ()=>{});
 
-document.getElementById('searchBrand').addEventListener('input', (e)=>{ searchTerm = e.target.value.trim().toLowerCase(); renderAdmin(); });
+let searchDebounceTimer = null;
+document.getElementById('searchBrand').addEventListener('input', (e)=>{
+  const value = e.target.value;
+  clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(()=>{ searchTerm = value.trim().toLowerCase(); renderAdmin(); }, 250);
+});
 document.getElementById('filterUv').addEventListener('change', (e)=>{ filterUv = e.target.value; renderAdmin(); });
 document.getElementById('filterType').addEventListener('change', (e)=>{ filterType = e.target.value; renderAdmin(); });
 
@@ -827,8 +835,10 @@ async function renderPayments(){
 }
 async function loadFullCatalog(){
   try{
+    const prevHermes = findBrand('hermesbags');
     const [brands, marketData] = await Promise.all([fetchAllBrands(), fetchRow('marketplace')]);
     DATA = { brands };
+    if(prevHermes) DATA.brands.push(prevHermes);
     MARKET = (marketData && marketData.listings) || [];
     document.getElementById('catalogLoadError').classList.add('hidden');
     renderStats();

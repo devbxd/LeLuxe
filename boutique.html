@@ -1555,8 +1555,12 @@ function supaConfigured(){
 // la base de données et échouait silencieusement (articles ajoutés depuis
 // le dashboard invisibles sur le site). La lecture rassemble toutes les
 // lignes en {brands:[...]}, comme avant.
+// "hermesbags" est exclu ici : ses images (base64 inline) pesaient a elles
+// seules ~7 Mo sur ~21 Mo de catalogue total, retelecharges pour TOUS les
+// visiteurs meme ceux qui ne regardent jamais Hermes. Elle est chargee a
+// part, seulement quand on ouvre la section Hermes (voir ensureHermesLoaded).
 async function fetchCatalog(){
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&select=data`, {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=like.brand:*&id=neq.brand:hermesbags&select=data`, {
     headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
   });
   if(!res.ok) throw new Error('Erreur de lecture catalogue');
@@ -1854,7 +1858,7 @@ function renderStorefront(){
   if(state.view==='home') renderHome();
   else if(state.view==='plp') renderPLP();
   else if(marketUnlocked) renderMarket();
-  else if(hermesUnlocked) renderHermes();
+  else if(hermesUnlocked) ensureHermesLoaded().then(renderHermes);
   renderCounts();
   document.getElementById('topbarBackBtn').style.display = (state.view!=='home' && window.innerWidth<=900) ? 'flex' : 'none';
 }
@@ -1897,6 +1901,31 @@ function hermesCard(it){
 }
 function updateHermesBanner(){
   document.getElementById('hermesSection').classList.remove('hidden');
+}
+// Charge la marque Hermes (avec ses images) seulement la premiere fois
+// qu'on ouvre la section - voir le commentaire sur fetchCatalog() plus haut.
+let hermesLoadPromise = null;
+async function ensureHermesLoaded(){
+  if(findBrand('hermesbags')) return;
+  if(!hermesLoadPromise){
+    hermesLoadPromise = (async()=>{
+      const cached = await idbGet('hermesbags');
+      if(cached && lastKnownVersion!=null && cached.version===lastKnownVersion && cached.data){
+        DATA.brands.push(cached.data);
+        return;
+      }
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.brand:hermesbags&select=data`, {
+        headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+      });
+      if(!res.ok) throw new Error('Erreur de lecture Hermes');
+      const rows = await res.json();
+      if(rows[0]){
+        DATA.brands.push(rows[0].data);
+        idbSet('hermesbags', { version:lastKnownVersion, data:rows[0].data });
+      }
+    })();
+  }
+  try{ await hermesLoadPromise; } finally { hermesLoadPromise = null; }
 }
 function renderHermes(){
   const brand = findBrand('hermesbags');
