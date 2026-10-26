@@ -746,8 +746,9 @@ async function updatePaymentStatus(id, status){
 function paymentCardHtml(r){
   const waLink = r.phone ? `https://wa.me/${String(r.phone).replace(/[^0-9]/g,'')}` : null;
   const itemLabel = (r.product==='item_listing' && r.draft) ? ` — "${escapeHtml(r.draft.name)}"` : '';
-  const statusTag = r.status==='pending' ? '' :
-    r.status==='approved' ? '<span class="tag tag-paid">Validé ✓</span>' : '<span class="tag tag-rejected">Refusé</span>';
+  const statusTag = r.status==='approved' ? '<span class="tag tag-paid">Validé ✓</span>' :
+    r.status==='rejected' ? '<span class="tag tag-rejected">Refusé</span>' :
+    r.status==='revoked' ? '<span class="tag tag-rejected">Accès retiré</span>' : '';
   return `<div class="payment-card">
     <div>
       <div class="pname">${escapeHtml(r.name)}${itemLabel}</div>
@@ -759,6 +760,9 @@ function paymentCardHtml(r){
       ${r.status==='pending' ? `
         <button class="btn" data-approve="${r.id}">✓ Valider</button>
         <button class="btn btn-danger" data-reject="${r.id}">✕ Refuser</button>
+      ` : r.status==='approved' ? `
+        ${statusTag}
+        <button class="btn btn-danger" data-revoke="${r.id}">Retirer l'accès</button>
       ` : statusTag}
     </div>
   </div>`;
@@ -780,22 +784,39 @@ async function rejectPayment(r){
   await updatePaymentStatus(r.id, 'rejected');
   renderPayments();
 }
+async function revokePayment(r){
+  const msg = r.product === 'item_listing'
+    ? "Retirer cet accès et dépublier l'annonce ?"
+    : "Retirer l'accès de ce client ? Attention : si son appareil a deja débloqué l'accès (bouton \"Vérifier mon accès\" déjà cliqué), ça ne le lui retire pas automatiquement de son côté — ça empêche seulement une nouvelle vérification de réussir, ou republie/supprime l'annonce.";
+  if(!confirm(msg)) return;
+  await updatePaymentStatus(r.id, 'revoked');
+  if(r.product === 'item_listing' && r.draft){
+    MARKET = MARKET.filter(l=> l.id !== r.draft.id);
+    await saveMarket();
+    renderMarket();
+  }
+  renderStats();
+  renderPayments();
+}
 async function renderPayments(){
   const pendingEl = document.getElementById('paymentsPendingList');
   const historyEl = document.getElementById('paymentsHistoryList');
   try{
-    const [pending, approved, rejected] = await Promise.all([
-      fetchPaymentRequests('pending'), fetchPaymentRequests('approved'), fetchPaymentRequests('rejected')
+    const [pending, approved, rejected, revoked] = await Promise.all([
+      fetchPaymentRequests('pending'), fetchPaymentRequests('approved'), fetchPaymentRequests('rejected'), fetchPaymentRequests('revoked')
     ]);
     document.getElementById('statPending').textContent = pending.length;
     pendingEl.innerHTML = pending.length ? pending.map(paymentCardHtml).join('') : '<p class="hint">Aucune demande en attente.</p>';
-    const history = [...approved, ...rejected].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at)).slice(0,30);
+    const history = [...approved, ...rejected, ...revoked].sort((a,b)=> new Date(b.created_at)-new Date(a.created_at)).slice(0,30);
     historyEl.innerHTML = history.length ? history.map(paymentCardHtml).join('') : '<p class="hint">Aucun historique pour l\'instant.</p>';
     document.querySelectorAll('[data-approve]').forEach(btn=> btn.addEventListener('click', ()=>{
       const r = pending.find(p=>p.id===btn.dataset.approve); if(r) approvePayment(r);
     }));
     document.querySelectorAll('[data-reject]').forEach(btn=> btn.addEventListener('click', ()=>{
       const r = pending.find(p=>p.id===btn.dataset.reject); if(r) rejectPayment(r);
+    }));
+    document.querySelectorAll('[data-revoke]').forEach(btn=> btn.addEventListener('click', ()=>{
+      const r = approved.find(p=>p.id===btn.dataset.revoke); if(r) revokePayment(r);
     }));
   }catch(e){
     console.error('Chargement des paiements impossible:', e);
