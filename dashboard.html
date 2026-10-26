@@ -54,6 +54,9 @@ input,select{font:inherit;}
 .payment-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center;}
 .tag-pending{background:#fdf2d9; color:#8a6d1f;}
 .tag-rejected{background:#fdecea; color:#8a2a20;}
+.brand-pager{display:flex; align-items:center; justify-content:center; gap:14px; padding:12px 0; font-size:12px; color:#8a8478;}
+.brand-pager .btn{padding:7px 14px; font-size:11px;}
+.brand-pager .btn:disabled{opacity:.35; cursor:not-allowed;}
 .hint code{background:#f2f2f2; padding:2px 6px; border-radius:4px; font-size:11.5px;}
 
 .hermes-admin-card{background:#fff; border:1px solid #e5e2dc; border-radius:12px; padding:18px; margin-bottom:8px;}
@@ -407,6 +410,8 @@ function uvLabel(uv){ return uv==='luxe' ? 'Luxe' : uv==='magasins' ? 'Grands ma
 
 /* ================= RENDER ================= */
 let expandedBrand = null;
+let brandPage = 0;
+const BRAND_PAGE_SIZE = 100;
 let searchTerm = '';
 let filterUv = 'all';
 let filterType = 'all';
@@ -458,7 +463,23 @@ function renderBrandEditRow(b){
 function renderBrandBody(b, DEPTS){
   let html = renderBrandEditRow(b);
   if(b.external) return html;
-  html += b.items.map(it=>`
+
+  const total = b.items.length;
+  const totalPages = Math.max(1, Math.ceil(total / BRAND_PAGE_SIZE));
+  if(brandPage >= totalPages) brandPage = totalPages - 1;
+  if(brandPage < 0) brandPage = 0;
+  const start = brandPage * BRAND_PAGE_SIZE;
+  const pageItems = b.items.slice(start, start + BRAND_PAGE_SIZE);
+
+  if(totalPages > 1){
+    html += `<div class="brand-pager">
+      <button class="btn btn-outline" data-pagerprev ${brandPage===0?'disabled':''}>← Précédent</button>
+      <span>Page ${brandPage+1} / ${totalPages} (${total} articles)</span>
+      <button class="btn btn-outline" data-pagernext ${brandPage>=totalPages-1?'disabled':''}>Suivant →</button>
+    </div>`;
+  }
+
+  html += pageItems.map(it=>`
     <div class="item-row">
       <div class="paste-zone" tabindex="0" data-pastezone="${b.id}|${it.id}">${it.image?`<img src="${it.image}">`:'Coller image<br>(Ctrl+V)'}</div>
       <div class="item-fields">
@@ -475,6 +496,15 @@ function renderBrandBody(b, DEPTS){
       </div>
       <button class="item-del" data-delitem="${b.id}|${it.id}" title="Supprimer l'article">✕</button>
     </div>`).join('') || `<p class="empty-hint">Aucun article pour cette marque.</p>`;
+
+  if(totalPages > 1){
+    html += `<div class="brand-pager">
+      <button class="btn btn-outline" data-pagerprev ${brandPage===0?'disabled':''}>← Précédent</button>
+      <span>Page ${brandPage+1} / ${totalPages} (${total} articles)</span>
+      <button class="btn btn-outline" data-pagernext ${brandPage>=totalPages-1?'disabled':''}>Suivant →</button>
+    </div>`;
+  }
+
   html += `
     <div class="add-item-row">
       <div class="paste-zone" tabindex="0" id="newzone-${b.id}">Coller image<br>(Ctrl+V)</div>
@@ -580,6 +610,7 @@ function renderAdmin(){
     if(e.target.closest('[data-delbrand]')) return;
     const id = el.dataset.toggle;
     expandedBrand = expandedBrand===id ? null : id;
+    brandPage = 0;
     renderAdmin();
   }));
   document.querySelectorAll('[data-delbrand]').forEach(el=> el.addEventListener('click', async (e)=>{
@@ -630,6 +661,8 @@ function renderAdmin(){
     const [bId,iId] = el.dataset.pastezone.split('|');
     setupPasteZone(el, (dataUrl)=>{ const brand = findBrand(bId); brand.items.find(i=>i.id===iId).image = dataUrl; saveCatalog(brand); });
   });
+  document.querySelectorAll('[data-pagerprev]').forEach(el=> el.addEventListener('click', ()=>{ brandPage--; renderAdmin(); }));
+  document.querySelectorAll('[data-pagernext]').forEach(el=> el.addEventListener('click', ()=>{ brandPage++; renderAdmin(); }));
   // Uniquement les boutons "Ajouter" des marques dynamiquement regenerees
   // ci-dessus : celui d'Hermes (statique, en dehors de #adminBrandList) est
   // lie une seule fois plus bas, sinon chaque appel a renderAdmin()
