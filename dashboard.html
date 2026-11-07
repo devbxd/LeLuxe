@@ -151,17 +151,21 @@ input,select{font:inherit;}
     <div class="stat-chip"><b id="statItems">0</b><span>Articles</span></div>
     <div class="stat-chip"><b id="statExternal">0</b><span>Marques vitrine</span></div>
     <div class="stat-chip"><b id="statMarket">0</b><span>Annonces vide-dressing</span></div>
-    <div class="stat-chip"><b id="statPending">0</b><span>Paiements en attente</span></div>
+    <div class="stat-chip hidden"><b id="statPending">0</b><span>Paiements en attente</span></div>
   </div>
 
   <div class="tab-nav">
-    <button class="tab-btn active" data-tab="payments">Paiements</button>
-    <button class="tab-btn" data-tab="hermes">Hermès</button>
+    <!-- Onglet "Paiements" masque : tout est redevenu gratuit sur le site.
+         Pour le remettre, retirer "hidden" ici et sur le tab-panel juste
+         en dessous, et remettre "active"/retirer "hidden" sur ce bouton
+         au lieu de celui de Hermès. -->
+    <button class="tab-btn hidden" data-tab="payments">Paiements</button>
+    <button class="tab-btn active" data-tab="hermes">Hermès</button>
     <button class="tab-btn" data-tab="catalog">Catalogue</button>
     <button class="tab-btn" data-tab="market">Vide-dressing</button>
   </div>
 
-  <div class="tab-panel" data-panel="payments">
+  <div class="tab-panel hidden" data-panel="payments">
     <div class="section-title">Demandes de paiement en attente</div>
     <div id="paymentsPendingList"><p class="hint">Chargement…</p></div>
     <p class="hint">Vérifiez d'abord dans votre compte Revolut que l'argent est bien arrivé, puis cliquez "Valider" — ça débloque l'accès du client (ou publie son annonce) automatiquement. "Refuser" si le paiement n'arrive jamais.</p>
@@ -170,7 +174,7 @@ input,select{font:inherit;}
     <div id="paymentsHistoryList"><p class="hint">Chargement…</p></div>
   </div>
 
-  <div class="tab-panel hidden" data-panel="hermes">
+  <div class="tab-panel" data-panel="hermes">
     <div class="section-title">Hermès Bags (section manuelle)</div>
     <div class="hermes-admin-card">
       <div id="hermesItemsList"></div>
