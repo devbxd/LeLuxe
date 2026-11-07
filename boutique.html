@@ -1830,11 +1830,10 @@ document.getElementById('promoCarousel').addEventListener('mouseleave', ()=> res
 /* ================= RENDER ================= */
 function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinned); }
 function hasMarketAccess(){
-  return localStorage.getItem('armoire_market_paid_v1') === '1';
+  return true; // acces vide-dressing rendu gratuit pour tout le monde
 }
 function hasHermesAccess(){
-  const until = Number(localStorage.getItem('hermes_access_until') || 0);
-  return until > Date.now();
+  return true; // acces selection Hermes rendu gratuit pour tout le monde
 }
 function grantHermesAccess(durationMs){
   localStorage.setItem('hermes_access_until', String(Date.now() + durationMs));
@@ -2207,15 +2206,19 @@ function renderMarket(){
 }
 const LISTING_FEE_RATE = 0.05;
 function listingFeeFor(price){
-  if(isNaN(price) || price<=0) return 0;
-  return Math.max(0.5, Math.round(price * LISTING_FEE_RATE * 100) / 100);
+  return 0; // frais de publication rendus gratuits pour tout le monde
 }
 function updateFeeHint(){
   const price = parseFloat(document.getElementById('pfPrice').value);
   const fee = listingFeeFor(price);
-  const feeStr = fee.toFixed(2);
-  document.getElementById('feeHint').textContent = t('postFeeHint').replace('{fee}', feeStr);
-  document.getElementById('postSubmitBtn').textContent = fee>0 ? t('postSubmitPay').replace('{fee}', feeStr) : t('formSubmit');
+  if(fee > 0){
+    const feeStr = fee.toFixed(2);
+    document.getElementById('feeHint').textContent = t('postFeeHint').replace('{fee}', feeStr);
+    document.getElementById('postSubmitBtn').textContent = t('postSubmitPay').replace('{fee}', feeStr);
+  } else {
+    document.getElementById('feeHint').textContent = '';
+    document.getElementById('postSubmitBtn').textContent = t('formSubmit');
+  }
 }
 function openPostModal(){
   document.getElementById('postModal').classList.add('open');
