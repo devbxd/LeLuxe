@@ -1722,6 +1722,7 @@ async function initCatalog(){
   }catch(e){ state.market = []; }
   publishPendingListingIfPaid();
   document.getElementById('loadingScreen').classList.add('hidden');
+  await fetchWeeklyNews();
   computePromoSlides();
   renderPromo();
   renderHeroBanner();
@@ -1776,10 +1777,28 @@ setInterval(pollCatalog, 15000);
 let promoSlides = [];
 let promoIndex = 0;
 let promoTimer = null;
+// "LeLuxe Newspaper" : resume factuel de la semaine (nouveaux articles par
+// marque), genere automatiquement par le scraper (voir refresh-cursor-batch.js
+// cote scraper-server) - pas d'IA generative, pas de cle API necessaire.
+// Toujours en anglais, quelle que soit la langue du site.
+let weeklyNewsText = null;
+async function fetchWeeklyNews(){
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.weekly_news&select=data`, {
+      headers:{ apikey: SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
+    });
+    if(!res.ok) return;
+    const rows = await res.json();
+    if(rows[0] && rows[0].data && rows[0].data.text) weeklyNewsText = rows[0].data.text;
+  }catch(e){ /* best-effort, silencieux */ }
+}
 // vitrine publicitaire de la maison elle-même : pur texte, façon annonce
 // presse d'une maison de luxe (slogan + nom), sans photo produit.
 function computePromoSlides(){
   promoSlides = LANG[state.lang].promoSlides || LANG.fr.promoSlides;
+  if(weeklyNewsText){
+    promoSlides = [{ tag:'LeLuxe Newspaper', title:'This week in fashion', text:weeklyNewsText, cta:'Discover', action:'home' }, ...promoSlides];
+  }
   promoIndex = 0;
 }
 function promoAction(action){

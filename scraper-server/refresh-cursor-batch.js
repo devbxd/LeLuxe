@@ -76,7 +76,35 @@ async function setCursorIndex(index){
   });
 }
 
+// "LeLuxe Newspaper" : resume factuel de la semaine, base uniquement sur
+// les vraies donnees scrapees (pas d'IA generative, pas de cle API requise).
+// Affiche sur le site dans le bandeau "LE LUXE EXCLUSIVE".
+async function saveWeeklyNews(text){
+  await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal'
+    },
+    body: JSON.stringify({ id: 'weekly_news', data: { text, generatedAt: Date.now() } })
+  }).catch(()=>{});
+}
+function buildWeeklyNews(byBrand){
+  const entries = [...byBrand.values()].filter(e => e.added > 0).sort((a,b)=> b.added - a.added);
+  if(entries.length === 0) return null;
+  const sentences = entries.slice(0, 5).map(e=>{
+    const pieceWord = e.added > 1 ? 'new pieces' : 'new piece';
+    const examples = e.examples.length ? `, including ${e.examples.join(' and ')}` : '';
+    return `${e.brand} added ${e.added} ${pieceWord}${examples}`;
+  });
+  return `This week on Le Luxe: ${sentences.join('. ')}.`;
+}
+
 async function main(){
+  const runStartTime = Date.now();
+  const newItemsByBrand = new Map();
   let start = await getCursorIndex();
   if(!(start >= 0) || start >= BRAND_NAMES.length) start = 0;
 
@@ -112,6 +140,14 @@ async function main(){
       const ok = await saveBrand(brand, { skipVersionBump: true });
       log(`  -> scrapes:${(scraped || []).length} | ajoutes:${added} | mis a jour:${updated} | total:${before}->${brand.items.length} | sauvegarde:${ok}`);
       report.push({ brand: brandName, scraped: (scraped || []).length, added, updated, total: brand.items.length, saved: ok });
+
+      if(added > 0){
+        const newNames = brand.items.filter(it => it.addedAt >= runStartTime).map(it => it.name).filter(Boolean);
+        const prev = newItemsByBrand.get(brandName) || { brand: brandName, added: 0, examples: [] };
+        prev.added += added;
+        newNames.slice(0, 2).forEach(n => { if(prev.examples.length < 2) prev.examples.push(n); });
+        newItemsByBrand.set(brandName, prev);
+      }
     }catch(e){
       log(`  -> ERREUR: ${e.message}`);
       report.push({ brand: brandName, error: e.message });
@@ -128,6 +164,14 @@ async function main(){
   const totalUpdated = report.reduce((s, r) => s + (r.updated || 0), 0);
   const failed = report.filter(r => r.error);
   log(`Total: ${totalAdded} articles ajoutes, ${totalUpdated} mis a jour, ${failed.length} marques en erreur.`);
+
+  const newsText = buildWeeklyNews(newItemsByBrand);
+  if(newsText){
+    await saveWeeklyNews(newsText);
+    log(`LeLuxe Newspaper mis a jour: ${newsText}`);
+  } else {
+    log('LeLuxe Newspaper: aucun nouvel article cette semaine, pas de mise a jour.');
+  }
 }
 
 main().catch(e => { log('ERREUR FATALE: ' + e.message); process.exit(1); });
