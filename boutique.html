@@ -167,24 +167,48 @@ a{color:inherit;}
 .hermes-banner-text{font-size:12.5px; opacity:.92; max-width:46ch;}
 .hermes-banner-cta{flex-shrink:0; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; white-space:nowrap; border-bottom:1.5px solid rgba(255,255,255,.7); padding-bottom:2px;}
 
-/* ---------- BANDEAU NOEL (saisonnier, 1er nov - 7 jan) ---------- */
-.xmas-banner{display:flex; align-items:center; gap:24px; padding:18px 28px; border-radius:var(--radius-m); margin-bottom:24px; color:#fff; flex-wrap:wrap;
-  background:linear-gradient(120deg,#0b2a1f 0%,#123a2a 55%,#5c1f2a 150%);
-  border:1px solid rgba(201,168,106,.35);}
-.xmas-count{display:flex; gap:7px; flex-shrink:0;}
-.xmas-count div{min-width:46px; padding:7px 4px 6px; text-align:center; border-radius:8px; background:rgba(0,0,0,.22); border:1px solid rgba(201,168,106,.4);}
-.xmas-count b{display:block; font-size:18px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; color:#fff;}
-.xmas-count span{display:block; margin-top:3px; font-size:9px; letter-spacing:.04em; text-transform:uppercase; color:var(--gold-soft);}
-.xmas-banner-mid{flex:1; min-width:180px;}
-.xmas-banner-title{font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:#fff; margin-bottom:3px;}
-.xmas-banner-text{font-size:12px; opacity:.85;}
-.xmas-banner-cta{flex-shrink:0; background:var(--gold-soft); color:#1a1310; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; padding:11px 20px; border-radius:30px; white-space:nowrap; transition:background .15s ease;}
-.xmas-banner-cta:hover{background:#ddc088;}
-@media (max-width:640px){
-  .xmas-banner{padding:16px 18px;}
-  .xmas-count div{min-width:38px; padding:6px 3px 5px;}
-  .xmas-count b{font-size:15px;}
+/* ---------- SANTA HAT (logo, saisonnier) ---------- */
+.xmas-hat-wrap{position:relative; display:inline-block;}
+.xmas-season .xmas-hat-wrap::before{
+  content:''; position:absolute; left:50%; bottom:78%; width:1.9em; height:1.9em;
+  background:url(assets/season/santa-hat.webp) center/contain no-repeat;
+  transform:translateX(-62%) rotate(-18deg); pointer-events:none; z-index:2;
 }
+
+/* ---------- GUIRLANDE (topbar, saisonniere) ---------- */
+.xmas-garland{--h:30px; position:absolute; left:0; right:0; top:100%; height:var(--h); margin-top:calc(var(--h)*-.22); pointer-events:none; z-index:5;
+  background:url(assets/season/garland.webp) center top/auto 100% repeat-x; filter:drop-shadow(0 4px 5px rgba(0,0,0,.35));}
+.xmas-garland i{position:absolute; inset:0; background:url(assets/season/garland-glow-a.webp) center top/auto 100% repeat-x; animation:xmasTwinkle 2.6s ease-in-out infinite;}
+.xmas-garland i+i{background-image:url(assets/season/garland-glow-b.webp); animation-delay:-1.3s;}
+@keyframes xmasTwinkle{0%,100%{opacity:.25} 50%{opacity:1}}
+@media (max-width:640px){.xmas-garland{--h:20px;}}
+
+/* ---------- BANDEAU NOEL (saisonnier, 1er nov - 7 jan) ---------- */
+.xmas-banner{position:relative; overflow:hidden; border-radius:var(--radius-l); margin-bottom:28px; color:#fff;
+  background:linear-gradient(120deg,#0b2a1f 0%,#123a2a 45%,#6b2230 130%);
+  border:1px solid rgba(201,168,106,.4); box-shadow:0 20px 50px -24px rgba(11,42,31,.6);}
+.xmas-banner-stars{position:absolute; top:10px; left:0; right:0; text-align:center; color:var(--gold-soft); opacity:.5; font-size:13px; letter-spacing:.4em;}
+.xmas-banner-row{position:relative; display:flex; align-items:center; gap:28px; padding:30px 34px; flex-wrap:wrap;}
+.xmas-banner-tag{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:10px; font-weight:700;}
+.xmas-count{display:flex; gap:10px; flex-shrink:0;}
+.xmas-count div{min-width:62px; padding:11px 6px 8px; text-align:center; border-radius:10px; background:rgba(0,0,0,.25); border:1px solid rgba(201,168,106,.45);}
+.xmas-count b{display:block; font-size:26px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; color:#fff;}
+.xmas-count span{display:block; margin-top:4px; font-size:9.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--gold-soft);}
+.xmas-banner-mid{flex:1; min-width:200px;}
+.xmas-banner-title{font-family:'Cormorant Garamond',serif; font-size:clamp(26px,3.4vw,36px); font-weight:600; color:#fff; margin-bottom:5px;}
+.xmas-banner-text{font-size:13px; opacity:.85;}
+.xmas-banner-cta{flex-shrink:0; background:var(--gold-soft); color:#1a1310; font-size:12px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; padding:14px 26px; border-radius:30px; white-space:nowrap; transition:background .15s ease, transform .15s ease;}
+.xmas-banner-cta:hover{background:#ddc088; transform:translateY(-2px);}
+@media (max-width:640px){
+  .xmas-banner-row{padding:24px 20px; gap:16px;}
+  .xmas-count div{min-width:46px; padding:8px 3px 6px;}
+  .xmas-count b{font-size:19px;}
+  .xmas-banner-stars{font-size:10px;}
+}
+
+/* ---------- Touches de couleur festives (saisonnier) ---------- */
+.xmas-season .topbar{border-bottom-color:rgba(139,38,53,.3);}
+.xmas-season .p-new{background:#8b2635 !important;}
 .hermes-group{margin-bottom:26px;}
 .hermes-group:last-child{margin-bottom:0;}
 .hermes-group-title{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:var(--gold); margin-bottom:12px;}
@@ -620,7 +644,7 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
   <button class="icon-btn back-btn" id="topbarBackBtn" title="Retour" data-i18n-title="allBrandsBack">
     <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
   </button>
-  <div class="wordmark" id="logoBtn">Le Luxe</div>
+  <div class="wordmark" id="logoBtn"><span class="xmas-hat-wrap">L</span>e Luxe</div>
   <div class="searchbox">
     <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
     <input type="text" id="searchInput" placeholder="Rechercher une marque ou un article…" data-i18n-placeholder="searchPlaceholder">
@@ -644,6 +668,7 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
       <svg viewBox="0 0 24 24"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>
     </button>
   </div>
+  <div class="xmas-garland hidden" id="xmasGarland" aria-hidden="true"><i></i><i></i></div>
 </div>
 
 <div class="sidebar-scrim" id="sidebarScrim"></div>
@@ -676,10 +701,24 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
 
   <main class="main">
     <div id="viewHome">
+      <div class="xmas-banner hidden" id="xmasBanner">
+        <div class="xmas-banner-stars" aria-hidden="true">✦ ✧ ✦ ✧ ✦</div>
+        <div class="xmas-banner-row">
+          <div class="xmas-banner-left">
+            <div class="xmas-banner-tag">🎄 Holiday Countdown</div>
+            <div class="xmas-count" id="xmasCount"></div>
+          </div>
+          <div class="xmas-banner-mid">
+            <div class="xmas-banner-title" id="xmasHead">Christmas is coming</div>
+            <div class="xmas-banner-text" data-i18n="xmasBannerText"></div>
+          </div>
+          <button class="xmas-banner-cta" id="xmasCta" data-i18n="xmasBannerCta"></button>
+        </div>
+      </div>
       <div class="hero-banner hidden" id="heroBanner">
         <div class="hero-banner-scrim"></div>
         <div class="hero-banner-content">
-          <div class="hero-banner-word">Le Luxe</div>
+          <div class="hero-banner-word"><span class="xmas-hat-wrap">L</span>e Luxe</div>
           <h1 class="hero-banner-title" data-i18n="heroBannerTitle"></h1>
           <button class="hero-banner-cta" id="heroBannerCta" data-i18n="heroBannerCta"></button>
         </div>
@@ -697,16 +736,6 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
           <div class="newspaper-slide-dots" id="newspaperSlideDots"></div>
         </div>
         <div class="newspaper-grid" id="newspaperGrid"></div>
-      </div>
-      <div class="xmas-banner hidden" id="xmasBanner">
-        <div class="xmas-banner-left">
-          <div class="xmas-count" id="xmasCount"></div>
-        </div>
-        <div class="xmas-banner-mid">
-          <div class="xmas-banner-title" id="xmasHead">Christmas is coming</div>
-          <div class="xmas-banner-text" data-i18n="xmasBannerText"></div>
-        </div>
-        <button class="xmas-banner-cta" id="xmasCta" data-i18n="xmasBannerCta"></button>
       </div>
       <div class="sell-banner">
         <div>
@@ -856,7 +885,7 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
 <footer class="site-footer">
   <div class="site-footer-inner">
     <div class="footer-brand">
-      <div class="wordmark">Le Luxe</div>
+      <div class="wordmark"><span class="xmas-hat-wrap">L</span>e Luxe</div>
       <p data-i18n="footerBrandDesc">Une sélection de maisons de luxe et d'enseignes accessibles, réunies en un seul endroit.</p>
     </div>
     <div class="footer-cols">
@@ -1921,7 +1950,9 @@ function initXmasBanner(){
   const forced = new URLSearchParams(location.search).get('xmas');
   const now = new Date();
   if(forced==='off' || (forced!=='on' && !isXmasSeason(now))) return;
+  document.documentElement.classList.add('xmas-season');
   document.getElementById('xmasBanner').classList.remove('hidden');
+  document.getElementById('xmasGarland').classList.remove('hidden');
   const newYear = now.getMonth()===0 ? now.getFullYear() : now.getFullYear()+1;
   function xmasMoment(){
     const at = new Date(), xmas = new Date(newYear-1,11,25), xmasEnd = new Date(newYear-1,11,26), ny = new Date(newYear,0,1);
