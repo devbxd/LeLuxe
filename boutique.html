@@ -14,20 +14,12 @@
 <script>
 const SUPABASE_URL = "https://tyrvocpneofqbbcntmyq.supabase.co";
 const SUPABASE_KEY = "sb_publishable_HJUwd63ym-pG91fhAGgVEQ_m3h1QH44";
-const MARKET_ACCESS_PRICE = "3.99";
 const HERMES_ACCESS_PRICE = "20.00";
 const HERMES_ACCESS_DURATION_MS = 365 * 24 * 60 * 60 * 1000; // acces valable 1 an
 // Le patron : accede a la selection Hermes sans payer (c'est lui qui ajoute les sacs)
 const HERMES_ADMIN_EMAIL = "eli1onaddour@gmail.com";
-// Liens de paiement Revolut Business (montant fixe, carte sans login requis)
-// - paiement manuel, confirme ensuite par WhatsApp puis valide dans le dashboard.
-const MARKET_PAYMENT_LINK = "https://checkout.revolut.com/pay/f9b5db4b-660a-42a9-9b9f-8fdb098958f5";
-const HERMES_PAYMENT_LINK = "https://checkout.revolut.com/pay/4e29087e-d3b7-48e1-a1c1-0e235019bc2c";
-// Pas de lien a montant fixe pour les frais de publication (montant variable, 5%) :
-// on reutilise le lien PayPal.me en solution de repli, le client ajuste le montant lui-meme.
-const ITEM_PAYMENT_LINK = "https://paypal.me/amme15w";
 // Numero WhatsApp du patron (format international SANS le +, ex: 9613xxxxxx)
-// pour que le client envoie la confirmation de paiement avec un message pre-rempli.
+// pour que le client envoie la confirmation de paiement (QR Whish Money) avec un message pre-rempli.
 const PATRON_WHATSAPP = "96181666035";
 </script>
 <style>
@@ -344,6 +336,7 @@ a{color:inherit;}
 .paywall-secure{margin-top:16px; font-size:11px; color:var(--faint); letter-spacing:.02em;}
 .paywall-or{text-align:center; font-size:11px; color:var(--faint); letter-spacing:.04em; text-transform:uppercase; margin:14px 0; position:relative;}
 .payment-confirm{margin-top:16px; padding-top:16px; border-top:1px solid var(--line);}
+.whish-qr-img{display:block; width:180px; height:180px; margin:4px auto 14px; border-radius:12px; border:1px solid var(--line);}
 a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
 .hermes-gate-btn.hidden{display:none;}
 #revolutMarketConfirm, #revolutHermesConfirm{width:100%; display:flex; align-items:center; justify-content:center; margin-top:10px;}
@@ -720,10 +713,8 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
               <span class="paywall-amount">20&nbsp;$</span>
               <span class="paywall-once" data-i18n="hermesPaywallOnce"></span>
             </div>
-            <a id="revolutHermesLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              <span data-i18n="payBtnRevolut"></span>
-            </a>
+            <img src="assets/whish-qr-hermes.jpg" alt="Whish Money QR code" class="whish-qr-img">
+            <p class="paywall-text" data-i18n="hermesQrInstructions"></p>
             <div id="hermesConfirmForm" class="payment-confirm">
               <input type="text" id="hermesConfirmName" class="hermes-gate-input" data-i18n-placeholder="confirmNamePlaceholder" style="margin-bottom:8px;">
               <input type="tel" id="hermesConfirmPhone" class="hermes-gate-input" data-i18n-placeholder="confirmPhonePlaceholder" style="margin-bottom:8px;">
@@ -769,32 +760,14 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
       <div class="paywall-wrap">
         <div class="paywall-card">
           <div class="paywall-eyebrow" data-i18n="paywallEyebrow">Vide-dressing</div>
-          <h1 class="paywall-title" data-i18n="paywallTitle"></h1>
-          <p class="paywall-text" data-i18n="paywallText"></p>
-          <div class="paywall-price">
-            <span class="paywall-amount">3,99&nbsp;$</span>
-            <span class="paywall-once" data-i18n="paywallOnce"></span>
-          </div>
-          <ul class="paywall-perks">
-            <li data-i18n="paywallPerk1"></li>
-            <li data-i18n="paywallPerk2"></li>
-            <li data-i18n="paywallPerk3"></li>
-          </ul>
-          <a id="revolutMarketLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-            <span data-i18n="payBtnRevolut"></span>
-          </a>
-          <div id="marketConfirmForm" class="payment-confirm">
-            <input type="text" id="marketConfirmName" class="hermes-gate-input" data-i18n-placeholder="confirmNamePlaceholder" style="margin-bottom:8px; width:100%;">
-            <input type="email" id="marketPaywallEmail" class="hermes-gate-input" required data-i18n-placeholder="marketPaywallEmailPlaceholder" style="margin-bottom:8px; width:100%;">
-            <input type="tel" id="marketConfirmPhone" class="hermes-gate-input" data-i18n-placeholder="confirmPhonePlaceholder" style="margin-bottom:8px; width:100%;">
-            <button type="button" id="marketConfirmBtn" class="hermes-gate-btn" style="width:100%;" data-i18n="confirmWhatsappBtn"></button>
-          </div>
-          <div id="marketPending" class="hidden">
-            <p class="paywall-text" data-i18n="confirmPendingText"></p>
-            <button type="button" id="marketCheckBtn" class="hermes-gate-btn" style="width:100%;" data-i18n="confirmCheckBtn"></button>
-          </div>
-          <p class="paywall-secure" data-i18n="paywallSecure"></p>
+          <h1 class="paywall-title" data-i18n="marketGateTitle"></h1>
+          <p class="paywall-text" data-i18n="marketGateText"></p>
+          <form id="marketGateForm" class="hermes-gate-form">
+            <input type="email" id="marketGateEmail" class="hermes-gate-input" required data-i18n-placeholder="marketGateEmailPlaceholder">
+            <button type="submit" class="hermes-gate-btn" data-i18n="marketGateSubmit"></button>
+          </form>
+          <p class="hermes-gate-error hidden" id="marketGateError" data-i18n="hermesGateInvalid"></p>
+          <p class="paywall-secure" data-i18n="marketGateSecure"></p>
         </div>
       </div>
     </div>
@@ -937,22 +910,6 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
       <div class="fee-hint" id="feeHint"></div>
       <button type="submit" class="add-bag-btn" id="postSubmitBtn" data-i18n="formSubmit">Publier l'annonce</button>
     </form>
-    <div id="postPaymentStep" class="hidden">
-      <p class="paywall-text" data-i18n="postPaymentText"></p>
-      <div class="paywall-price"><span class="paywall-amount" id="postPaymentAmount"></span></div>
-      <a id="revolutItemLink" href="#" target="_blank" rel="noopener" class="paywall-pay-btn">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        <span data-i18n="payBtnRevolut"></span>
-      </a>
-      <div id="itemConfirmForm" class="payment-confirm">
-        <input type="text" id="itemConfirmName" class="hermes-gate-input" data-i18n-placeholder="confirmNamePlaceholder" style="margin-bottom:8px; width:100%;">
-        <input type="email" id="itemConfirmEmail" class="hermes-gate-input" data-i18n-placeholder="confirmEmailPlaceholder" style="margin-bottom:8px; width:100%;">
-        <button type="button" id="itemConfirmBtn" class="hermes-gate-btn" style="width:100%;" data-i18n="confirmWhatsappBtn"></button>
-      </div>
-      <div id="itemPending" class="hidden">
-        <p class="paywall-text" data-i18n="confirmPendingItemText"></p>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -1105,12 +1062,16 @@ const LANG = {
     hermesGateEmailPlaceholder:"Votre adresse email", hermesGateSubmit:"Voir la sélection",
     hermesGateInvalid:"Merci d'indiquer une adresse email valide.",
     hermesGateSecure:"Votre email sert uniquement à vous prévenir des nouvelles arrivées Hermès.",
+    marketGateTitle:"Accédez au vide-dressing", marketGateText:"Laissez votre email pour déposer et acheter des pièces de luxe directement entre particuliers.",
+    marketGateEmailPlaceholder:"Votre adresse email", marketGateSubmit:"Accéder au vide-dressing",
+    marketGateSecure:"Votre email sert uniquement à vous contacter à propos du vide-dressing.",
     hermesGateSuccessTitle:"Email confirmé", hermesGateSuccessText:"Votre email a été validé — vous recevrez un message dès qu'un nouveau sac sera ajouté.",
     hermesGateSuccessCta:"Voir les sacs Hermès →",
     hermesPaywallTitle:"Débloquez la sélection Hermès", hermesPaywallText:"Un accès de 20 $ par an pour consulter en illimité toute la sélection de sacs Hermès et être averti(e) à chaque nouvelle arrivée.",
     hermesPaywallOnce:"par an",
     hermesPaywallPayBtn:"Payer par carte",
     hermesPaywallSecure:"Paiement sécurisé par carte bancaire.",
+    hermesQrInstructions:"Scannez ce QR code avec l'application Whish Money pour payer 20 $, puis indiquez votre nom et téléphone ci-dessous.",
     payBtnRevolut:"Payer par carte bancaire",
     confirmNamePlaceholder:"Votre nom",
     confirmPhonePlaceholder:"Votre téléphone (WhatsApp)",
@@ -1238,12 +1199,16 @@ const LANG = {
     hermesGateEmailPlaceholder:"Your email address", hermesGateSubmit:"See the selection",
     hermesGateInvalid:"Please enter a valid email address.",
     hermesGateSecure:"Your email is only used to notify you about new Hermès arrivals.",
+    marketGateTitle:"Unlock the marketplace", marketGateText:"Leave your email to list and buy luxury pieces directly between members.",
+    marketGateEmailPlaceholder:"Your email address", marketGateSubmit:"Enter the marketplace",
+    marketGateSecure:"Your email is only used to contact you about the marketplace.",
     hermesGateSuccessTitle:"Email confirmed", hermesGateSuccessText:"Your email has been validated — you'll get a message as soon as a new bag is added.",
     hermesGateSuccessCta:"Go to Hermès bags →",
     hermesPaywallTitle:"Unlock the Hermès selection", hermesPaywallText:"A $20 per year access to browse the full Hermès bag selection and be notified of every new arrival.",
     hermesPaywallOnce:"per year",
     hermesPaywallPayBtn:"Pay by card",
     hermesPaywallSecure:"Secure payment by card.",
+    hermesQrInstructions:"Scan this QR code with the Whish Money app to pay $20, then enter your name and phone below.",
     payBtnRevolut:"Pay by card",
     confirmNamePlaceholder:"Your name",
     confirmPhonePlaceholder:"Your phone (WhatsApp)",
@@ -1359,12 +1324,16 @@ const LANG = {
     hermesGateEmailPlaceholder:"بريدك الإلكتروني", hermesGateSubmit:"عرض التشكيلة",
     hermesGateInvalid:"يرجى إدخال بريد إلكتروني صالح.",
     hermesGateSecure:"يُستخدم بريدك الإلكتروني فقط لإعلامك بوصول قطع هيرمس الجديدة.",
+    marketGateTitle:"افتح قسم البيع", marketGateText:"اترك بريدك الإلكتروني لعرض وشراء قطع فاخرة مباشرة بين الأعضاء.",
+    marketGateEmailPlaceholder:"بريدك الإلكتروني", marketGateSubmit:"الدخول إلى السوق",
+    marketGateSecure:"يُستخدم بريدك الإلكتروني فقط للتواصل معك بخصوص السوق.",
     hermesGateSuccessTitle:"تم تأكيد البريد الإلكتروني", hermesGateSuccessText:"تم تأكيد بريدك الإلكتروني — ستصلك رسالة فور إضافة حقيبة جديدة.",
     hermesGateSuccessCta:"→ عرض حقائب هيرمس",
     hermesPaywallTitle:"افتح تشكيلة هيرمس", hermesPaywallText:"اشتراك سنوي بـ 20 $ لتصفح كامل تشكيلة حقائب هيرمس والحصول على إشعار عند كل وصول جديد.",
     hermesPaywallOnce:"في السنة",
     hermesPaywallPayBtn:"ادفع بالبطاقة",
     hermesPaywallSecure:"دفع آمن بالبطاقة المصرفية.",
+    hermesQrInstructions:"امسح رمز QR هذا باستخدام تطبيق Whish Money لدفع 20$، ثم أدخل اسمك ورقم هاتفك أدناه.",
     payBtnRevolut:"ادفع بالبطاقة المصرفية",
     confirmNamePlaceholder:"اسمك",
     confirmPhonePlaceholder:"رقم هاتفك (واتساب)",
@@ -1849,10 +1818,11 @@ document.getElementById('promoCarousel').addEventListener('mouseleave', ()=> res
 /* ================= RENDER ================= */
 function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinned); }
 function hasMarketAccess(){
-  return true; // acces vide-dressing rendu gratuit pour tout le monde
+  return !!localStorage.getItem('market_subscriber_email'); // gratuit, juste un email demande
 }
 function hasHermesAccess(){
-  return true; // acces selection Hermes rendu gratuit pour tout le monde
+  const until = Number(localStorage.getItem('hermes_access_until') || 0);
+  return until > Date.now(); // email obligatoire + paiement 20$ via Whish Money, valide par le patron
 }
 function grantHermesAccess(durationMs){
   localStorage.setItem('hermes_access_until', String(Date.now() + durationMs));
@@ -2243,9 +2213,7 @@ function openPostModal(){
   document.getElementById('postModal').classList.add('open');
   document.getElementById('postScrim').classList.add('open');
   document.getElementById('postForm').classList.remove('hidden');
-  document.getElementById('postPaymentStep').classList.add('hidden');
   document.getElementById('postForm').reset();
-  pendingListingDraft = null;
   updateFeeHint();
   pendingListingImages = [null, null, null, null];
   document.querySelectorAll('#photoDropGrid .photo-drop').forEach(zone=>{
@@ -2283,10 +2251,9 @@ document.getElementById('hermesGateForm').addEventListener('submit', (e)=>{
   }).catch(err=> console.error('Échec enregistrement email Hermès:', err));
   // Le patron n'a pas besoin de payer pour acceder a sa propre selection Hermes
   if(email.toLowerCase() === HERMES_ADMIN_EMAIL){
-    grantHermesAccess(HERMES_ACCESS_DURATION_MS * 50); // le patron : acces tres longue duree, sans payer
+    grantHermesAccess(HERMES_ACCESS_DURATION_MS * 50);
     document.getElementById('hermesGateSuccess').classList.remove('hidden');
   } else {
-    setupHermesPaywall();
     document.getElementById('hermesGatePayment').classList.remove('hidden');
   }
 });
@@ -2312,40 +2279,8 @@ document.getElementById('postForm').addEventListener('submit', async (e)=>{
     return;
   }
   const listing = { id: genId(), name, category, price, phone, location, images: pendingListingImages.slice(), createdAt: Date.now() };
-  const fee = listingFeeFor(price);
-
-  if(fee <= 0){
-    publishListing(listing);
-    closePostModal();
-    return;
-  }
-  // Frais de publication (5%) : paiement par carte, confirme par
-  // WhatsApp. L'annonce n'est publiee qu'au moment ou le patron valide la
-  // demande depuis le dashboard (le brouillon est stocke avec la demande de
-  // paiement sur Supabase, pas seulement en local chez le vendeur).
-  pendingListingDraft = listing;
-  pendingListingFee = fee;
-  document.getElementById('postForm').classList.add('hidden');
-  document.getElementById('postPaymentAmount').textContent = fee.toFixed(2) + ' $';
-  document.getElementById('revolutItemLink').href = ITEM_PAYMENT_LINK;
-  document.getElementById('itemConfirmForm').classList.remove('hidden');
-  document.getElementById('itemPending').classList.add('hidden');
-  document.getElementById('postPaymentStep').classList.remove('hidden');
-});
-let pendingListingDraft = null;
-let pendingListingFee = 0;
-document.getElementById('itemConfirmBtn').addEventListener('click', async ()=>{
-  const name = document.getElementById('itemConfirmName').value.trim();
-  const email = document.getElementById('itemConfirmEmail').value.trim();
-  if(!name || !email || !pendingListingDraft){ alert(t('confirmMissingFields')); return; }
-  await createPaymentRequest({
-    name, email, phone: pendingListingDraft.phone,
-    product:'item_listing', amount: pendingListingFee, draft: pendingListingDraft
-  });
-  window.open(waLinkPatron(`Hello, I just paid $${pendingListingFee.toFixed(2)} for the listing fee of "${pendingListingDraft.name}" on Le Luxe.\nName: ${name}\nEmail: ${email}\nPhone: ${pendingListingDraft.phone}\nPlease confirm and publish my listing from the dashboard.`), '_blank');
-  document.getElementById('itemConfirmForm').classList.add('hidden');
-  document.getElementById('itemPending').classList.remove('hidden');
-  pendingListingDraft = null;
+  publishListing(listing);
+  closePostModal();
 });
 function publishListing(listing){
   state.market.unshift(listing);
@@ -2570,26 +2505,11 @@ document.getElementById('checkoutBtn').addEventListener('click', ()=>{
   setTimeout(()=>{ renderCartBody(); document.getElementById('confirmMsg').classList.remove('show'); closeDrawer('cart'); }, 1800);
 });
 
-/* ================= PAYWALL VIDE-DRESSING ================= */
-function currentPageUrl(){
-  return window.location.origin + window.location.pathname;
-}
-function consumeUrlFlag(name){
-  const params = new URLSearchParams(window.location.search);
-  if(params.get(name) !== '1') return false;
-  params.delete(name);
-  const clean = window.location.pathname + (params.toString() ? '?'+params.toString() : '');
-  history.replaceState(null, '', clean);
-  return true;
-}
-function setupMarketPaywall(){
-  document.getElementById('revolutMarketLink').href = MARKET_PAYMENT_LINK;
-}
-/* ================= PAIEMENT (lien manuel + confirmation WhatsApp + validation) =================
-   Pas d'API de paiement : le client paie via le lien, confirme par WhatsApp
-   avec un message pre-rempli, puis le patron verifie avoir recu l'argent et
-   valide la demande depuis le dashboard. Le client clique ensuite "Verifier
-   mon acces" (ou ca se verifie tout seul au prochain chargement de la page). */
+/* ================= PAIEMENT HERMES (QR Whish Money + confirmation WhatsApp + validation) =================
+   Pas d'API de paiement : le client scanne le QR Whish Money pour payer,
+   confirme par WhatsApp avec un message pre-rempli, puis le patron verifie
+   avoir recu l'argent et valide la demande depuis le dashboard. Le client
+   clique ensuite "Verifier mon acces" pour debloquer. */
 function waLinkPatron(message){
   return `https://wa.me/${PATRON_WHATSAPP}?text=${encodeURIComponent(message)}`;
 }
@@ -2610,40 +2530,13 @@ async function checkPaymentApproved(email, product){
   const rows = await res.json();
   return rows.length > 0;
 }
-document.getElementById('marketConfirmBtn').addEventListener('click', async ()=>{
-  const name = document.getElementById('marketConfirmName').value.trim();
-  const email = document.getElementById('marketPaywallEmail').value.trim();
-  const phone = document.getElementById('marketConfirmPhone').value.trim();
-  if(!name || !email || !phone){ alert(t('confirmMissingFields')); return; }
-  localStorage.setItem('market_pending_email', email);
-  await createPaymentRequest({ name, email, phone, product:'vide_dressing', amount:MARKET_ACCESS_PRICE });
-  window.open(waLinkPatron(`Hello, I just paid $${MARKET_ACCESS_PRICE} for Vide-dressing access on Le Luxe.\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nPlease confirm and validate my access on the dashboard.`), '_blank');
-  document.getElementById('marketConfirmForm').classList.add('hidden');
-  document.getElementById('marketPending').classList.remove('hidden');
-});
-document.getElementById('marketCheckBtn').addEventListener('click', async ()=>{
-  const email = localStorage.getItem('market_pending_email') || document.getElementById('marketPaywallEmail').value.trim();
-  const approved = await checkPaymentApproved(email, 'vide_dressing');
-  if(approved){
-    localStorage.setItem('armoire_market_paid_v1', '1');
-    localStorage.removeItem('market_pending_email');
-    state.view = 'market';
-    renderStorefront();
-  } else {
-    alert(t('confirmNotYetApproved'));
-  }
-});
-/* ================= PAYWALL HERMES ================= */
-function setupHermesPaywall(){
-  document.getElementById('revolutHermesLink').href = HERMES_PAYMENT_LINK;
-}
 document.getElementById('hermesConfirmBtn').addEventListener('click', async ()=>{
   const name = document.getElementById('hermesConfirmName').value.trim();
   const email = localStorage.getItem('hermes_subscriber_email');
   const phone = document.getElementById('hermesConfirmPhone').value.trim();
   if(!name || !phone){ alert(t('confirmMissingFields')); return; }
   await createPaymentRequest({ name, email, phone, product:'hermes', amount:HERMES_ACCESS_PRICE });
-  window.open(waLinkPatron(`Hello, I just paid $${HERMES_ACCESS_PRICE} for Hermes selection access on Le Luxe.\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nPlease confirm and validate my access on the dashboard.`), '_blank');
+  window.open(waLinkPatron(`Hello, I just paid $${HERMES_ACCESS_PRICE} for Hermes selection access on Le Luxe via Whish Money.\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nPlease confirm and validate my access on the dashboard.`), '_blank');
   document.getElementById('hermesConfirmForm').classList.add('hidden');
   document.getElementById('hermesPending').classList.remove('hidden');
 });
@@ -2658,28 +2551,10 @@ document.getElementById('hermesCheckBtn').addEventListener('click', async ()=>{
     alert(t('confirmNotYetApproved'));
   }
 });
-// Le brouillon d'annonce (voir postForm submit) n'est publie qu'ici, au
-// retour du paiement du frais de publication (5% du prix) - appele apres
-// le chargement de state.market pour pouvoir l'inserer directement dedans.
-function publishPendingListingIfPaid(){
-  if(!consumeUrlFlag('item_paid')) return;
-  const draftRaw = localStorage.getItem('armoire_pending_listing');
-  localStorage.removeItem('armoire_pending_listing');
-  if(!draftRaw) return;
-  try{
-    const listing = JSON.parse(draftRaw);
-    state.market.unshift(listing);
-    lastPostedId = listing.id;
-    saveMarketplace();
-  }catch(e){}
-  state.view = 'market';
-}
 
 /* ================= INIT ================= */
 document.getElementById('footerYear').textContent = new Date().getFullYear();
 applyStaticI18n();
-setupMarketPaywall();
-setupHermesPaywall();
 initCatalog();
 window.addEventListener('scroll', ()=>{
   document.querySelector('.topbar').classList.toggle('scrolled', window.scrollY > 8);
