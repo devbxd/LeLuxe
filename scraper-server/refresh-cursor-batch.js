@@ -80,6 +80,17 @@ async function setCursorIndex(index){
 // les vraies donnees scrapees (pas d'IA generative, pas de cle API requise).
 // Affiche dans sa propre section sur le site, avec une photo par marque.
 async function saveWeeklyNews(items){
+  // Garde les "stories" editoriales (redigees a part, voir conversation
+  // avec le patron) deja presentes sur la ligne : on ne remplace que la
+  // partie "items" (nos propres articles scrapes, avec photo).
+  let stories = [];
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?id=eq.weekly_news&select=data`, {
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+    });
+    const rows = await res.json();
+    if(rows[0] && Array.isArray(rows[0].data.stories)) stories = rows[0].data.stories;
+  }catch(e){}
   await fetch(`${SUPABASE_URL}/rest/v1/catalog_store?on_conflict=id`, {
     method: 'POST',
     headers: {
@@ -88,7 +99,7 @@ async function saveWeeklyNews(items){
       'Content-Type': 'application/json',
       Prefer: 'resolution=merge-duplicates,return=minimal'
     },
-    body: JSON.stringify({ id: 'weekly_news', data: { items, generatedAt: Date.now() } })
+    body: JSON.stringify({ id: 'weekly_news', data: { items, stories, generatedAt: Date.now() } })
   }).catch(()=>{});
 }
 function buildWeeklyNews(byBrand){
