@@ -118,13 +118,34 @@ a{color:inherit;}
 .newspaper-card-brand{font-size:12.5px; font-weight:700; letter-spacing:.02em;}
 .newspaper-card-count{font-size:10.5px; color:var(--gold-soft); text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px;}
 .newspaper-card-name{font-size:11px; opacity:.65; line-height:1.4;}
-.newspaper-stories{display:grid; grid-template-columns:repeat(auto-fill, minmax(240px,1fr)); gap:18px; margin-bottom:20px;}
-.newspaper-story{border-left:2px solid var(--gold-soft); padding-left:14px;}
-.newspaper-story-cat{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:5px;}
-.newspaper-story-title{font-family:'Cormorant Garamond',serif; font-size:17px; font-weight:600; margin-bottom:6px; line-height:1.25;}
-.newspaper-story-body{font-size:12px; line-height:1.55; opacity:.75; margin-bottom:6px;}
-.newspaper-story-source{font-size:10.5px; opacity:.5; text-decoration:none;}
-a.newspaper-story-source:hover{opacity:.8;}
+.newspaper-slider{position:relative; direction:ltr; height:260px; border-radius:12px; overflow:hidden; margin-bottom:22px;}
+.newspaper-slide-track{display:flex; height:100%; transition:transform .5s cubic-bezier(.65,0,.35,1);}
+.newspaper-slide{flex:0 0 100%; height:100%; display:flex; align-items:center; gap:24px; padding:0 50px;}
+.newspaper-slide:nth-child(5n+1){background:linear-gradient(135deg,#1c1812,#2e2013);}
+.newspaper-slide:nth-child(5n+2){background:linear-gradient(135deg,#1c1214,#301619);}
+.newspaper-slide:nth-child(5n+3){background:linear-gradient(135deg,#121c16,#16241c);}
+.newspaper-slide:nth-child(5n+4){background:linear-gradient(135deg,#11161c,#12192a);}
+.newspaper-slide:nth-child(5n+5){background:linear-gradient(135deg,#1c1710,#241d10);}
+.newspaper-slide-logo{flex-shrink:0; width:76px; height:76px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; overflow:hidden;}
+.newspaper-slide-logo img{width:44px; height:44px; object-fit:contain;}
+.newspaper-slide-body{min-width:0;}
+.newspaper-slide-cat{font-size:10.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:8px;}
+.newspaper-slide-title{font-family:'Cormorant Garamond',serif; font-size:clamp(20px,2.6vw,28px); font-weight:600; line-height:1.2; margin-bottom:8px; color:#fff;}
+.newspaper-slide-text{font-size:12.5px; line-height:1.6; color:rgba(255,255,255,.75); margin-bottom:10px; max-width:560px;}
+.newspaper-slide-source{font-size:10.5px; color:rgba(255,255,255,.5); text-decoration:none;}
+.newspaper-slide-source:hover{color:rgba(255,255,255,.8);}
+.newspaper-arrow{position:absolute; top:50%; transform:translateY(-50%); z-index:2; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.9); display:flex; align-items:center; justify-content:center; font-size:17px; line-height:1; color:#111; box-shadow:0 2px 10px rgba(0,0,0,.2);}
+.newspaper-arrow:hover{background:#fff;}
+.newspaper-arrow.prev{left:14px;} .newspaper-arrow.next{right:14px;}
+.newspaper-slide-dots{position:absolute; bottom:12px; left:50%; transform:translateX(-50%); z-index:2; display:flex; gap:6px;}
+.newspaper-slide-dot{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.3); cursor:pointer;}
+.newspaper-slide-dot.active{background:var(--gold-soft); transform:scale(1.3);}
+@media (max-width:640px){
+  .newspaper-slider{height:320px;}
+  .newspaper-slide{flex-direction:column; align-items:flex-start; justify-content:center; padding:24px; gap:12px;}
+  .newspaper-slide-logo{width:56px; height:56px;}
+  .newspaper-slide-logo img{width:32px; height:32px;}
+}
 @media (max-width:640px){
   .newspaper-section{margin:-22px -16px 30px; border-radius:0; padding:22px 16px;}
   .newspaper-grid{grid-template-columns:repeat(auto-fill, minmax(140px,1fr)); gap:10px;}
@@ -145,6 +166,25 @@ a.newspaper-story-source:hover{opacity:.8;}
 .hermes-banner-title{font-family:'Cormorant Garamond',serif; font-size:22px; font-weight:600; margin-bottom:3px;}
 .hermes-banner-text{font-size:12.5px; opacity:.92; max-width:46ch;}
 .hermes-banner-cta{flex-shrink:0; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; font-weight:700; white-space:nowrap; border-bottom:1.5px solid rgba(255,255,255,.7); padding-bottom:2px;}
+
+/* ---------- BANDEAU NOEL (saisonnier, 1er nov - 7 jan) ---------- */
+.xmas-banner{display:flex; align-items:center; gap:24px; padding:18px 28px; border-radius:var(--radius-m); margin-bottom:24px; color:#fff; flex-wrap:wrap;
+  background:linear-gradient(120deg,#0b2a1f 0%,#123a2a 55%,#5c1f2a 150%);
+  border:1px solid rgba(201,168,106,.35);}
+.xmas-count{display:flex; gap:7px; flex-shrink:0;}
+.xmas-count div{min-width:46px; padding:7px 4px 6px; text-align:center; border-radius:8px; background:rgba(0,0,0,.22); border:1px solid rgba(201,168,106,.4);}
+.xmas-count b{display:block; font-size:18px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; color:#fff;}
+.xmas-count span{display:block; margin-top:3px; font-size:9px; letter-spacing:.04em; text-transform:uppercase; color:var(--gold-soft);}
+.xmas-banner-mid{flex:1; min-width:180px;}
+.xmas-banner-title{font-family:'Cormorant Garamond',serif; font-size:21px; font-weight:600; color:#fff; margin-bottom:3px;}
+.xmas-banner-text{font-size:12px; opacity:.85;}
+.xmas-banner-cta{flex-shrink:0; background:var(--gold-soft); color:#1a1310; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; padding:11px 20px; border-radius:30px; white-space:nowrap; transition:background .15s ease;}
+.xmas-banner-cta:hover{background:#ddc088;}
+@media (max-width:640px){
+  .xmas-banner{padding:16px 18px;}
+  .xmas-count div{min-width:38px; padding:6px 3px 5px;}
+  .xmas-count b{font-size:15px;}
+}
 .hermes-group{margin-bottom:26px;}
 .hermes-group:last-child{margin-bottom:0;}
 .hermes-group-title{font-family:'Cormorant Garamond',serif; font-size:16px; font-weight:600; color:var(--gold); margin-bottom:12px;}
@@ -650,8 +690,23 @@ a.paywall-pay-btn{background:var(--ink); color:#fff; text-decoration:none;}
           <span class="newspaper-date" id="newspaperDate"></span>
         </div>
         <h2 class="newspaper-headline" data-i18n="newspaperHeadline">This Week in Fashion</h2>
-        <div class="newspaper-stories hidden" id="newspaperStories"></div>
+        <div class="newspaper-slider hidden" id="newspaperSlider">
+          <div class="newspaper-slide-track" id="newspaperSlideTrack"></div>
+          <button class="newspaper-arrow prev" id="newspaperPrev" aria-label="Précédent">‹</button>
+          <button class="newspaper-arrow next" id="newspaperNext" aria-label="Suivant">›</button>
+          <div class="newspaper-slide-dots" id="newspaperSlideDots"></div>
+        </div>
         <div class="newspaper-grid" id="newspaperGrid"></div>
+      </div>
+      <div class="xmas-banner hidden" id="xmasBanner">
+        <div class="xmas-banner-left">
+          <div class="xmas-count" id="xmasCount"></div>
+        </div>
+        <div class="xmas-banner-mid">
+          <div class="xmas-banner-title" id="xmasHead">Christmas is coming</div>
+          <div class="xmas-banner-text" data-i18n="xmasBannerText"></div>
+        </div>
+        <button class="xmas-banner-cta" id="xmasCta" data-i18n="xmasBannerCta"></button>
       </div>
       <div class="sell-banner">
         <div>
@@ -1079,6 +1134,8 @@ const LANG = {
     hermesLockedText:"{count} autres sacs Hermès sont disponibles dans l'archive complète.",
     hermesUnlockBtn:"Débloquer l'archive complète — 20 $",
     newspaperHeadline:"This Week in Fashion",
+    xmasBannerText:"Découvrez notre sélection des fêtes et les dernières arrivées.",
+    xmasBannerCta:"Découvrir →",
     payBtnRevolut:"Payer par carte bancaire",
     confirmNamePlaceholder:"Votre nom",
     confirmPhonePlaceholder:"Votre téléphone (WhatsApp)",
@@ -1219,6 +1276,8 @@ const LANG = {
     hermesLockedText:"{count} more Hermès bags are available in the full archive.",
     hermesUnlockBtn:"Unlock the full archive — $20",
     newspaperHeadline:"This Week in Fashion",
+    xmasBannerText:"Discover our festive selection and the latest arrivals.",
+    xmasBannerCta:"Discover →",
     payBtnRevolut:"Pay by card",
     confirmNamePlaceholder:"Your name",
     confirmPhonePlaceholder:"Your phone (WhatsApp)",
@@ -1347,6 +1406,8 @@ const LANG = {
     hermesLockedText:"يتوفر {count} حقيبة هيرمس إضافية في الأرشيف الكامل.",
     hermesUnlockBtn:"افتح الأرشيف الكامل — 20$",
     newspaperHeadline:"أخبار الموضة هذا الأسبوع",
+    xmasBannerText:"اكتشفي تشكيلتنا الاحتفالية وأحدث الوصولات.",
+    xmasBannerCta:"اكتشف ←",
     payBtnRevolut:"ادفع بالبطاقة المصرفية",
     confirmNamePlaceholder:"اسمك",
     confirmPhonePlaceholder:"رقم هاتفك (واتساب)",
@@ -1777,17 +1838,10 @@ function renderNewspaper(){
   wrap.classList.remove('hidden');
   const locale = {fr:'fr-FR', en:'en-GB', ar:'ar-LB'}[state.lang] || 'en-GB';
   document.getElementById('newspaperDate').textContent = new Intl.DateTimeFormat(locale, {day:'numeric', month:'long', year:'numeric'}).format(new Date(weeklyNewsItems.generatedAt));
-  // Actus editoriales (texte sourcé, pas d'image tierce pour des raisons de
-  // droits d'auteur - meme principe que le bulletin envoye par mail).
-  const stories = weeklyNewsItems.stories || [];
-  document.getElementById('newspaperStories').innerHTML = stories.map(s => `
-    <div class="newspaper-story">
-      <div class="newspaper-story-cat">${escapeHtml(s.category||'')}</div>
-      <div class="newspaper-story-title">${escapeHtml(s.title)}</div>
-      <p class="newspaper-story-body">${escapeHtml(s.body)}</p>
-      ${s.sourceUrl ? `<a class="newspaper-story-source" href="${s.sourceUrl}" target="_blank" rel="noopener">Source: ${escapeHtml(s.source||'link')} →</a>` : (s.source ? `<div class="newspaper-story-source">Source: ${escapeHtml(s.source)}</div>` : '')}
-    </div>`).join('');
-  document.getElementById('newspaperStories').classList.toggle('hidden', stories.length===0);
+  // Actus editoriales : une story par slide. Le logo officiel de la marque
+  // sert de visuel (favicon du site officiel) - pas de vraie photo presse
+  // non verifiee, pour des raisons de droits d'auteur.
+  renderNewspaperSlides(weeklyNewsItems.stories || []);
   // Articles de notre catalogue (avec vraie photo, puisqu'on la controle).
   const items = weeklyNewsItems.items || [];
   document.getElementById('newspaperGrid').innerHTML = items.map(it => `
@@ -1803,6 +1857,100 @@ function renderNewspaper(){
     </div>`).join('');
   document.getElementById('newspaperGrid').classList.toggle('hidden', items.length===0);
 }
+/* ---- Carrousel des actus editoriales (une story par slide) ----
+   Chaque story peut fournir "image" (photo officielle verifiee - og:image
+   de l'article source, recupere une fois au moment de la redaction) et/ou
+   "logoDomain" (site officiel de la marque, utilise en repli via favicon -
+   toujours fiable, jamais une fausse photo). */
+let newsSlideIndex = 0;
+let newsSlideTimer = null;
+function renderNewspaperSlides(stories){
+  const wrap = document.getElementById('newspaperSlider');
+  if(!stories.length){ wrap.classList.add('hidden'); return; }
+  wrap.classList.remove('hidden');
+  newsSlideIndex = 0;
+  document.getElementById('newspaperSlideTrack').innerHTML = stories.map(s => `
+    <div class="newspaper-slide">
+      <div class="newspaper-slide-logo">
+        ${s.image
+          ? `<img src="${s.image}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.parentElement.innerHTML=${s.logoDomain ? `'<img src=&quot;https://www.google.com/s2/favicons?sz=128&domain_url=https://${s.logoDomain}&quot;>'` : "''"}">`
+          : (s.logoDomain ? `<img src="https://www.google.com/s2/favicons?sz=128&domain_url=https://${s.logoDomain}" alt="">` : '')}
+      </div>
+      <div class="newspaper-slide-body">
+        <div class="newspaper-slide-cat">${escapeHtml(s.category||'')}</div>
+        <div class="newspaper-slide-title">${escapeHtml(s.title)}</div>
+        <p class="newspaper-slide-text">${escapeHtml(s.body)}</p>
+        ${s.sourceUrl ? `<a class="newspaper-slide-source" href="${s.sourceUrl}" target="_blank" rel="noopener">Source: ${escapeHtml(s.source||'link')} →</a>` : ''}
+      </div>
+    </div>`).join('');
+  document.getElementById('newspaperSlideDots').innerHTML = stories.map((_,i)=> `<span class="newspaper-slide-dot" data-i="${i}"></span>`).join('');
+  document.querySelectorAll('.newspaper-slide-dot').forEach(el=> el.addEventListener('click', ()=> goToNewsSlide(parseInt(el.dataset.i))));
+  updateNewsSlideUI();
+  restartNewsSlideTimer();
+}
+function updateNewsSlideUI(){
+  document.getElementById('newspaperSlideTrack').style.transform = `translateX(-${newsSlideIndex*100}%)`;
+  document.querySelectorAll('.newspaper-slide-dot').forEach((d,i)=> d.classList.toggle('active', i===newsSlideIndex));
+}
+function goToNewsSlide(i){
+  const count = document.querySelectorAll('.newspaper-slide-dot').length;
+  if(!count) return;
+  newsSlideIndex = (i + count) % count;
+  updateNewsSlideUI();
+  restartNewsSlideTimer();
+}
+function restartNewsSlideTimer(){
+  clearInterval(newsSlideTimer);
+  const count = document.querySelectorAll('.newspaper-slide-dot').length;
+  if(count<2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  newsSlideTimer = setInterval(()=> goToNewsSlide(newsSlideIndex+1), 6000);
+}
+document.getElementById('newspaperPrev').addEventListener('click', ()=> goToNewsSlide(newsSlideIndex-1));
+document.getElementById('newspaperNext').addEventListener('click', ()=> goToNewsSlide(newsSlideIndex+1));
+document.getElementById('newspaperSlider').addEventListener('mouseenter', ()=> clearInterval(newsSlideTimer));
+document.getElementById('newspaperSlider').addEventListener('mouseleave', ()=> restartNewsSlideTimer());
+
+/* ================= BANDEAU NOEL ================= */
+// Actif automatiquement du 1er novembre au 7 janvier, puis disparait tout
+// seul - aucune action a faire chaque annee. Forcer avec ?xmas=on / ?xmas=off.
+function isXmasSeason(d){
+  const month = d.getMonth(), day = d.getDate();
+  return month===10 || month===11 || (month===0 && day<=7);
+}
+function initXmasBanner(){
+  const forced = new URLSearchParams(location.search).get('xmas');
+  const now = new Date();
+  if(forced==='off' || (forced!=='on' && !isXmasSeason(now))) return;
+  document.getElementById('xmasBanner').classList.remove('hidden');
+  const newYear = now.getMonth()===0 ? now.getFullYear() : now.getFullYear()+1;
+  function xmasMoment(){
+    const at = new Date(), xmas = new Date(newYear-1,11,25), xmasEnd = new Date(newYear-1,11,26), ny = new Date(newYear,0,1);
+    if(at < xmas) return { head:'Christmas is coming', target:xmas };
+    if(at < xmasEnd) return { head:'Merry Christmas', target:ny };
+    if(at < ny) return { head: newYear+' is coming', target:ny };
+    return { head:'Happy New Year', target:null };
+  }
+  const box = document.getElementById('xmasCount');
+  const labels = ['Days','Hours','Min','Sec'];
+  box.innerHTML = labels.map(l=> `<div><b>00</b><span>${l}</span></div>`).join('');
+  const cells = box.querySelectorAll('b');
+  const pad = n => n<10 ? '0'+n : String(n);
+  function tick(){
+    const m = xmasMoment();
+    const headEl = document.getElementById('xmasHead');
+    if(headEl.textContent !== m.head) headEl.textContent = m.head;
+    if(!m.target){ box.parentElement.classList.add('hidden'); return; }
+    const left = Math.max(0, Math.floor((m.target - new Date())/1000));
+    const values = [Math.floor(left/86400), Math.floor(left/3600)%24, Math.floor(left/60)%60, left%60];
+    values.forEach((v,i)=>{ const t = pad(v); if(cells[i].textContent!==t) cells[i].textContent = t; });
+    setTimeout(tick, 1000 - Date.now()%1000);
+  }
+  tick();
+}
+document.getElementById('xmasCta').addEventListener('click', ()=>{
+  document.getElementById('homeGrid').scrollIntoView({behavior:'smooth', block:'start'});
+});
+initXmasBanner();
 
 /* ================= RENDER ================= */
 function brandsFor(uv){ return DATA.brands.filter(b=>b.universe===uv && !b.pinned); }
